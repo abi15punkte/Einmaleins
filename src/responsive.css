@@ -78,3 +78,81 @@
   .keypad-key { min-height: 50px; font-size: 1.3rem; border-radius: 12px; }
   .keyboard-hint { grid-column: 2; grid-row: 4; margin-bottom: 4px; }
 }
+
+/* Shared game scale: typography, header, card spacing and keypad all track the same unit. */
+.game-screen {
+  --key-size: clamp(56px, 8vh, 84px);
+  --ui-text: calc(var(--key-size) * 0.25);
+  --ui-small: calc(var(--key-size) * 0.18);
+  --ui-gap: calc(var(--key-size) * 0.18);
+}
+
+.game-screen .game-header {
+  gap: var(--ui-gap);
+}
+
+.game-screen .brand-mark {
+  width: calc(var(--key-size) * 0.64);
+  height: calc(var(--key-size) * 0.64);
+  min-width: calc(var(--key-size) * 0.64);
+  border-radius: calc(var(--key-size) * 0.18);
+  font-size: calc(var(--key-size) * 0.38);
+}
+
+.game-screen .brand-block { gap: calc(var(--key-size) * 0.16); }
+.game-screen .eyebrow { font-size: calc(var(--key-size) * 0.28); }
+.game-screen .round { font-size: var(--ui-small); }
+.game-screen .header-stats { gap: calc(var(--key-size) * 0.12); }
+.game-screen .stat-card {
+  min-width: calc(var(--key-size) * 1.22);
+  padding: calc(var(--key-size) * 0.12) calc(var(--key-size) * 0.18);
+  border-radius: calc(var(--key-size) * 0.18);
+}
+.game-screen .stat-label { font-size: calc(var(--key-size) * 0.14); }
+.game-screen .stat-card strong { font-size: calc(var(--key-size) * 0.29); }
+.game-screen .progress-track { height: calc(var(--key-size) * 0.055); }
+.game-screen .task-caption { font-size: var(--ui-small); }
+.game-screen .task-equation {
+  font-size: calc(var(--key-size) * 1.22);
+  gap: calc(var(--key-size) * 0.2);
+}
+.game-screen .answer-box { border-bottom-width: calc(var(--key-size) * 0.06); }
+.game-screen .feedback { font-size: calc(var(--key-size) * 0.24); }
+.game-screen .streak { font-size: calc(var(--key-size) * 0.19); }
+.game-screen .keyboard-hint { font-size: calc(var(--key-size) * 0.17); }
+.game-screen .keypad { gap: calc(var(--key-size) * 0.12); }
+.game-screen .keypad-key {
+  min-height: var(--key-size);
+  height: var(--key-size);
+  border-radius: calc(var(--key-size) * 0.2);
+  font-size: calc(var(--key-size) * 0.36);
+}
+
+@media (orientation: portrait) {
+  .game-screen { --key-size: clamp(58px, 8vw, 84px); }
+
+  .game-screen .task-card {
+    min-height: calc(var(--key-size) * 5.4);
+    padding: calc(var(--key-size) * 0.58) calc(var(--key-size) * 0.48);
+  }
+
+  .game-screen .game-content { padding: calc(var(--key-size) * 0.35) 0 calc(var(--key-size) * 0.25); }
+}
+
+@media (orientation: landscape) {
+  .game-screen { --key-size: clamp(54px, 8vh, 84px); }
+
+  .game-screen .task-card {
+    height: min(calc(var(--key-size) * 6.1), 60dvh);
+    min-height: min(calc(var(--key-size) * 5.2), 60dvh);
+    align-self: center;
+  }
+
+  .game-screen .game-content { padding-top: calc(var(--key-size) * 0.25); }
+}
+
+/* Very short landscape screens keep the same scale relationship without overflowing. */
+@media (orientation: landscape) and (max-height: 600px) {
+  .game-screen { --key-size: clamp(50px, 7.4vh, 70px); }
+  .game-screen .task-card { height: min(calc(var(--key-size) * 5.7), 58dvh); }
+}
