@@ -1,6 +1,5 @@
 import {
-  createRoundOne,
-  createRoundTwo,
+  createPool,
   createRoundThree
 } from "./rounds";
 import { pointsForCorrectAnswer } from "./scoring";
