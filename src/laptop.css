@@ -1,14 +1,14 @@
-/* Laptop-specific sizing: dimensions are expressed directly against the viewport. */
-@media (min-width: 1000px) and (orientation: landscape) {
+/* Shared landscape sizing: applies whenever the viewport is wider than it is tall. */
+@media (orientation: landscape) {
   html, body {
     overflow: hidden;
   }
 
   .app-shell.game-screen {
-    width: 95vw !important;
+    width: 100vw !important;
     height: 100vh !important;
     min-height: 100vh !important;
-    margin: 0 auto !important;
+    margin: 0 !important;
     padding: 0 !important;
     display: grid !important;
     grid-template-columns: 45vw 45vw !important;
@@ -21,7 +21,7 @@
   .game-screen .game-header {
     grid-column: 1 / -1 !important;
     grid-row: 1 !important;
-    width: 95vw !important;
+    width: 100vw !important;
     height: 15vh !important;
     min-height: 15vh !important;
     margin: 0 !important;
@@ -34,7 +34,7 @@
     position: absolute !important;
     left: 2.5vw !important;
     top: 2.5vh !important;
-    width: auto !important;
+    width: 45vw !important;
     height: 10vh !important;
     display: flex !important;
     align-items: center !important;
@@ -117,7 +117,7 @@
     width: 45vw !important;
     height: 70vh !important;
     min-height: 70vh !important;
-    margin: 0 !important;
+    margin: 10vh 0 0 !important;
     padding: 0 !important;
     align-self: start !important;
     display: grid !important;
@@ -131,7 +131,7 @@
     width: 100% !important;
     height: 100% !important;
     margin: 0 !important;
-    padding: 0 1.5vw !important;
+    padding: 0 !important;
     display: flex !important;
     align-items: center !important;
     justify-content: space-between !important;
@@ -140,16 +140,21 @@
     line-height: 1 !important;
     letter-spacing: 0.02em !important;
     white-space: nowrap !important;
+    position: relative !important;
   }
 
   .game-screen #round-caption {
     flex: 0 0 auto !important;
     text-align: left !important;
+    position: relative !important;
+    left: -5vw !important;
   }
 
   .game-screen #task-number-caption {
     flex: 0 0 auto !important;
     text-align: right !important;
+    position: relative !important;
+    right: -5vw !important;
   }
 
   .game-screen .task-equation {
@@ -185,7 +190,7 @@
   }
 
   .game-screen .feedback {
-    font-size: 5vh !important;
+    font-size: 8vh !important;
     line-height: 1 !important;
   }
 
@@ -204,7 +209,7 @@
     grid-row: 2 !important;
     width: 40vw !important;
     height: 74vh !important;
-    margin: 0 auto 10vh !important;
+    margin: 10vh auto 10vh !important;
     align-self: end !important;
     display: grid !important;
     grid-template-columns: repeat(3, 12vw) !important;
