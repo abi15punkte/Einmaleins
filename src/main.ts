@@ -5,6 +5,7 @@ import { multiplierForStreak } from "./game/scoring";
 import { applyManagedStudentIdentity, loadManagedStudentIdentity } from "./game/jamfIdentity";
 import { evaluateResult, loadPersonalHighscore, loadStudentIdentity, saveStudentIdentity, type HighscoreEvaluation, type StudentIdentity } from "./game/highscore";
 import { createLeaderboardClient, type LeaderboardClient } from "./game/leaderboard";
+import { queueHighscoreForSync, syncPendingHighscores } from "./game/highscoreSync";
 
 const TOTAL_TASKS = 136;
 type Screen = "start" | "game" | "result";
@@ -132,13 +133,26 @@ async function submitSchoolHighscore(): Promise<void> {
   if (button) button.disabled = true;
   if (status) status.textContent = "Eintragung wird geprüft …";
 
+  queueHighscoreForSync(resultEvaluation.personalBest);
+
   try {
-    await leaderboardClient.submit(resultEvaluation.personalBest);
-    if (status) status.textContent = "Erfolgreich in die schulweite Liste eingetragen.";
+    const result = await syncPendingHighscores(leaderboardClient);
+    if (result.synced > 0 && result.failed === 0) {
+      if (status) status.textContent = "Erfolgreich in die schulweite Liste eingetragen.";
+      return;
+    }
+    if (button) button.disabled = false;
+    if (status) status.textContent = "Gerade keine Internetverbindung. Dein persönlicher Highscore und die ausstehende Eintragung bleiben gespeichert.";
   } catch {
     if (button) button.disabled = false;
-    if (status) status.textContent = "Gerade keine Internetverbindung. Dein persönlicher Highscore bleibt trotzdem gespeichert.";
+    if (status) status.textContent = "Gerade keine Internetverbindung. Dein persönlicher Highscore und die ausstehende Eintragung bleiben gespeichert.";
   }
+}
+
+async function syncPendingIfPossible(): Promise<void> {
+  if (!leaderboardClient) return;
+  if (typeof navigator !== "undefined" && !navigator.onLine) return;
+  await syncPendingHighscores(leaderboardClient);
 }
 
 function startGame(): void {
@@ -152,4 +166,6 @@ function clearGameTimer(): void { if (gameTimer !== null) { window.clearInterval
 function formatTime(elapsedMs: number): string { const remainingMs = Math.max(0, GAME_DURATION_MS - elapsedMs); const totalSeconds = Math.ceil(remainingMs / 1000); const minutes = Math.floor(totalSeconds / 60); const seconds = totalSeconds % 60; return `${minutes}:${String(seconds).padStart(2, "0")}`; }
 
 window.addEventListener("keydown", handleKeyboardInput);
+window.addEventListener("online", () => { void syncPendingIfPossible(); });
+void syncPendingIfPossible();
 renderStartScreen();
