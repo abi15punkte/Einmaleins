@@ -68,6 +68,32 @@ describe("GameEngine", () => {
     expect(result.state.streak).toBe(0);
   });
 
+  it("überspringt eine falsch beantwortete Aufgabe und behält sie im Pool", () => {
+    const { clock } = createTestClock();
+    const game = new GameEngine(() => 0.5, clock);
+
+    const start = game.start();
+    const firstTask = start.currentTask!;
+
+    const afterSkip = game.skipCurrentTask();
+
+    expect(afterSkip.currentTask).not.toBeNull();
+    expect(afterSkip.currentTask).not.toEqual(firstTask);
+
+    expect(afterSkip.remainingTasks).toHaveLength(6);
+
+    expect(
+      afterSkip.remainingTasks.some(
+        (task) =>
+          task[0] === firstTask[0] &&
+          task[1] === firstTask[1]
+      )
+    ).toBe(true);
+
+    expect(afterSkip.completedTasks).toBe(0);
+    expect(afterSkip.taskElapsedMs).toBe(0);
+  });
+
   it("wechselt erst nach sechs korrekten Aufgaben zum nächsten Pool", () => {
     const { clock } = createTestClock();
     const game = new GameEngine(() => 0.5, clock);
