@@ -6,6 +6,7 @@ import {
   evaluateResult,
   loadPersonalHighscore,
   loadStudentIdentity,
+  saveStudentIdentity,
   type HighscoreEvaluation,
   type StudentIdentity
 } from "./game/highscore";
@@ -45,7 +46,7 @@ let gameTimer: number | null = null;
 let resultEvaluation: HighscoreEvaluation | null = null;
 let student: StudentIdentity = loadStudentIdentity();
 
-function renderStartScreen(): void {
+function renderStartScreen(profileMessage = ""): void {
   student = loadStudentIdentity();
   const personalHighscore = loadPersonalHighscore(student.studentId);
 
@@ -67,6 +68,22 @@ function renderStartScreen(): void {
           </div>
         ` : ""}
 
+        <details class="profile-panel">
+          <summary>Spielerprofil bearbeiten</summary>
+          <form id="profile-form" class="profile-form">
+            <label>
+              <span>Name</span>
+              <input id="student-name" name="name" type="text" maxlength="30" autocomplete="name" value="${escapeHtml(student.name)}" required />
+            </label>
+            <label>
+              <span>Klasse <small>(optional)</small></span>
+              <input id="student-class" name="className" type="text" maxlength="20" autocomplete="off" value="${escapeHtml(student.className ?? "")}" />
+            </label>
+            <button type="submit" class="profile-save">Profil speichern</button>
+            <p id="profile-status" class="profile-status" aria-live="polite">${escapeHtml(profileMessage)}</p>
+          </form>
+        </details>
+
         <div class="mode-actions" aria-label="Übungsmodus wählen">
           <button type="button" class="mode-card mode-card-primary" data-mode="highscore">
             <span class="mode-title">Üben mit Highscore</span>
@@ -80,6 +97,29 @@ function renderStartScreen(): void {
       </section>
     </main>
   `;
+
+  getRequiredElement<HTMLFormElement>("#profile-form").addEventListener("submit", (event) => {
+    event.preventDefault();
+
+    const nameInput = getRequiredElement<HTMLInputElement>("#student-name");
+    const classInput = getRequiredElement<HTMLInputElement>("#student-class");
+    const trimmedName = nameInput.value.trim();
+
+    if (!trimmedName) {
+      getRequiredElement<HTMLElement>("#profile-status").textContent = "Bitte gib einen Namen ein.";
+      nameInput.focus();
+      return;
+    }
+
+    saveStudentIdentity({
+      ...student,
+      name: trimmedName,
+      className: classInput.value.trim() || null
+    });
+
+    renderStartScreen("Profil gespeichert.");
+    document.querySelector<HTMLDetailsElement>(".profile-panel")?.setAttribute("open", "");
+  });
 
   document.querySelectorAll<HTMLButtonElement>("[data-mode]").forEach((button) => {
     button.addEventListener("click", () => {
@@ -136,6 +176,8 @@ function renderGameScreen(): void {
         </div>
       </section>
 
+      <p class="keyboard-hint">Tipp: Du kannst auch die Zifferntasten 0–9 verwenden.</p>
+
       <section class="keypad" aria-label="Zahlenfeld">
         <button type="button" class="keypad-key" data-digit="1">1</button>
         <button type="button" class="keypad-key" data-digit="2">2</button>
@@ -152,25 +194,40 @@ function renderGameScreen(): void {
   `;
 
   document.querySelectorAll<HTMLButtonElement>("[data-digit]").forEach((button) => {
-    button.addEventListener("click", () => {
-      const stateBefore = controller.getState();
-
-      if (stateBefore.input.status !== "waiting") {
-        return;
-      }
-
-      const digit = Number(button.dataset.digit);
-      const stateAfter = controller.pressDigit(digit);
-
-      renderGameState();
-
-      if (stateAfter.lastAnswer !== null && !stateAfter.lastAnswer.correct) {
-        scheduleNextTaskAfterWrongAnswer();
-      }
-    });
+    button.addEventListener("click", () => handleDigit(Number(button.dataset.digit)));
   });
 
   renderGameState();
+}
+
+function handleDigit(digit: number): void {
+  if (screen !== "game") {
+    return;
+  }
+
+  const stateBefore = controller.getState();
+
+  if (stateBefore.input.status !== "waiting") {
+    return;
+  }
+
+  const stateAfter = controller.pressDigit(digit);
+  renderGameState();
+
+  if (stateAfter.lastAnswer !== null && !stateAfter.lastAnswer.correct) {
+    scheduleNextTaskAfterWrongAnswer();
+  }
+}
+
+function handleKeyboardInput(event: KeyboardEvent): void {
+  if (screen !== "game" || event.repeat) {
+    return;
+  }
+
+  if (/^[0-9]$/.test(event.key)) {
+    event.preventDefault();
+    handleDigit(Number(event.key));
+  }
 }
 
 function renderGameState(): void {
@@ -349,4 +406,5 @@ function formatTime(elapsedMs: number): string {
   return `${minutes}:${String(seconds).padStart(2, "0")}`;
 }
 
+document.addEventListener("keydown", handleKeyboardInput);
 renderStartScreen();
