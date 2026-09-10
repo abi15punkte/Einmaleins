@@ -19,9 +19,9 @@ function getRequiredElement<T extends HTMLElement>(selector: string): T {
 }
 
 const app = getRequiredElement<HTMLDivElement>("#app");
-const engine = new GameEngine();
-const controller = new GameController(engine);
 
+let engine = new GameEngine();
+let controller = new GameController(engine);
 let screen: Screen = "start";
 let practiceMode: PracticeMode = "highscore";
 let wrongAnswerTimer: number | null = null;
@@ -122,9 +122,7 @@ function renderGameScreen(): void {
     </main>
   `;
 
-  const buttons = document.querySelectorAll<HTMLButtonElement>("[data-digit]");
-
-  buttons.forEach((button) => {
+  document.querySelectorAll<HTMLButtonElement>("[data-digit]").forEach((button) => {
     button.addEventListener("click", () => {
       const stateBefore = controller.getState();
 
@@ -262,11 +260,13 @@ function startGame(): void {
     wrongAnswerTimer = null;
   }
 
+  clearGameTimer();
+  engine = new GameEngine();
+  controller = new GameController(engine);
   screen = "game";
   controller.start();
   renderGameScreen();
 
-  clearGameTimer();
   gameTimer = window.setInterval(() => {
     const state = controller.tick();
     renderGameState();
