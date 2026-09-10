@@ -11,7 +11,7 @@
     <link rel="apple-touch-icon" href="./einmaleins-icon.svg" />
     <link rel="stylesheet" href="./src/responsive.css" />
     <link rel="stylesheet" href="./src/laptop.css" />
-    <link rel="stylesheet" href="./space-theme.css?v=19" />
+    <link rel="stylesheet" href="./space-theme.css?v=21" />
     <title>Einmaleins</title>
   </head>
 
@@ -22,7 +22,7 @@
       if ("serviceWorker" in navigator) {
         window.addEventListener("load", () => {
           navigator.serviceWorker
-            .register("./sw.js?v=19", { scope: "./", updateViaCache: "none" })
+            .register("./sw.js?v=21", { scope: "./", updateViaCache: "none" })
             .then((registration) => registration.update())
             .catch(() => {
               // The app remains fully usable when service workers are unavailable.
