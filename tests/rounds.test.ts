@@ -66,6 +66,36 @@ describe("Aufgabenpools und Durchläufe", () => {
     }
   });
 
+  it("notifies exactly when rounds 1, 2, and 3 are completed", () => {
+    const completedRounds: Array<{ round: number; completedTasks: number; phase: string; score: number }> = [];
+    const engine = new GameEngine(sequenceRandom, { now: () => 0 }, (round, state) => {
+      completedRounds.push({
+        round,
+        completedTasks: state.completedTasks,
+        phase: state.phase,
+        score: state.score
+      });
+    });
+
+    engine.start();
+    let safetyCounter = 0;
+
+    while (engine.getState().phase === "playing") {
+      const task = engine.getState().currentTask;
+      expect(task).not.toBeNull();
+      engine.answer((task as Task)[0] * (task as Task)[1]);
+      safetyCounter += 1;
+      expect(safetyCounter).toBeLessThanOrEqual(136);
+    }
+
+    expect(completedRounds.map((entry) => entry.round)).toEqual([1, 2, 3]);
+    expect(completedRounds.map((entry) => entry.completedTasks)).toEqual([36, 72, 136]);
+    expect(completedRounds.every((entry) => entry.phase === "playing")).toBe(true);
+    expect(completedRounds[0]?.score).toBeGreaterThanOrEqual(0);
+    expect(completedRounds[1]?.score).toBeGreaterThanOrEqual(completedRounds[0]?.score ?? 0);
+    expect(completedRounds[2]?.score).toBeGreaterThanOrEqual(completedRounds[1]?.score ?? 0);
+  });
+
   it("finishes the complete game after exactly 136 correct tasks", () => {
     const clock = { now: () => 0 };
     const engine = new GameEngine(sequenceRandom, clock);
