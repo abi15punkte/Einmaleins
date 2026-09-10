@@ -1,0 +1,223 @@
+:root {
+  --space-navy: #17345f;
+  --space-blue: #5cb8ef;
+  --space-cyan: #53c9dc;
+  --space-green: #74d56b;
+  --space-purple: #9b7bea;
+  --space-orange: #ffad63;
+  --space-yellow: #ffd85f;
+  --space-pink: #f47f91;
+  --space-sky: #e9f7ff;
+  --space-card: rgb(255 255 255 / 92%);
+  --space-shadow: 0 18px 48px rgb(49 111 168 / 12%);
+}
+
+html,
+body {
+  background: var(--space-sky) url("./space-background.svg") center / cover fixed no-repeat;
+}
+
+body {
+  color: var(--space-navy);
+}
+
+.game-screen {
+  isolation: isolate;
+  background: transparent;
+}
+
+.game-screen::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  pointer-events: none;
+  background: url("./space-background.svg") center / cover no-repeat;
+  opacity: 0.72;
+}
+
+.game-screen .game-header {
+  background: rgb(255 255 255 / 28%);
+  border-bottom: 1px solid rgb(92 184 239 / 18%);
+}
+
+.game-screen .brand-block .eyebrow {
+  color: var(--space-navy);
+}
+
+.game-screen .brand-mark {
+  background: linear-gradient(145deg, #284a80, #17345f);
+  box-shadow: 0 10px 24px rgb(23 52 95 / 20%);
+}
+
+.game-screen .header-stats .stat-card {
+  background: rgb(255 255 255 / 88%);
+  border-color: rgb(92 184 239 / 16%);
+  box-shadow: 0 10px 26px rgb(49 111 168 / 10%);
+}
+
+.game-screen .stat-label,
+.game-screen .task-caption {
+  color: #6780a5;
+}
+
+.game-screen .stat-card strong,
+.game-screen .task-equation {
+  color: var(--space-navy);
+}
+
+.game-screen .progress-track {
+  background: rgb(116 213 107 / 18%);
+}
+
+.game-screen .progress-bar {
+  background: linear-gradient(90deg, var(--space-blue), var(--space-cyan), var(--space-green));
+}
+
+.game-screen .task-card {
+  position: relative !important;
+  background: var(--space-card);
+  border-color: rgb(92 184 239 / 20%);
+  box-shadow: var(--space-shadow);
+}
+
+.game-screen .task-card::before {
+  content: "";
+  position: absolute;
+  left: clamp(-110px, -7vw, -55px);
+  bottom: clamp(-80px, -8vh, -42px);
+  width: clamp(170px, 23vw, 370px);
+  aspect-ratio: 520 / 620;
+  z-index: 8;
+  pointer-events: none;
+  background: url("./space-alien.svg") left bottom / contain no-repeat;
+  filter: drop-shadow(0 16px 22px rgb(57 117 170 / 18%));
+}
+
+.game-screen .task-caption,
+.game-screen .task-equation,
+.game-screen .feedback-area {
+  position: relative;
+  z-index: 2;
+}
+
+.game-screen .operator {
+  color: #7890b3;
+}
+
+.game-screen .answer-box {
+  border-bottom-color: var(--space-navy);
+}
+
+.game-screen .feedback-neutral {
+  color: #6780a5;
+}
+
+.game-screen .feedback-correct {
+  color: #269d67;
+}
+
+.game-screen .feedback-wrong {
+  color: #df6470;
+}
+
+.game-screen .keypad-key {
+  color: #ffffff;
+  border-color: rgb(255 255 255 / 44%);
+  box-shadow: 0 9px 18px rgb(51 93 145 / 14%);
+  text-shadow: 0 2px 5px rgb(23 52 95 / 14%);
+}
+
+.game-screen .keypad-key:nth-child(1) {
+  background: linear-gradient(145deg, #68c9f4, #52afe7);
+}
+
+.game-screen .keypad-key:nth-child(2) {
+  background: linear-gradient(145deg, #95df84, #69cb6c);
+}
+
+.game-screen .keypad-key:nth-child(3) {
+  background: linear-gradient(145deg, #ffe36f, #ffc65a);
+}
+
+.game-screen .keypad-key:nth-child(4) {
+  background: linear-gradient(145deg, #b79af3, #9877e6);
+}
+
+.game-screen .keypad-key:nth-child(5) {
+  background: linear-gradient(145deg, #fa969e, #ee737f);
+}
+
+.game-screen .keypad-key:nth-child(6) {
+  background: linear-gradient(145deg, #b79af3, #8f73dc);
+}
+
+.game-screen .keypad-key:nth-child(7) {
+  background: linear-gradient(145deg, #73bdf0, #5c9eea);
+}
+
+.game-screen .keypad-key:nth-child(8) {
+  background: linear-gradient(145deg, #62d7d8, #3dbfc9);
+}
+
+.game-screen .keypad-key:nth-child(9) {
+  background: linear-gradient(145deg, #ffc169, #ff964e);
+}
+
+.game-screen .keypad-key:nth-child(10) {
+  background: linear-gradient(145deg, #bfa0f2, #9a78e3);
+}
+
+.game-screen .keypad-key:hover {
+  filter: brightness(1.04) saturate(1.04);
+  box-shadow: 0 11px 22px rgb(51 93 145 / 16%);
+}
+
+.game-screen .keypad-key:active {
+  filter: brightness(0.98);
+}
+
+.welcome-card,
+.result-card {
+  background: rgb(255 255 255 / 91%);
+  border-color: rgb(92 184 239 / 18%);
+  box-shadow: 0 24px 60px rgb(49 111 168 / 12%);
+}
+
+.mode-card {
+  border-color: rgb(92 184 239 / 20%);
+  box-shadow: 0 8px 20px rgb(49 111 168 / 8%);
+}
+
+.mode-card-primary,
+.result-button,
+.profile-save {
+  background: linear-gradient(145deg, #284a80, #17345f);
+}
+
+.personal-best,
+.result-highscore {
+  background: rgb(235 247 255 / 90%);
+}
+
+.result-highscore.is-new {
+  background: rgb(236 251 237 / 92%);
+  color: #21885b;
+}
+
+.result-icon {
+  background: linear-gradient(145deg, #eef9ff, #e3f3ff);
+  color: var(--space-blue);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .game-screen .keypad-key {
+    transition: transform 90ms ease, filter 120ms ease, box-shadow 120ms ease;
+  }
+}
+
+@media (orientation: portrait) {
+  .game-screen .task-card::before {
+    display: none;
+  }
+}
