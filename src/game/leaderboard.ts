@@ -91,7 +91,6 @@ function validateLeaderboardEntry(value: unknown): LeaderboardEntry {
   const rank = entry.rank;
   const name = entry.name;
   const score = entry.score;
-  const className = entry.className;
 
   if (
     !Number.isInteger(rank) ||
@@ -106,7 +105,7 @@ function validateLeaderboardEntry(value: unknown): LeaderboardEntry {
   return {
     rank,
     name,
-    className: typeof className === "string" ? className : null,
+    className: typeof entry.className === "string" ? entry.className : null,
     score
   };
 }
