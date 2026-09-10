@@ -64,6 +64,20 @@ export class GameController {
     return this.getState();
   }
 
+  advanceAfterWrongAnswer(): GameControllerState {
+    if (
+      this.lastAnswer === null ||
+      this.lastAnswer.correct
+    ) {
+      return this.getState();
+    }
+
+    this.engine.skipCurrentTask();
+    this.input = createAnswerInput();
+
+    return this.getState();
+  }
+
   tick(): GameControllerState {
     this.engine.tick();
 
