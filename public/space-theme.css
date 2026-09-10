@@ -2,23 +2,23 @@
   --space-sky: #e9f7ff;
 }
 
-/* The original clean UI remains intact; only the selected space background is added. */
+/* Use the exact original artwork as the page background. */
 html,
 body {
-  background-color: #eef2f7 !important;
-  background-image: url("./space-background.svg") !important;
+  background-color: #e9f7ff !important;
+  background-image: url("./space-background-original.png") !important;
   background-position: center !important;
   background-size: cover !important;
   background-repeat: no-repeat !important;
   background-attachment: fixed !important;
 }
 
-/* Remove the redundant game-header brand button and title. */
+/* The original game layout remains otherwise unchanged. */
 .game-screen .brand-block {
   display: none !important;
 }
 
-/* Keep the selected colored keypad design, without any reflection/highlight layer. */
+/* Keep the selected colored keypad design, without reflection/highlight layers. */
 .game-screen .keypad-key {
   color: #ffffff;
   border-color: rgb(255 255 255 / 44%);
