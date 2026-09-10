@@ -52,4 +52,16 @@ describe("highscore storage", () => {
     expect(second.studentId).toBe(first.studentId);
     expect(second.name).toBe(first.name);
   });
+
+  it("normalizes and persists profile changes", () => {
+    saveStudentIdentity({
+      studentId: student.studentId,
+      name: "  Anna  ",
+      className: "  4b  "
+    });
+
+    const identity = loadStudentIdentity();
+    expect(identity.name).toBe("Anna");
+    expect(identity.className).toBe("4b");
+  });
 });
