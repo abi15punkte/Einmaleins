@@ -56,7 +56,9 @@ export class GameController {
     ) {
       this.lastAnswer = this.engine.answer(result.answer);
 
-      this.input = createAnswerInput();
+      if (this.lastAnswer.correct) {
+        this.input = createAnswerInput();
+      }
     }
 
     return this.getState();
