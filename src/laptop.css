@@ -1,0 +1,222 @@
+/* Laptop-specific sizing experiment: all dimensions are expressed directly against the viewport. */
+@media (min-width: 1000px) and (orientation: landscape) {
+  html, body {
+    overflow: hidden;
+  }
+
+  .app-shell.game-screen {
+    width: 95vw !important;
+    height: 100vh !important;
+    min-height: 100vh !important;
+    margin: 0 auto !important;
+    padding: 0 !important;
+    display: grid !important;
+    grid-template-columns: 45vw 45vw !important;
+    grid-template-rows: 25vh 75vh !important;
+    column-gap: 5vw !important;
+    row-gap: 0 !important;
+    position: relative !important;
+  }
+
+  .game-screen .game-header {
+    grid-column: 1 / -1 !important;
+    grid-row: 1 !important;
+    width: 95vw !important;
+    height: 25vh !important;
+    min-height: 25vh !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    position: relative !important;
+    display: block !important;
+  }
+
+  .game-screen .brand-block {
+    position: absolute !important;
+    left: 5vw !important;
+    top: 5vh !important;
+    height: 15vh !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 2vw !important;
+  }
+
+  .game-screen .brand-mark {
+    width: 15vw !important;
+    height: 15vh !important;
+    min-width: 15vw !important;
+    border-radius: 1.5vw !important;
+    font-size: 7vh !important;
+    flex: 0 0 auto !important;
+  }
+
+  .game-screen .brand-block .eyebrow {
+    font-size: 10vh !important;
+    line-height: 1 !important;
+    white-space: nowrap !important;
+  }
+
+  .game-screen .brand-block .round {
+    display: none !important;
+  }
+
+  .game-screen .header-stats {
+    position: absolute !important;
+    top: 5vh !important;
+    right: 5vw !important;
+    height: 15vh !important;
+    display: flex !important;
+    align-items: stretch !important;
+    gap: 2vw !important;
+  }
+
+  .game-screen .stat-card {
+    width: 30vw !important;
+    min-width: 30vw !important;
+    height: 15vh !important;
+    min-height: 15vh !important;
+    padding: 1vh 1.2vw !important;
+    border-radius: 1.5vw !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+  }
+
+  .game-screen .stat-label {
+    font-size: 3vh !important;
+    line-height: 1 !important;
+    margin: 0 !important;
+  }
+
+  .game-screen .stat-card strong {
+    font-size: 9vh !important;
+    line-height: 0.9 !important;
+    margin-top: 0.5vh !important;
+  }
+
+  .game-screen .progress-track {
+    position: absolute !important;
+    left: 2.5vw !important;
+    top: 25vh !important;
+    width: 90vw !important;
+    height: 0.6vh !important;
+    margin: 0 !important;
+  }
+
+  .game-screen .game-content {
+    display: contents !important;
+  }
+
+  .game-screen .task-card {
+    grid-column: 1 !important;
+    grid-row: 2 !important;
+    width: 45vw !important;
+    height: 70vh !important;
+    min-height: 70vh !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    align-self: start !important;
+    display: grid !important;
+    grid-template-rows: 20% 15% 30% 15% 20% !important;
+    border-radius: 2vw !important;
+    overflow: hidden !important;
+  }
+
+  .game-screen .task-caption {
+    grid-row: 1 !important;
+    width: 100% !important;
+    height: 100% !important;
+    margin: 0 !important;
+    padding: 0 2vw !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 2vw !important;
+    font-size: 5vh !important;
+    line-height: 1 !important;
+    letter-spacing: 0.02em !important;
+    white-space: nowrap !important;
+  }
+
+  .game-screen #round-caption {
+    flex: 0 0 auto !important;
+    text-align: left !important;
+  }
+
+  .game-screen #task-number-caption {
+    flex: 0 0 auto !important;
+    text-align: right !important;
+  }
+
+  .game-screen .task-equation {
+    grid-row: 3 !important;
+    width: 100% !important;
+    height: 100% !important;
+    margin: 0 !important;
+    padding: 0 1vw !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 1.4vw !important;
+    font-size: 20vh !important;
+    line-height: 1 !important;
+  }
+
+  .game-screen .answer-box {
+    border-bottom-width: 0.6vh !important;
+  }
+
+  .game-screen .feedback-area {
+    grid-row: 5 !important;
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 1.5vw !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 0.8vh !important;
+  }
+
+  .game-screen .feedback {
+    font-size: 10vh !important;
+    line-height: 1 !important;
+  }
+
+  .game-screen .streak {
+    font-size: 5vh !important;
+    line-height: 1 !important;
+    margin: 0 !important;
+  }
+
+  .game-screen .keyboard-hint {
+    display: none !important;
+  }
+
+  .game-screen .keypad {
+    grid-column: 2 !important;
+    grid-row: 2 !important;
+    width: 40vw !important;
+    height: 54vh !important;
+    margin: 0 auto 10vh !important;
+    align-self: end !important;
+    display: grid !important;
+    grid-template-columns: repeat(3, 12vw) !important;
+    grid-template-rows: repeat(4, 12vh) !important;
+    column-gap: 2vw !important;
+    row-gap: 2vh !important;
+  }
+
+  .game-screen .keypad-key {
+    width: 12vw !important;
+    min-width: 12vw !important;
+    height: 12vh !important;
+    min-height: 12vh !important;
+    max-height: 12vh !important;
+    padding: 0 !important;
+    border-radius: 1.5vw !important;
+    font-size: 9vh !important;
+    line-height: 1 !important;
+  }
+}
