@@ -1,4 +1,4 @@
-const CACHE_NAME = "einmaleins-v3";
+const CACHE_NAME = "einmaleins-v4";
 const APP_SHELL = ["./", "./index.html", "./manifest.webmanifest", "./einmaleins-icon.svg"];
 
 self.addEventListener("install", (event) => {
@@ -24,13 +24,31 @@ self.addEventListener("activate", (event) => {
 self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") return;
 
+  const requestUrl = new URL(event.request.url);
+  const isNavigation = event.request.mode === "navigate" || requestUrl.pathname.endsWith("/index.html");
+
+  if (isNavigation) {
+    event.respondWith(
+      fetch(event.request, { cache: "no-store" })
+        .then((response) => {
+          if (response.ok) {
+            const copy = response.clone();
+            void caches.open(CACHE_NAME).then((cache) => cache.put("./index.html", copy));
+          }
+          return response;
+        })
+        .catch(() => caches.match("./index.html"))
+    );
+    return;
+  }
+
   event.respondWith(
     caches.match(event.request).then((cached) => {
       if (cached) return cached;
 
       return fetch(event.request)
         .then((response) => {
-          if (response.ok && new URL(event.request.url).origin === self.location.origin) {
+          if (response.ok && requestUrl.origin === self.location.origin) {
             const copy = response.clone();
             void caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
           }
