@@ -57,6 +57,57 @@ describe("highscore sync", () => {
     expect(client.submit).toHaveBeenCalledWith(record);
   });
 
+  it("does not submit the same record again after a successful sync", async () => {
+    queuePendingSyncRecord(record, record.achievedAt);
+    const client: LeaderboardClient = {
+      submit: vi.fn().mockResolvedValue(undefined),
+      top: vi.fn().mockResolvedValue([])
+    };
+
+    await syncPendingHighscores(client);
+    const secondResult = await syncPendingHighscores(client);
+
+    expect(secondResult).toEqual({ attempted: 0, synced: 0, failed: 0 });
+    expect(client.submit).toHaveBeenCalledTimes(1);
+  });
+
+  it("keeps the higher queued score when a lower score arrives later", () => {
+    queuePendingSyncRecord(record, record.achievedAt);
+    queuePendingSyncRecord(
+      { ...record, score: 300, achievedAt: "2026-09-10T10:05:00.000Z" },
+      "2026-09-10T10:05:00.000Z"
+    );
+
+    const pending = loadPendingSyncRecords();
+    expect(pending).toHaveLength(1);
+    expect(pending[0]?.record.score).toBe(500);
+    expect(pending[0]?.record.achievedAt).toBe(record.achievedAt);
+  });
+
+  it("keeps a newer higher score when an older queued score is synchronized", async () => {
+    const lowerRecord = { ...record, score: 300, achievedAt: "2026-09-10T09:00:00.000Z" };
+    const higherRecord = { ...record, score: 600, achievedAt: "2026-09-10T10:00:00.000Z" };
+    queuePendingSyncRecord(lowerRecord, lowerRecord.achievedAt);
+
+    let releaseSubmit: (() => void) | null = null;
+    const client: LeaderboardClient = {
+      submit: vi.fn().mockImplementation(
+        () => new Promise<void>((resolve) => {
+          releaseSubmit = resolve;
+        })
+      ),
+      top: vi.fn().mockResolvedValue([])
+    };
+
+    const syncPromise = syncPendingHighscores(client);
+    queuePendingSyncRecord(higherRecord, higherRecord.achievedAt);
+    releaseSubmit?.();
+    await syncPromise;
+
+    expect(loadPendingSyncRecords()).toHaveLength(1);
+    expect(loadPendingSyncRecords()[0]?.record.score).toBe(600);
+  });
+
   it("keeps a failed synchronization queued for retry", async () => {
     queuePendingSyncRecord(record, record.achievedAt);
     const client: LeaderboardClient = {
