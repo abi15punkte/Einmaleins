@@ -114,10 +114,10 @@
   .game-screen .task-card {
     grid-column: 1 !important;
     grid-row: 2 !important;
-    width: 45vw !important;
+    width: 50vw !important;
     height: 75vh !important;
     min-height: 75vh !important;
-    margin: 5vh 0 0 0 !important;
+    margin: 5vh 0 0 -5vw !important;
     padding: 0 !important;
     align-self: start !important;
     display: grid !important;
@@ -216,7 +216,7 @@
     grid-template-rows: repeat(4, 12vh) !important;
     column-gap: 2vw !important;
     row-gap: 2vh !important;
-    transform: translate(5vw, 3vh) !important;
+    transform: translate(5vw, 0) !important;
   }
 
   .game-screen .keypad-key {
