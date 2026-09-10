@@ -156,3 +156,37 @@
   .game-screen { --key-size: clamp(50px, 7.4vh, 70px); }
   .game-screen .task-card { height: min(calc(var(--key-size) * 5.7), 58dvh); }
 }
+
+/* Explicitly protect the shared keypad-based sizing from the main stylesheet load order. */
+.game-screen { --key-size: clamp(56px, 8vh, 84px) !important; }
+.game-screen .brand-mark { width: calc(var(--key-size) * 0.64) !important; height: calc(var(--key-size) * 0.64) !important; min-width: calc(var(--key-size) * 0.64) !important; font-size: calc(var(--key-size) * 0.38) !important; }
+.game-screen .eyebrow { font-size: calc(var(--key-size) * 0.28) !important; }
+.game-screen .round { font-size: calc(var(--key-size) * 0.18) !important; }
+.game-screen .stat-label { font-size: calc(var(--key-size) * 0.14) !important; }
+.game-screen .stat-card strong { font-size: calc(var(--key-size) * 0.29) !important; }
+.game-screen .task-caption { font-size: calc(var(--key-size) * 0.18) !important; }
+.game-screen .task-equation { font-size: calc(var(--key-size) * 1.22) !important; gap: calc(var(--key-size) * 0.2) !important; }
+.game-screen .feedback { font-size: calc(var(--key-size) * 0.24) !important; }
+.game-screen .streak { font-size: calc(var(--key-size) * 0.19) !important; }
+.game-screen .keyboard-hint { font-size: calc(var(--key-size) * 0.17) !important; }
+.game-screen .keypad-key { min-height: var(--key-size) !important; height: var(--key-size) !important; font-size: calc(var(--key-size) * 0.36) !important; }
+.game-screen .task-card { padding: calc(var(--key-size) * 0.55) calc(var(--key-size) * 0.48) !important; }
+
+@media (orientation: portrait) {
+  .game-screen { --key-size: clamp(58px, 8vw, 84px) !important; }
+  .game-screen .task-card { min-height: calc(var(--key-size) * 5.4) !important; }
+}
+
+@media (orientation: landscape) {
+  .game-screen { --key-size: clamp(54px, 8vh, 84px) !important; }
+  .game-screen .task-card {
+    height: min(calc(var(--key-size) * 6.1), 60dvh) !important;
+    min-height: min(calc(var(--key-size) * 5.2), 60dvh) !important;
+    align-self: center !important;
+  }
+}
+
+@media (orientation: landscape) and (max-height: 600px) {
+  .game-screen { --key-size: clamp(50px, 7.4vh, 70px) !important; }
+  .game-screen .task-card { height: min(calc(var(--key-size) * 5.7), 58dvh) !important; }
+}
