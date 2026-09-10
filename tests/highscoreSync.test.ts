@@ -89,7 +89,7 @@ describe("highscore sync", () => {
     const higherRecord = { ...record, score: 600, achievedAt: "2026-09-10T10:00:00.000Z" };
     queuePendingSyncRecord(lowerRecord, lowerRecord.achievedAt);
 
-    let releaseSubmit: (() => void) | null = null;
+    let releaseSubmit: (() => void) | undefined;
     const client: LeaderboardClient = {
       submit: vi.fn().mockImplementation(
         () => new Promise<void>((resolve) => {
@@ -101,7 +101,12 @@ describe("highscore sync", () => {
 
     const syncPromise = syncPendingHighscores(client);
     queuePendingSyncRecord(higherRecord, higherRecord.achievedAt);
-    releaseSubmit?.();
+
+    const release = releaseSubmit;
+    if (release === undefined) {
+      throw new Error("Expected the submit promise to be pending.");
+    }
+    release();
     await syncPromise;
 
     expect(loadPendingSyncRecords()).toHaveLength(1);
