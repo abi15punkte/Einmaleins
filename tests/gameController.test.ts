@@ -49,12 +49,47 @@ describe("GameController", () => {
 
     controller.start();
 
-    // Wir suchen über den deterministischen Random-Wert
-    // die erste Aufgabe des Spiels.
     const task = controller.getState().game.currentTask!;
     const answer = task[0] * task[1];
 
-        expect(answer).toBeGreaterThan(0);
+    expect(answer).toBeGreaterThan(0);
+  });
+
+  it("zeigt bei falscher erster Ziffer das richtige Ergebnis und behält die Aufgabe im Pool", () => {
+    const controller = new GameController(
+      new GameEngine(() => 0.5)
+    );
+
+    const start = controller.start();
+    const task = start.game.currentTask!;
+
+    const expected = task[0] * task[1];
+
+    expect(expected).toBeGreaterThanOrEqual(10);
+
+    const wrongDigit =
+      expected >= 10
+        ? (Math.floor(expected / 10) + 1) % 10
+        : 9;
+
+    expect(String(expected).startsWith(String(wrongDigit)))
+      .toBe(false);
+
+    const result = controller.pressDigit(wrongDigit);
+
+    expect(result.input.status).toBe("wrong");
+    expect(result.lastAnswer).not.toBeNull();
+    expect(result.lastAnswer!.correct).toBe(false);
+    expect(result.lastAnswer!.expectedAnswer).toBe(expected);
+
+    expect(result.game.completedTasks).toBe(0);
+
+    expect(
+      result.game.remainingTasks.some(
+        (remainingTask) =>
+          remainingTask[0] === task[0] &&
+          remainingTask[1] === task[1]
+      )
+    ).toBe(true);
   });
 });
-
