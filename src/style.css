@@ -94,21 +94,21 @@ button, input { font: inherit; }
   .result-stats { grid-template-columns: 1fr 1fr; }
   .result-stat:last-child { grid-column: 1 / -1; }
 }
-@media (orientation: landscape) and (min-width: 700px) and (max-aspect-ratio: 3/2) {
-  .app-shell.game-screen { width: min(100%, 1360px); padding: 20px 32px 24px; }
-  .game-header { min-height: 48px; }
-  .progress-track { margin-top: 14px; }
-  .game-content { min-height: 0; padding: 22px 0 16px; display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(300px, 0.75fr); gap: clamp(22px, 4vw, 56px); align-items: stretch; }
-  .task-card { width: 100%; min-height: 0; height: 100%; padding: clamp(30px, 4vh, 48px) clamp(24px, 3vw, 48px); border-radius: 28px; }
+@media (orientation: landscape) and (min-width: 700px) {
+  .app-shell.game-screen { width: min(100%, 1360px); padding: 20px 32px 24px; display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(300px, 0.75fr); grid-template-rows: auto auto minmax(0, 1fr) auto; column-gap: clamp(22px, 4vw, 56px); }
+  .game-header { grid-column: 1 / -1; min-height: 48px; }
+  .progress-track { grid-column: 1 / -1; margin-top: 14px; }
+  .game-content { display: contents; }
+  .task-card { grid-column: 1; grid-row: 3 / 5; width: 100%; min-height: 0; height: 100%; padding: clamp(30px, 4vh, 48px) clamp(24px, 3vw, 48px); border-radius: 28px; }
   .task-caption { margin-bottom: clamp(18px, 2.8vh, 30px); }
   .task-equation { gap: clamp(12px, 2vw, 28px); font-size: clamp(4rem, 9vw, 7.2rem); }
   .feedback-area { margin-top: clamp(22px, 3vh, 34px); }
-  .keypad { width: 100%; max-width: none; margin: 0; align-content: center; gap: 12px; }
-  .keypad-key { min-height: clamp(64px, 8.5vh, 88px); border-radius: 17px; font-size: clamp(1.7rem, 3vw, 2.15rem); }
-  .keyboard-hint { grid-column: 1 / -1; align-self: end; margin: 0; text-align: right; }
+  .keypad { grid-column: 2; grid-row: 3; width: 100%; max-width: none; margin: 0; align-self: center; align-content: center; gap: 12px; }
+  .keypad-key { min-height: clamp(64px, 9vh, 88px); border-radius: 17px; font-size: clamp(1.7rem, 3vw, 2.15rem); }
+  .keyboard-hint { grid-column: 2; grid-row: 4; align-self: end; margin: 0 0 2px; text-align: center; }
 }
-@media (orientation: landscape) and (min-width: 1200px) and (min-aspect-ratio: 3/2) {
-  .app-shell.game-screen { width: min(100%, 1260px); }
+@media (orientation: landscape) and (min-width: 1200px) {
+  .app-shell.game-screen { width: min(100%, 1460px); padding-left: 40px; padding-right: 40px; grid-template-columns: minmax(0, 1.7fr) minmax(320px, 0.7fr); }
 }
-@media (max-height: 720px) and (min-width: 601px) { .game-content { padding-top: 24px; padding-bottom: 14px; } .task-card { min-height: 270px; padding: 30px; } .task-caption { margin-bottom: 22px; } }
+@media (max-height: 720px) and (min-width: 601px) { .task-card { min-height: 0; } }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; } }
