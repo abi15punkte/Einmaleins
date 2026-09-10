@@ -42,3 +42,17 @@ body {
 .game-screen .keypad-key:active {
   filter: brightness(0.98);
 }
+
+@media (orientation: landscape) {
+  .game-screen::after {
+    content: "";
+    position: absolute;
+    left: -1vw;
+    bottom: -1vh;
+    width: 24vw;
+    height: 24vw;
+    background: url("./Alien.png") center / contain no-repeat;
+    z-index: 9999;
+    pointer-events: none;
+  }
+}
