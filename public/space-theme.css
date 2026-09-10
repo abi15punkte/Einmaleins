@@ -47,7 +47,7 @@ body {
   .game-screen::after {
     content: "";
     position: absolute;
-    left: -1vw;
+    left: -4vw;
     bottom: -1vh;
     width: 24vw;
     height: 24vw;
