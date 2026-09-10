@@ -1,5 +1,5 @@
 import "./style.css";
-import { GameEngine, GAME_DURATION_MS, type GameState } from "./game/engine";
+import { GameEngine, GAME_DURATION_MS } from "./game/engine";
 import { GameController } from "./game/gameController";
 import { multiplierForStreak } from "./game/scoring";
 import { applyManagedStudentIdentity, loadManagedStudentIdentity } from "./game/jamfIdentity";
