@@ -284,7 +284,6 @@ export class GameEngine {
     }
 
     const completedRound = this.state.round;
-    this.onRoundComplete?.(completedRound, this.getState());
 
     if (completedRound === 1) {
       if (this.state.poolIndex < 5) {
@@ -292,6 +291,7 @@ export class GameEngine {
         return;
       }
 
+      this.onRoundComplete?.(completedRound, this.getState());
       this.loadPool(2, 0);
       return;
     }
@@ -302,10 +302,12 @@ export class GameEngine {
         return;
       }
 
+      this.onRoundComplete?.(completedRound, this.getState());
       this.loadPool(3, 0);
       return;
     }
 
+    this.onRoundComplete?.(completedRound, this.getState());
     this.state = {
       ...this.state,
       phase: "won",
