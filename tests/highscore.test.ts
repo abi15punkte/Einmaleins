@@ -1,10 +1,10 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import {
-  clearPendingSyncRecords,
   evaluateResult,
   loadPendingSyncRecords,
   loadPersonalHighscore,
   loadStudentIdentity,
+  resetHighscoreStorageForTests,
   saveStudentIdentity,
   type StudentIdentity
 } from "../src/game/highscore";
@@ -17,9 +17,8 @@ const student: StudentIdentity = {
 
 describe("highscore storage", () => {
   beforeEach(() => {
-    window.localStorage.clear();
+    resetHighscoreStorageForTests();
     saveStudentIdentity(student);
-    clearPendingSyncRecords();
   });
 
   it("keeps the highest personal score", () => {
