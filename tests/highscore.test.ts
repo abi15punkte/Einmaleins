@@ -4,6 +4,7 @@ import {
   loadPendingSyncRecords,
   loadPersonalHighscore,
   loadStudentIdentity,
+  queuePendingSyncRecord,
   resetHighscoreStorageForTests,
   saveStudentIdentity,
   type StudentIdentity
@@ -31,16 +32,27 @@ describe("highscore storage", () => {
     expect(loadPersonalHighscore(student.studentId)?.score).toBe(250);
   });
 
-  it("stores a new personal best in the pending sync queue", () => {
+  it("does not queue a new personal best without explicit school-list opt-in", () => {
     evaluateResult(student, 400, "2026-01-01T10:00:00.000Z");
 
-    expect(loadPendingSyncRecords()).toHaveLength(1);
-    expect(loadPendingSyncRecords()[0]?.record.score).toBe(400);
+    expect(loadPendingSyncRecords()).toHaveLength(0);
   });
 
-  it("does not queue a lower score after a better result", () => {
-    evaluateResult(student, 400, "2026-01-01T10:00:00.000Z");
-    evaluateResult(student, 300, "2026-01-01T10:05:00.000Z");
+  it("keeps the highest queued score per student", () => {
+    queuePendingSyncRecord({
+      studentId: student.studentId,
+      name: student.name,
+      className: student.className,
+      score: 400,
+      achievedAt: "2026-01-01T10:00:00.000Z"
+    }, "2026-01-01T10:00:00.000Z");
+    queuePendingSyncRecord({
+      studentId: student.studentId,
+      name: student.name,
+      className: student.className,
+      score: 300,
+      achievedAt: "2026-01-01T10:05:00.000Z"
+    }, "2026-01-01T10:05:00.000Z");
 
     expect(loadPendingSyncRecords()).toHaveLength(1);
     expect(loadPendingSyncRecords()[0]?.record.score).toBe(400);
