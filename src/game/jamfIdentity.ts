@@ -13,9 +13,7 @@ const PARAMETER_ALIASES = {
 } as const;
 
 export function loadManagedStudentIdentity(locationObject: Location | null = getLocation()): ManagedStudentIdentity | null {
-  if (!locationObject) {
-    return null;
-  }
+  if (!locationObject) return null;
 
   const sources = [
     new URLSearchParams(locationObject.hash.replace(/^#\??/, "")),
@@ -26,15 +24,9 @@ export function loadManagedStudentIdentity(locationObject: Location | null = get
   const name = findFirst(sources, PARAMETER_ALIASES.name);
   const className = findFirst(sources, PARAMETER_ALIASES.className);
 
-  if (!studentId || !name) {
-    return null;
-  }
+  if (!studentId || !name) return null;
 
-  return {
-    studentId,
-    name,
-    className: className || null
-  };
+  return { studentId, name, className: className || null };
 }
 
 export function applyManagedStudentIdentity(
@@ -44,23 +36,18 @@ export function applyManagedStudentIdentity(
   save({
     studentId: managedIdentity.studentId,
     name: managedIdentity.name,
-    className: managedIdentity.className
+    className: managedIdentity.className,
+    source: "jamf"
   });
 }
 
-function findFirst(
-  sources: URLSearchParams[],
-  aliases: readonly string[]
-): string | null {
+function findFirst(sources: URLSearchParams[], aliases: readonly string[]): string | null {
   for (const source of sources) {
     for (const alias of aliases) {
       const value = source.get(alias)?.trim();
-      if (value) {
-        return value;
-      }
+      if (value) return value;
     }
   }
-
   return null;
 }
 
