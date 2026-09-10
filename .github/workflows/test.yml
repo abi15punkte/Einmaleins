@@ -1,32 +1,32 @@
 name: Tests
 
 on:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
-  workflow_dispatch:
+push:
+branches:
+- main
+pull_request:
+branches:
+- main
+workflow_dispatch:
 
 jobs:
-  test:
-    runs-on: ubuntu-latest
+test:
+runs-on: ubuntu-latest
 
-    steps:
-            - name: Repository auschecken
-        uses: actions/checkout@v5
+steps:
+  - name: Repository auschecken
+    uses: actions/checkout@v5
 
-      - name: Node.js einrichten
-        uses: actions/setup-node@v5
-        with:
-          node-version: 22
+  - name: Node.js einrichten
+    uses: actions/setup-node@v5
+    with:
+      node-version: 22
 
-      - name: Abhängigkeiten installieren
-        run: npm install
+  - name: Abhängigkeiten installieren
+    run: npm install
 
-      - name: Tests ausführen
-        run: npm test
+  - name: Tests ausführen
+    run: npm test
 
-      - name: Build prüfen
-        run: npm run build
+  - name: Build prüfen
+    run: npm run build
