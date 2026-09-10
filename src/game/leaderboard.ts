@@ -32,11 +32,11 @@ export function createLeaderboardClient(
   config: LeaderboardConfig = loadLeaderboardConfig(),
   fetcher: typeof fetch = fetch
 ): LeaderboardClient | null {
-  if (!config.endpoint) {
+  const endpoint = config.endpoint?.trim().replace(/\/$/, "") ?? "";
+
+  if (!endpoint) {
     return null;
   }
-
-  const endpoint = config.endpoint.replace(/\/$/, "");
 
   return {
     async submit(record) {
