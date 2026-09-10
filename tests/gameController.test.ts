@@ -54,4 +54,7 @@ describe("GameController", () => {
     const task = controller.getState().game.currentTask!;
     const answer = task[0] * task[1];
 
-    expect(answer).toBeGreaterThan
+        expect(answer).toBeGreaterThan(0);
+  });
+});
+
