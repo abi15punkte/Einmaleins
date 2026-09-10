@@ -2,10 +2,7 @@
 <html lang="de">
   <head>
     <meta charset="UTF-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
-    />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="theme-color" content="#e9f7ff" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
@@ -24,9 +21,12 @@
     <script>
       if ("serviceWorker" in navigator) {
         window.addEventListener("load", () => {
-          navigator.serviceWorker.register("./sw.js", { scope: "./" }).catch(() => {
-            // The app remains fully usable when service workers are unavailable.
-          });
+          navigator.serviceWorker
+            .register("./sw.js?v=16", { scope: "./", updateViaCache: "none" })
+            .then((registration) => registration.update())
+            .catch(() => {
+              // The app remains fully usable when service workers are unavailable.
+            });
         });
       }
     </script>
