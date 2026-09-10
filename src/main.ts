@@ -4,6 +4,7 @@ import { GameController } from "./game/gameController";
 import { multiplierForStreak } from "./game/scoring";
 import { applyManagedStudentIdentity, loadManagedStudentIdentity } from "./game/jamfIdentity";
 import { evaluateResult, loadPersonalHighscore, loadStudentIdentity, saveStudentIdentity, type HighscoreEvaluation, type StudentIdentity } from "./game/highscore";
+import { createLeaderboardClient, type LeaderboardClient } from "./game/leaderboard";
 
 const TOTAL_TASKS = 136;
 type Screen = "start" | "game" | "result";
@@ -28,6 +29,7 @@ let wrongAnswerTimer: number | null = null;
 let gameTimer: number | null = null;
 let resultEvaluation: HighscoreEvaluation | null = null;
 let student: StudentIdentity = loadResolvedStudentIdentity();
+let leaderboardClient: LeaderboardClient | null = createLeaderboardClient();
 
 function loadResolvedStudentIdentity(): StudentIdentity {
   const managedIdentity = loadManagedStudentIdentity();
@@ -40,6 +42,7 @@ function loadResolvedStudentIdentity(): StudentIdentity {
 
 function renderStartScreen(profileMessage = ""): void {
   student = loadResolvedStudentIdentity();
+  leaderboardClient = createLeaderboardClient();
   const personalHighscore = loadPersonalHighscore(student.studentId);
   const showManualProfile = student.source !== "jamf";
   app.innerHTML = `
@@ -114,8 +117,28 @@ function renderResultScreen(): void {
   const headline = won ? "Geschafft!" : "Zeit ist um!";
   const message = won ? "Du hast alle Aufgaben vor Ablauf der zehn Minuten gelöst." : "Dein Ergebnis steht fest.";
   const highscoreMessage = resultEvaluation?.isNewPersonalBest ? "🏆 Neuer persönlicher Highscore!" : `Persönlicher Rekord: ${resultEvaluation?.personalBest.score ?? loadPersonalHighscore(student.studentId)?.score ?? 0}`;
-  app.innerHTML = `<main class="app-shell result-screen"><section class="result-card" aria-labelledby="result-title"><div class="result-icon" aria-hidden="true">${won ? "✓" : "★"}</div><p class="eyebrow">Einmaleins</p><p class="result-greeting">Gut gespielt, ${escapeHtml(student.name)}!</p><h1 id="result-title">${headline}</h1><p class="result-copy">${message}</p><div class="result-highscore ${resultEvaluation?.isNewPersonalBest ? "is-new" : ""}" aria-live="polite">${highscoreMessage}</div><div class="result-stats" aria-label="Spielergebnis"><div class="result-stat"><span class="stat-label">Punkte</span><strong>${game.score}</strong></div><div class="result-stat"><span class="stat-label">Aufgaben</span><strong>${game.completedTasks} / ${TOTAL_TASKS}</strong></div><div class="result-stat"><span class="stat-label">Modus</span><strong>${practiceMode === "highscore" ? "Mit Highscore" : "Ohne Highscore"}</strong></div></div><button type="button" class="result-button" id="again">Noch eine Runde</button></section></main>`;
+  const schoolEntry = resultEvaluation?.isNewPersonalBest && leaderboardClient
+    ? `<div class="school-entry" aria-labelledby="school-entry-title"><p id="school-entry-title"><strong>Schulweite Highscoreliste</strong></p><p>Dein neuer Rekord kann freiwillig in die schulweite Liste eingetragen werden.</p><button type="button" class="result-button" id="school-submit">In die schulweite Liste eintragen</button><p id="school-status" class="profile-status" aria-live="polite">Nur wenn du möchtest.</p></div>`
+    : "";
+  app.innerHTML = `<main class="app-shell result-screen"><section class="result-card" aria-labelledby="result-title"><div class="result-icon" aria-hidden="true">${won ? "✓" : "★"}</div><p class="eyebrow">Einmaleins</p><p class="result-greeting">Gut gespielt, ${escapeHtml(student.name)}!</p><h1 id="result-title">${headline}</h1><p class="result-copy">${message}</p><div class="result-highscore ${resultEvaluation?.isNewPersonalBest ? "is-new" : ""}" aria-live="polite">${highscoreMessage}</div><div class="result-stats" aria-label="Spielergebnis"><div class="result-stat"><span class="stat-label">Punkte</span><strong>${game.score}</strong></div><div class="result-stat"><span class="stat-label">Aufgaben</span><strong>${game.completedTasks} / ${TOTAL_TASKS}</strong></div><div class="result-stat"><span class="stat-label">Modus</span><strong>${practiceMode === "highscore" ? "Mit Highscore" : "Ohne Highscore"}</strong></div></div>${schoolEntry}<button type="button" class="result-button" id="again">Noch eine Runde</button></section></main>`;
+  document.querySelector<HTMLButtonElement>("#school-submit")?.addEventListener("click", () => { void submitSchoolHighscore(); });
   getRequiredElement<HTMLButtonElement>("#again").addEventListener("click", () => { screen = "start"; resultEvaluation = null; renderStartScreen(); });
+}
+
+async function submitSchoolHighscore(): Promise<void> {
+  const status = document.querySelector<HTMLElement>("#school-status");
+  const button = document.querySelector<HTMLButtonElement>("#school-submit");
+  if (!resultEvaluation?.isNewPersonalBest || !leaderboardClient) return;
+  if (button) button.disabled = true;
+  if (status) status.textContent = "Eintragung wird geprüft …";
+
+  try {
+    await leaderboardClient.submit(resultEvaluation.personalBest);
+    if (status) status.textContent = "Erfolgreich in die schulweite Liste eingetragen.";
+  } catch {
+    if (button) button.disabled = false;
+    if (status) status.textContent = "Gerade keine Internetverbindung. Dein persönlicher Highscore bleibt trotzdem gespeichert.";
+  }
 }
 
 function startGame(): void {
