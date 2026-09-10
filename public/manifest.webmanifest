@@ -1,0 +1,19 @@
+{
+  "name": "Einmaleins",
+  "short_name": "Einmaleins",
+  "lang": "de",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "landscape",
+  "background_color": "#eef2f7",
+  "theme_color": "#ffffff",
+  "icons": [
+    {
+      "src": "./einmaleins-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

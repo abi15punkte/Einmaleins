@@ -40,6 +40,11 @@ export interface AnswerResult {
   state: GameState;
 }
 
+export type RoundCompletionHandler = (
+  round: RoundNumber,
+  state: GameState
+) => void;
+
 const systemClock: Clock = {
   now: () => Date.now()
 };
@@ -66,16 +71,20 @@ export class GameEngine {
 
   private readonly clock: Clock;
 
+  private readonly onRoundComplete: RoundCompletionHandler | undefined;
+
   private startedAt: number | null = null;
 
   private taskStartedAt: number | null = null;
 
   constructor(
     random: RandomSource = Math.random,
-    clock: Clock = systemClock
+    clock: Clock = systemClock,
+    onRoundComplete?: RoundCompletionHandler
   ) {
     this.random = random;
     this.clock = clock;
+    this.onRoundComplete = onRoundComplete;
   }
 
   getState(): GameState {
@@ -91,7 +100,6 @@ export class GameEngine {
     }
 
     const now = this.clock.now();
-
     this.startedAt = now;
 
     this.state = {
@@ -138,7 +146,6 @@ export class GameEngine {
     }
 
     const nextStreak = this.state.streak + 1;
-
     const points = pointsForCorrectAnswer(
       this.state.taskElapsedMs / 1000,
       nextStreak
@@ -170,16 +177,11 @@ export class GameEngine {
   skipCurrentTask(): GameState {
     this.updateTime();
 
-    if (this.state.phase !== "playing") {
-      return this.getState();
-    }
-
-    if (this.state.currentTask === null) {
+    if (this.state.phase !== "playing" || this.state.currentTask === null) {
       return this.getState();
     }
 
     const currentTask = this.state.currentTask;
-
     const currentIndex = this.state.remainingTasks.findIndex(
       (task) =>
         task[0] === currentTask[0] &&
@@ -190,14 +192,8 @@ export class GameEngine {
       return this.getState();
     }
 
-    const remainingTasks = [
-      ...this.state.remainingTasks
-    ];
-
-    const [skippedTask] = remainingTasks.splice(
-      currentIndex,
-      1
-    );
+    const remainingTasks = [...this.state.remainingTasks];
+    const [skippedTask] = remainingTasks.splice(currentIndex, 1);
 
     if (skippedTask !== undefined) {
       remainingTasks.push(skippedTask);
@@ -215,28 +211,19 @@ export class GameEngine {
 
   tick(): GameState {
     this.updateTime();
-
     return this.getState();
   }
 
   private updateTime(): void {
-    if (
-      this.state.phase !== "playing" ||
-      this.startedAt === null
-    ) {
+    if (this.state.phase !== "playing" || this.startedAt === null) {
       return;
     }
 
     const now = this.clock.now();
-
     const elapsedMs = Math.max(
       0,
-      Math.min(
-        now - this.startedAt,
-        GAME_DURATION_MS
-      )
+      Math.min(now - this.startedAt, GAME_DURATION_MS)
     );
-
     const taskElapsedMs =
       this.taskStartedAt === null
         ? 0
@@ -257,18 +244,11 @@ export class GameEngine {
     }
   }
 
-  private loadPool(
-    round: RoundNumber,
-    poolIndex: number
-  ): void {
+  private loadPool(round: RoundNumber, poolIndex: number): void {
     let tasks: Task[];
 
     if (round === 1 || round === 2) {
-      tasks = createPool(
-        round,
-        poolIndex,
-        this.random
-      );
+      tasks = createPool(round, poolIndex, this.random);
     } else {
       tasks = createRoundThree(this.random);
     }
@@ -295,7 +275,6 @@ export class GameEngine {
         phase: "timeUp",
         currentTask: null
       };
-
       return;
     }
 
@@ -304,26 +283,31 @@ export class GameEngine {
       return;
     }
 
-    if (this.state.round === 1) {
+    const completedRound = this.state.round;
+
+    if (completedRound === 1) {
       if (this.state.poolIndex < 5) {
         this.loadPool(1, this.state.poolIndex + 1);
         return;
       }
 
+      this.onRoundComplete?.(completedRound, this.getState());
       this.loadPool(2, 0);
       return;
     }
 
-    if (this.state.round === 2) {
+    if (completedRound === 2) {
       if (this.state.poolIndex < 5) {
         this.loadPool(2, this.state.poolIndex + 1);
         return;
       }
 
+      this.onRoundComplete?.(completedRound, this.getState());
       this.loadPool(3, 0);
       return;
     }
 
+    this.onRoundComplete?.(completedRound, this.getState());
     this.state = {
       ...this.state,
       phase: "won",

@@ -1,0 +1,11 @@
+name = "einmaleins-leaderboard"
+main = "worker.ts"
+compatibility_date = "2026-09-10"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "einmaleins-leaderboard"
+database_id = "REPLACE_WITH_DATABASE_ID"
+
+[vars]
+ALLOWED_ORIGIN = "https://abi15punkte.github.io"
