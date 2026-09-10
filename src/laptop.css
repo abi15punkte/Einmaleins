@@ -216,7 +216,7 @@
     grid-template-rows: repeat(4, 12vh) !important;
     column-gap: 2vw !important;
     row-gap: 2vh !important;
-    transform: translate(3.5vw, -1vh) !important;
+    transform: translate(4vw, -5vh) !important;
   }
 
   .game-screen .keypad-key {
