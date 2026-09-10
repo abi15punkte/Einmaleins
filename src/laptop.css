@@ -34,7 +34,7 @@
     position: absolute !important;
     left: 2.5vw !important;
     top: 2.5vh !important;
-    width: 45vw !important;
+    width: auto !important;
     height: 10vh !important;
     display: flex !important;
     align-items: center !important;
@@ -115,9 +115,9 @@
     grid-column: 1 !important;
     grid-row: 2 !important;
     width: 45vw !important;
-    height: 70vh !important;
-    min-height: 70vh !important;
-    margin: 10vh 0 0 -5vw !important;
+    height: 75vh !important;
+    min-height: 75vh !important;
+    margin: 10vh 0 0 5vw !important;
     padding: 0 !important;
     align-self: start !important;
     display: grid !important;
@@ -209,8 +209,8 @@
     grid-row: 2 !important;
     width: 40vw !important;
     height: 64vh !important;
-    margin: 10vh auto 0 !important;
-    align-self: start !important;
+    margin: 0 auto 0 !important;
+    align-self: end !important;
     display: grid !important;
     grid-template-columns: repeat(3, 12vw) !important;
     grid-template-rows: repeat(4, 12vh) !important;
