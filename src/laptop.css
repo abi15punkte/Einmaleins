@@ -117,14 +117,13 @@
     width: 50vw !important;
     height: 75vh !important;
     min-height: 75vh !important;
-    margin: 0 0 0 5vw !important;
+    margin: 5vh 0 0 -5vw !important;
     padding: 0 !important;
     align-self: start !important;
     display: grid !important;
     grid-template-rows: 20% 15% 30% 15% 20% !important;
     border-radius: 2vw !important;
     overflow: visible !important;
-    transform: translate(5vw, -5vh) !important;
   }
 
   .game-screen .task-caption {
@@ -217,7 +216,7 @@
     grid-template-rows: repeat(4, 12vh) !important;
     column-gap: 2vw !important;
     row-gap: 2vh !important;
-    transform: translate(5vw, 7vh) !important;
+    transform: translate(5vw, 0) !important;
   }
 
   .game-screen .keypad-key {
