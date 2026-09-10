@@ -46,4 +46,3 @@ export function createRoundThree(
 ): Task[] {
   return shuffle(THIRD_ROUND_TASKS, random);
 }
-
