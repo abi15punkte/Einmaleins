@@ -204,4 +204,147 @@ export class GameEngine {
     }
 
     this.state = {
-      ...this
+      ...this.state,
+      remainingTasks
+    };
+
+    this.setNextTask();
+
+    return this.getState();
+  }
+
+  tick(): GameState {
+    this.updateTime();
+
+    return this.getState();
+  }
+
+  private updateTime(): void {
+    if (
+      this.state.phase !== "playing" ||
+      this.startedAt === null
+    ) {
+      return;
+    }
+
+    const now = this.clock.now();
+
+    const elapsedMs = Math.max(
+      0,
+      Math.min(
+        now - this.startedAt,
+        GAME_DURATION_MS
+      )
+    );
+
+    const taskElapsedMs =
+      this.taskStartedAt === null
+        ? 0
+        : Math.max(0, now - this.taskStartedAt);
+
+    this.state = {
+      ...this.state,
+      elapsedMs,
+      taskElapsedMs
+    };
+
+    if (elapsedMs >= GAME_DURATION_MS) {
+      this.state = {
+        ...this.state,
+        phase: "timeUp",
+        currentTask: null
+      };
+    }
+  }
+
+  private loadPool(
+    round: RoundNumber,
+    poolIndex: number
+  ): void {
+    let tasks: Task[];
+
+    if (round === 1 || round === 2) {
+      tasks = createPool(
+        round,
+        poolIndex,
+        this.random
+      );
+    } else {
+      tasks = createRoundThree(this.random);
+    }
+
+    this.state = {
+      ...this.state,
+      round,
+      poolIndex,
+      remainingTasks: [...tasks],
+      currentTask: tasks[0] ?? null,
+      taskElapsedMs: 0
+    };
+
+    this.taskStartedAt =
+      this.state.currentTask === null
+        ? null
+        : this.clock.now();
+  }
+
+  private advanceAfterCorrectAnswer(): void {
+    if (this.state.elapsedMs >= GAME_DURATION_MS) {
+      this.state = {
+        ...this.state,
+        phase: "timeUp",
+        currentTask: null
+      };
+
+      return;
+    }
+
+    if (this.state.remainingTasks.length > 0) {
+      this.setNextTask();
+      return;
+    }
+
+    if (this.state.round === 1) {
+      if (this.state.poolIndex < 5) {
+        this.loadPool(1, this.state.poolIndex + 1);
+        return;
+      }
+
+      this.loadPool(2, 0);
+      return;
+    }
+
+    if (this.state.round === 2) {
+      if (this.state.poolIndex < 5) {
+        this.loadPool(2, this.state.poolIndex + 1);
+        return;
+      }
+
+      this.loadPool(3, 0);
+      return;
+    }
+
+    this.state = {
+      ...this.state,
+      phase: "won",
+      currentTask: null
+    };
+
+    this.taskStartedAt = null;
+  }
+
+  private setNextTask(): void {
+    const nextTask = this.state.remainingTasks[0] ?? null;
+
+    this.state = {
+      ...this.state,
+      currentTask: nextTask,
+      taskElapsedMs: 0
+    };
+
+    this.taskStartedAt =
+      nextTask === null
+        ? null
+        : this.clock.now();
+  }
+}
