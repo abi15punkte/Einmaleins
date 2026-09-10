@@ -92,6 +92,8 @@ const factorB = factorBElement;
 const answer = answerElement;
 const feedback = feedbackElement;
 
+let wrongAnswerTimer: number | null = null;
+
 function formatTime(elapsedMs: number): string {
   const remainingMs = Math.max(
     0,
@@ -139,6 +141,19 @@ function render(): void {
   }
 }
 
+function scheduleNextTaskAfterWrongAnswer(): void {
+  if (wrongAnswerTimer !== null) {
+    window.clearTimeout(wrongAnswerTimer);
+  }
+
+  wrongAnswerTimer = window.setTimeout(() => {
+    wrongAnswerTimer = null;
+
+    controller.advanceAfterWrongAnswer();
+    render();
+  }, 1000);
+}
+
 const buttons =
   document.querySelectorAll<HTMLButtonElement>(
     "[data-digit]"
@@ -146,20 +161,31 @@ const buttons =
 
 buttons.forEach((button) => {
   button.addEventListener("click", () => {
+    const stateBefore = controller.getState();
+
+    if (
+      stateBefore.input.status !== "waiting"
+    ) {
+      return;
+    }
+
     const digit = Number(button.dataset.digit);
 
-    controller.pressDigit(digit);
+    const stateAfter = controller.pressDigit(digit);
+
     render();
+
+    if (
+      stateAfter.lastAnswer !== null &&
+      !stateAfter.lastAnswer.correct
+    ) {
+      scheduleNextTaskAfterWrongAnswer();
+    }
   });
 });
 
 controller.start();
 render();
-
-window.setInterval(() => {
-  controller.tick();
-  render();
-}, 250);
 
 window.setInterval(() => {
   controller.tick();
