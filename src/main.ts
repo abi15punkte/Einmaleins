@@ -45,6 +45,7 @@ function loadResolvedStudentIdentity(): StudentIdentity {
 
 function handleRoundComplete(round: RoundNumber, state: GameState): void {
   roundEvaluation = evaluateResult(student, state.score);
+  resultEvaluation = roundEvaluation;
   roundNoticeRound = round;
 }
 
@@ -82,7 +83,7 @@ function renderStartScreen(profileMessage = ""): void {
 }
 
 function renderGameScreen(): void {
-  app.innerHTML = `<main class="app-shell game-screen"><header class="game-header" aria-label="Spielstatus"><div class="brand-block"><div class="brand-mark" aria-hidden="true">×</div><div><p class="eyebrow">Einmaleins</p><p class="round" id="round">Durchlauf 1</p></div></div><div class="header-stats"><div class="stat-card stat-score"><span class="stat-label">Punkte</span><strong id="score">0</strong></div><div class="stat-card stat-time"><span class="stat-label">Zeit</span><strong id="time">10:00</strong></div></div></header><div class="progress-track" aria-label="Fortschritt"><div class="progress-bar" id="progress"></div></div><section class="game-content" aria-label="Aktuelle Aufgabe"><div class="task-card" id="task-card"><p class="task-caption" id="task-caption">Löse die Aufgabe</p><div class="task-equation" aria-live="polite" aria-label="Rechenaufgabe"><span id="factor-a">?</span><span class="operator" aria-hidden="true">×</span><span id="factor-b">?</span><span class="operator" aria-hidden="true">=</span><span class="answer-box" id="answer">?</span></div><div class="feedback-area" aria-live="polite" aria-atomic="true"><p id="feedback" class="feedback feedback-neutral">Gib deine Antwort ein.</p><p id="streak" class="streak" hidden>Serie ×1</p></div></div><p id="round-notice" class="round-notice" aria-live="polite" hidden></p></section><p class="keyboard-hint">Tipp: Du kannst am PC auch die Zifferntasten 0–9 verwenden.</p><section class="keypad" aria-label="Zahlenfeld">${[1,2,3,4,5,6,7,8,9].map((digit) => `<button type="button" class="keypad-key" data-digit="${digit}">${digit}</button>`).join("")}<button type="button" class="keypad-key keypad-zero" data-digit="0">0</button></section></main>`;
+  app.innerHTML = `<main class="app-shell game-screen"><header class="game-header" aria-label="Spielstatus"><div class="brand-block"><div class="brand-mark" aria-hidden="true">×</div><div><p class="eyebrow">Einmaleins</p><p class="round" id="round">Durchlauf 1</p></div></div><div class="header-stats"><div class="stat-card stat-score"><span class="stat-label">Punkte</span><strong id="score">0</strong></div><div class="stat-card stat-time"><span class="stat-label">Zeit</span><strong id="time">10:00</strong></div></div></header><div class="progress-track" aria-label="Fortschritt"><div class="progress-bar" id="progress"></div></div><section class="game-content" aria-label="Aktuelle Aufgabe"><div class="task-card" id="task-card"><p class="task-caption" id="task-caption">Löse die Aufgabe</p><div class="task-equation" aria-live="polite" aria-label="Rechenaufgabe"><span id="factor-a">?</span><span class="operator" aria-hidden="true">×</span><span id="factor-b">?</span><span class="operator" aria-hidden="true">=</span><span class="answer-box" id="answer">?</span></div><div class="feedback-area" aria-live="polite" aria-atomic="true"><p id="feedback" class="feedback feedback-neutral">Gib deine Antwort ein.</p><p id="streak" class="streak" hidden>Serie ×1</p></div></div><div id="round-notice" class="round-notice" aria-live="polite" hidden></div></section><p class="keyboard-hint">Tipp: Du kannst am PC auch die Zifferntasten 0–9 verwenden.</p><section class="keypad" aria-label="Zahlenfeld">${[1,2,3,4,5,6,7,8,9].map((digit) => `<button type="button" class="keypad-key" data-digit="${digit}">${digit}</button>`).join("")}<button type="button" class="keypad-key keypad-zero" data-digit="0">0</button></section></main>`;
   document.querySelectorAll<HTMLButtonElement>("[data-digit]").forEach((button) => button.addEventListener("click", () => handleDigit(Number(button.dataset.digit))));
   renderGameState();
 }
@@ -117,13 +118,15 @@ function renderGameState(): void {
   else { feedback.textContent = `Falsch. Die Antwort ist ${state.lastAnswer.expectedAnswer}.`; feedback.classList.add("feedback-wrong"); taskCard.classList.add("is-wrong"); }
   if (game.streak >= 3) { streak.hidden = false; streak.textContent = `Serie ×${multiplier}`; } else streak.hidden = true;
   if (roundNoticeRound !== null && roundEvaluation !== null) {
+    const schoolEntry = roundEvaluation.isNewPersonalBest && leaderboardClient
+      ? `<div class="school-entry"><p><strong>Schulweite Highscoreliste</strong></p><button type="button" class="result-button" id="school-submit">In die schulweite Liste eintragen</button><p id="school-status" class="profile-status" aria-live="polite">Nur wenn du möchtest.</p></div>`
+      : "";
     roundNotice.hidden = false;
-    roundNotice.textContent = roundEvaluation.isNewPersonalBest
-      ? `🏆 Neuer persönlicher Highscore nach Durchlauf ${roundNoticeRound}: ${roundEvaluation.personalBest.score} Punkte.`
-      : `Durchlauf ${roundNoticeRound} abgeschlossen · Persönlicher Rekord: ${roundEvaluation.personalBest.score} Punkte.`;
+    roundNotice.innerHTML = `<strong>${roundEvaluation.isNewPersonalBest ? `🏆 Neuer persönlicher Highscore nach Durchlauf ${roundNoticeRound}: ${roundEvaluation.personalBest.score} Punkte.` : `Durchlauf ${roundNoticeRound} abgeschlossen · Persönlicher Rekord: ${roundEvaluation.personalBest.score} Punkte.`}</strong>${schoolEntry}`;
+    document.querySelector<HTMLButtonElement>("#school-submit")?.addEventListener("click", () => { void submitSchoolHighscore(); });
   } else {
     roundNotice.hidden = true;
-    roundNotice.textContent = "";
+    roundNotice.innerHTML = "";
   }
 }
 
@@ -138,7 +141,7 @@ function renderResultScreen(): void {
     ? `<div class="school-entry" aria-labelledby="school-entry-title"><p id="school-entry-title"><strong>Schulweite Highscoreliste</strong></p><p>Dein neuer Rekord kann freiwillig in die schulweite Liste eingetragen werden.</p><button type="button" class="result-button" id="school-submit">In die schulweite Liste eintragen</button><p id="school-status" class="profile-status" aria-live="polite">Nur wenn du möchtest.</p></div>`
     : "";
   app.innerHTML = `<main class="app-shell result-screen"><section class="result-card" aria-labelledby="result-title"><div class="result-icon" aria-hidden="true">${won ? "✓" : "★"}</div><p class="eyebrow">Einmaleins</p><p class="result-greeting">Gut gespielt, ${escapeHtml(student.name)}!</p><h1 id="result-title">${headline}</h1><p class="result-copy">${message}</p><div class="result-highscore ${resultEvaluation?.isNewPersonalBest ? "is-new" : ""}" aria-live="polite">${highscoreMessage}</div><div class="result-stats" aria-label="Spielergebnis"><div class="result-stat"><span class="stat-label">Punkte</span><strong>${game.score}</strong></div><div class="result-stat"><span class="stat-label">Aufgaben</span><strong>${game.completedTasks} / ${TOTAL_TASKS}</strong></div><div class="result-stat"><span class="stat-label">Modus</span><strong>${practiceMode === "highscore" ? "Mit Highscore" : "Ohne Highscore"}</strong></div></div>${schoolEntry}<button type="button" class="result-button" id="again">Noch eine Runde</button></section></main>`;
-  document.querySelector<HTMLButtonElement>("#school-submit")?.addEventListener("click", () => { void submitSchoolHighscore(); });
+  document.querySelectorAll<HTMLButtonElement>("#school-submit").forEach((button) => button.addEventListener("click", () => { void submitSchoolHighscore(); }));
   getRequiredElement<HTMLButtonElement>("#again").addEventListener("click", () => { screen = "start"; resultEvaluation = null; roundEvaluation = null; roundNoticeRound = null; renderStartScreen(); });
 }
 
