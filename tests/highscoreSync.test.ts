@@ -71,6 +71,35 @@ describe("highscore sync", () => {
     expect(client.submit).toHaveBeenCalledTimes(1);
   });
 
+  it("shares one in-flight synchronization across concurrent callers", async () => {
+    queuePendingSyncRecord(record, record.achievedAt);
+    let releaseSubmit: (() => void) | undefined;
+    const client: LeaderboardClient = {
+      submit: vi.fn().mockImplementation(
+        () => new Promise<void>((resolve) => {
+          releaseSubmit = resolve;
+        })
+      ),
+      top: vi.fn().mockResolvedValue([])
+    };
+
+    const firstSync = syncPendingHighscores(client);
+    const secondSync = syncPendingHighscores(client);
+
+    expect(secondSync).toBe(firstSync);
+    expect(client.submit).toHaveBeenCalledTimes(1);
+
+    const release = releaseSubmit;
+    if (release === undefined) {
+      throw new Error("Expected the submit promise to be pending.");
+    }
+    release();
+
+    await expect(firstSync).resolves.toEqual({ attempted: 1, synced: 1, failed: 0 });
+    await expect(secondSync).resolves.toEqual({ attempted: 1, synced: 1, failed: 0 });
+    expect(loadPendingSyncRecords()).toHaveLength(0);
+  });
+
   it("keeps the higher queued score when a lower score arrives later", () => {
     queuePendingSyncRecord(record, record.achievedAt);
     queuePendingSyncRecord(
