@@ -1,7 +1,10 @@
+export type IdentitySource = "jamf" | "manual" | "local";
+
 export interface StudentIdentity {
   studentId: string;
   name: string;
   className: string | null;
+  source: IdentitySource;
 }
 
 export interface HighscoreRecord {
@@ -76,13 +79,17 @@ export function loadStudentIdentity(): StudentIdentity {
   const stored = readJson<StudentIdentity>(PROFILE_KEY);
 
   if (stored?.studentId && stored.name) {
-    return stored;
+    return {
+      ...stored,
+      source: stored.source ?? "local"
+    };
   }
 
   const identity: StudentIdentity = {
     studentId: createStudentId(),
     name: "Schüler",
-    className: null
+    className: null,
+    source: "local"
   };
 
   writeJson(PROFILE_KEY, identity);
