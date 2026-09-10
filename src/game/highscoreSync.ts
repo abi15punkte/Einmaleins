@@ -12,7 +12,23 @@ export interface SyncResult {
   failed: number;
 }
 
-export async function syncPendingHighscores(
+let syncInFlight: Promise<SyncResult> | null = null;
+
+export function syncPendingHighscores(
+  client: LeaderboardClient
+): Promise<SyncResult> {
+  if (syncInFlight !== null) {
+    return syncInFlight;
+  }
+
+  syncInFlight = runSyncPendingHighscores(client).finally(() => {
+    syncInFlight = null;
+  });
+
+  return syncInFlight;
+}
+
+async function runSyncPendingHighscores(
   client: LeaderboardClient
 ): Promise<SyncResult> {
   const pending: PendingSyncRecord[] = loadPendingSyncRecords();
