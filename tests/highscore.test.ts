@@ -12,7 +12,8 @@ import {
 const student: StudentIdentity = {
   studentId: "student-1",
   name: "Max",
-  className: "4a"
+  className: "4a",
+  source: "manual"
 };
 
 describe("highscore storage", () => {
@@ -51,13 +52,15 @@ describe("highscore storage", () => {
 
     expect(second.studentId).toBe(first.studentId);
     expect(second.name).toBe(first.name);
+    expect(second.source).toBe("manual");
   });
 
   it("normalizes and persists profile changes", () => {
     saveStudentIdentity({
       studentId: student.studentId,
       name: "  Anna  ",
-      className: "  4b  "
+      className: "  4b  ",
+      source: "manual"
     });
 
     const identity = loadStudentIdentity();
