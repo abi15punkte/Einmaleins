@@ -34,7 +34,7 @@
     position: absolute !important;
     left: 2.5vw !important;
     top: 2.5vh !important;
-    width: 45vw !important;
+    width: auto !important;
     height: 10vh !important;
     display: flex !important;
     align-items: center !important;
@@ -102,7 +102,7 @@
     position: absolute !important;
     left: 2.5vw !important;
     top: 15vh !important;
-    width: 90vw !important;
+    width: 95vw !important;
     height: 0.5vh !important;
     margin: 0 !important;
   }
@@ -117,15 +117,13 @@
     width: 45vw !important;
     height: 70vh !important;
     min-height: 70vh !important;
-    margin: 0 !important;
+    margin: 0 0 0 5vw !important;
     padding: 0 !important;
-    position: relative !important;
-    top: 10vh !important;
     align-self: start !important;
     display: grid !important;
     grid-template-rows: 20% 15% 30% 15% 20% !important;
     border-radius: 2vw !important;
-    overflow: hidden !important;
+    overflow: visible !important;
   }
 
   .game-screen .task-caption {
@@ -138,7 +136,7 @@
     align-items: center !important;
     justify-content: space-between !important;
     gap: 2vw !important;
-    font-size: 4vh !important;
+    font-size: 3vh !important;
     line-height: 1 !important;
     letter-spacing: 0.02em !important;
     white-space: nowrap !important;
@@ -192,7 +190,7 @@
   }
 
   .game-screen .feedback {
-    font-size: 8vh !important;
+    font-size: 5vh !important;
     line-height: 1 !important;
   }
 
@@ -207,13 +205,12 @@
   }
 
   .game-screen .keypad {
-    position: absolute !important;
-    left: 55vw !important;
-    top: 36vh !important;
+    grid-column: 2 !important;
+    grid-row: 2 !important;
     width: 40vw !important;
-    height: 54vh !important;
-    margin: 0 !important;
-    align-self: auto !important;
+    height: 64vh !important;
+    margin: 0 auto 10vh !important;
+    align-self: end !important;
     display: grid !important;
     grid-template-columns: repeat(3, 12vw) !important;
     grid-template-rows: repeat(4, 12vh) !important;
