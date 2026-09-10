@@ -23,13 +23,35 @@ export interface HighscoreEvaluation {
   personalBest: HighscoreRecord;
 }
 
+interface StorageLike {
+  getItem(key: string): string | null;
+  setItem(key: string, value: string): void;
+  removeItem(key: string): void;
+}
+
 const PROFILE_KEY = "einmaleins.student.profile.v1";
 const HIGHSCORE_KEY = "einmaleins.student.highscore.v1";
 const SYNC_QUEUE_KEY = "einmaleins.highscore.sync-queue.v1";
 
+const memoryStorage = new Map<string, string>();
+
+const memoryStorageAdapter: StorageLike = {
+  getItem: (key) => memoryStorage.get(key) ?? null,
+  setItem: (key, value) => memoryStorage.set(key, value),
+  removeItem: (key) => memoryStorage.delete(key)
+};
+
+function getStorage(): StorageLike {
+  if (typeof window !== "undefined" && window.localStorage) {
+    return window.localStorage;
+  }
+
+  return memoryStorageAdapter;
+}
+
 function readJson<T>(key: string): T | null {
   try {
-    const raw = window.localStorage.getItem(key);
+    const raw = getStorage().getItem(key);
     return raw === null ? null : (JSON.parse(raw) as T);
   } catch {
     return null;
@@ -37,11 +59,11 @@ function readJson<T>(key: string): T | null {
 }
 
 function writeJson<T>(key: string, value: T): void {
-  window.localStorage.setItem(key, JSON.stringify(value));
+  getStorage().setItem(key, JSON.stringify(value));
 }
 
 function createStudentId(): string {
-  const cryptoApi = window.crypto;
+  const cryptoApi = typeof globalThis.crypto !== "undefined" ? globalThis.crypto : undefined;
 
   if (cryptoApi?.randomUUID) {
     return cryptoApi.randomUUID();
@@ -128,7 +150,11 @@ export function loadPendingSyncRecords(): PendingSyncRecord[] {
 }
 
 export function clearPendingSyncRecords(): void {
-  window.localStorage.removeItem(SYNC_QUEUE_KEY);
+  getStorage().removeItem(SYNC_QUEUE_KEY);
+}
+
+export function resetHighscoreStorageForTests(): void {
+  memoryStorage.clear();
 }
 
 function enqueueForSync(record: HighscoreRecord, queuedAt: string): void {
