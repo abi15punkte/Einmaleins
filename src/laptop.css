@@ -1,4 +1,4 @@
-/* Laptop-specific sizing experiment: all dimensions are expressed directly against the viewport. */
+/* Laptop-specific sizing: dimensions are expressed directly against the viewport. */
 @media (min-width: 1000px) and (orientation: landscape) {
   html, body {
     overflow: hidden;
@@ -12,7 +12,7 @@
     padding: 0 !important;
     display: grid !important;
     grid-template-columns: 45vw 45vw !important;
-    grid-template-rows: 20vh 80vh !important;
+    grid-template-rows: 15vh 85vh !important;
     column-gap: 5vw !important;
     row-gap: 0 !important;
     position: relative !important;
@@ -22,8 +22,8 @@
     grid-column: 1 / -1 !important;
     grid-row: 1 !important;
     width: 95vw !important;
-    height: 20vh !important;
-    min-height: 20vh !important;
+    height: 15vh !important;
+    min-height: 15vh !important;
     margin: 0 !important;
     padding: 0 !important;
     position: relative !important;
@@ -32,20 +32,21 @@
 
   .game-screen .brand-block {
     position: absolute !important;
-    left: 5vw !important;
-    top: 7.5vh !important;
-    height: 5vh !important;
+    left: 2.5vw !important;
+    top: 2.5vh !important;
+    width: auto !important;
+    height: 10vh !important;
     display: flex !important;
     align-items: center !important;
-    gap: 2vw !important;
+    gap: 1.5vw !important;
   }
 
   .game-screen .brand-mark {
-    width: 10vw !important;
-    height: 5vh !important;
-    min-width: 10vw !important;
-    border-radius: 1vw !important;
-    font-size: 2.5vh !important;
+    width: 5vw !important;
+    height: 10vh !important;
+    min-width: 5vw !important;
+    border-radius: 0.8vw !important;
+    font-size: 4vh !important;
     flex: 0 0 auto !important;
   }
 
@@ -61,9 +62,9 @@
 
   .game-screen .header-stats {
     position: absolute !important;
-    top: 7.5vh !important;
-    right: 5vw !important;
-    height: 5vh !important;
+    top: 2.5vh !important;
+    right: 2.5vw !important;
+    height: 10vh !important;
     display: flex !important;
     align-items: stretch !important;
     gap: 2vw !important;
@@ -74,29 +75,33 @@
     min-width: 10vw !important;
     height: 10vh !important;
     min-height: 10vh !important;
-    padding: 0.8vh 0.8vw !important;
-    border-radius: 1vw !important;
+    padding: 0.5vh 0.5vw !important;
+    border-radius: 0.8vw !important;
     display: flex !important;
     flex-direction: column !important;
+    align-items: center !important;
     justify-content: center !important;
+    text-align: center !important;
   }
 
   .game-screen .stat-label {
     font-size: 2vh !important;
     line-height: 1 !important;
     margin: 0 !important;
+    text-align: center !important;
   }
 
   .game-screen .stat-card strong {
     font-size: 4vh !important;
     line-height: 0.9 !important;
     margin-top: 0.3vh !important;
+    text-align: center !important;
   }
 
   .game-screen .progress-track {
     position: absolute !important;
     left: 2.5vw !important;
-    top: 20vh !important;
+    top: 15vh !important;
     width: 90vw !important;
     height: 0.5vh !important;
     margin: 0 !important;
@@ -126,12 +131,12 @@
     width: 100% !important;
     height: 100% !important;
     margin: 0 !important;
-    padding: 0 2vw !important;
+    padding: 0 1.5vw !important;
     display: flex !important;
     align-items: center !important;
     justify-content: space-between !important;
     gap: 2vw !important;
-    font-size: 3vh !important;
+    font-size: 4vh !important;
     line-height: 1 !important;
     letter-spacing: 0.02em !important;
     white-space: nowrap !important;
@@ -198,7 +203,7 @@
     grid-column: 2 !important;
     grid-row: 2 !important;
     width: 40vw !important;
-    height: 64vh !important;
+    height: 74vh !important;
     margin: 0 auto 10vh !important;
     align-self: end !important;
     display: grid !important;
