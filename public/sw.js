@@ -1,5 +1,5 @@
-const CACHE_NAME = "einmaleins-v4";
-const APP_SHELL = ["./", "./index.html", "./manifest.webmanifest", "./einmaleins-icon.svg"];
+const CACHE_NAME = "einmaleins-v5";
+const APP_SHELL = ["./", "./index.html", "./manifest.webmanifest", "./einmaleins-icon.svg", "./src/responsive.css", "./src/laptop.css"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
