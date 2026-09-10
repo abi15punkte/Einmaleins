@@ -142,7 +142,6 @@ export function evaluateResult(
 
   if (isNewPersonalBest) {
     writeJson(HIGHSCORE_KEY, personalBest);
-    enqueueForSync(personalBest, achievedAt);
   }
 
   return {
@@ -156,15 +155,7 @@ export function loadPendingSyncRecords(): PendingSyncRecord[] {
   return readJson<PendingSyncRecord[]>(SYNC_QUEUE_KEY) ?? [];
 }
 
-export function clearPendingSyncRecords(): void {
-  getStorage().removeItem(SYNC_QUEUE_KEY);
-}
-
-export function resetHighscoreStorageForTests(): void {
-  memoryStorage.clear();
-}
-
-function enqueueForSync(record: HighscoreRecord, queuedAt: string): void {
+export function queuePendingSyncRecord(record: HighscoreRecord, queuedAt = new Date().toISOString()): void {
   const queue = loadPendingSyncRecords();
   const existing = queue.find((entry) => entry.record.studentId === record.studentId);
 
@@ -180,4 +171,26 @@ function enqueueForSync(record: HighscoreRecord, queuedAt: string): void {
   }
 
   writeJson(SYNC_QUEUE_KEY, queue);
+}
+
+export function removePendingSyncRecord(studentId: string, score: number): void {
+  const queue = loadPendingSyncRecords();
+  const remaining = queue.filter(
+    (entry) => !(entry.record.studentId === studentId && entry.record.score === score)
+  );
+
+  if (remaining.length === 0) {
+    clearPendingSyncRecords();
+    return;
+  }
+
+  writeJson(SYNC_QUEUE_KEY, remaining);
+}
+
+export function clearPendingSyncRecords(): void {
+  getStorage().removeItem(SYNC_QUEUE_KEY);
+}
+
+export function resetHighscoreStorageForTests(): void {
+  memoryStorage.clear();
 }
