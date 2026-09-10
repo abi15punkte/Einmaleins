@@ -1,4 +1,6 @@
 import "./style.css";
+import { GameEngine } from "./game/engine";
+import { GameController } from "./game/gameController";
 
 const app = document.querySelector<HTMLDivElement>("#app");
 
@@ -11,7 +13,7 @@ app.innerHTML = `
     <header class="game-header">
       <div>
         <h1>Einmaleins</h1>
-        <p class="round">Runde 1</p>
+        <p class="round" id="round">Runde 1</p>
       </div>
 
       <div class="stats">
@@ -35,19 +37,120 @@ app.innerHTML = `
     </section>
 
     <section class="keypad" aria-label="Zahlenfeld">
-      <button type="button">1</button>
-      <button type="button">2</button>
-      <button type="button">3</button>
+      <button type="button" data-digit="1">1</button>
+      <button type="button" data-digit="2">2</button>
+      <button type="button" data-digit="3">3</button>
 
-      <button type="button">4</button>
-      <button type="button">5</button>
-      <button type="button">6</button>
+      <button type="button" data-digit="4">4</button>
+      <button type="button" data-digit="5">5</button>
+      <button type="button" data-digit="6">6</button>
 
-      <button type="button">7</button>
-      <button type="button">8</button>
-      <button type="button">9</button>
+      <button type="button" data-digit="7">7</button>
+      <button type="button" data-digit="8">8</button>
+      <button type="button" data-digit="9">9</button>
 
-      <button type="button" class="keypad-zero">0</button>
+      <button type="button" class="keypad-zero" data-digit="0">0</button>
     </section>
   </main>
 `;
+
+const engine = new GameEngine();
+const controller = new GameController(engine);
+
+const roundElement =
+  document.querySelector<HTMLElement>("#round");
+const scoreElement =
+  document.querySelector<HTMLElement>("#score");
+const timeElement =
+  document.querySelector<HTMLElement>("#time");
+const factorAElement =
+  document.querySelector<HTMLElement>("#factor-a");
+const factorBElement =
+  document.querySelector<HTMLElement>("#factor-b");
+const answerElement =
+  document.querySelector<HTMLElement>("#answer");
+const feedbackElement =
+  document.querySelector<HTMLElement>("#feedback");
+
+if (
+  !roundElement ||
+  !scoreElement ||
+  !timeElement ||
+  !factorAElement ||
+  !factorBElement ||
+  !answerElement ||
+  !feedbackElement
+) {
+  throw new Error("Required UI element not found.");
+}
+
+function formatTime(elapsedMs: number): string {
+  const remainingMs = Math.max(
+    0,
+    10 * 60 * 1000 - elapsedMs
+  );
+
+  const totalSeconds = Math.ceil(
+    remainingMs / 1000
+  );
+
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+
+  return `${minutes}:${String(seconds).padStart(2, "0")}`;
+}
+
+function render(): void {
+  const state = controller.getState();
+  const task = state.game.currentTask;
+
+  roundElement.textContent = `Runde ${state.game.round}`;
+  scoreElement.textContent = String(state.game.score);
+  timeElement.textContent = formatTime(
+    state.game.elapsedMs
+  );
+
+  if (task === null) {
+    factorAElement.textContent = "?";
+    factorBElement.textContent = "?";
+  } else {
+    factorAElement.textContent = String(task[0]);
+    factorBElement.textContent = String(task[1]);
+  }
+
+  answerElement.textContent =
+    state.input.entered || "?";
+
+  if (state.lastAnswer === null) {
+    feedbackElement.textContent =
+      "Gib deine Antwort ein.";
+  } else if (state.lastAnswer.correct) {
+    feedbackElement.textContent =
+      `Richtig! +${state.lastAnswer.points} Punkte`;
+  } else {
+    feedbackElement.textContent =
+      `Falsch. Die Antwort ist ${state.lastAnswer.expectedAnswer}.`;
+  }
+}
+
+const buttons =
+  document.querySelectorAll<HTMLButtonElement>(
+    "[data-digit]"
+  );
+
+buttons.forEach((button) => {
+  button.addEventListener("click", () => {
+    const digit = Number(button.dataset.digit);
+
+    controller.pressDigit(digit);
+    render();
+  });
+});
+
+controller.start();
+render();
+
+window.setInterval(() => {
+  controller.tick();
+  render();
+}, 250);
