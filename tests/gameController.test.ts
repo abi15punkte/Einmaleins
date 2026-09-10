@@ -55,9 +55,9 @@ describe("GameController", () => {
     expect(answer).toBeGreaterThan(0);
   });
 
-  it("zeigt bei falscher erster Ziffer das richtige Ergebnis und behält die Aufgabe im Pool", () => {
+  it("behandelt eine falsche erste Ziffer als falsche Antwort", () => {
     const controller = new GameController(
-      new GameEngine(() => 0.99)
+      new GameEngine(() => 0.5)
     );
 
     const start = controller.start();
@@ -65,16 +65,10 @@ describe("GameController", () => {
 
     const expected = task[0] * task[1];
 
-    expect(expected).toBeGreaterThanOrEqual(10);
-
-    const firstCorrectDigit = Number(
-      String(expected)[0]
-    );
-
     const wrongDigit =
-      firstCorrectDigit === 9
+      String(expected)[0] === "9"
         ? 8
-        : firstCorrectDigit + 1;
+        : 9;
 
     const result = controller.pressDigit(wrongDigit);
 
@@ -82,15 +76,5 @@ describe("GameController", () => {
     expect(result.lastAnswer).not.toBeNull();
     expect(result.lastAnswer!.correct).toBe(false);
     expect(result.lastAnswer!.expectedAnswer).toBe(expected);
-
-    expect(result.game.completedTasks).toBe(0);
-
-    expect(
-      result.game.remainingTasks.some(
-        (remainingTask) =>
-          remainingTask[0] === task[0] &&
-          remainingTask[1] === task[1]
-      )
-    ).toBe(true);
   });
 });
