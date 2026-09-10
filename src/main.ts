@@ -3,9 +3,17 @@ import { GameEngine, GAME_DURATION_MS } from "./game/engine";
 import { GameController } from "./game/gameController";
 import { multiplierForStreak } from "./game/scoring";
 import { applyManagedStudentIdentity, loadManagedStudentIdentity } from "./game/jamfIdentity";
-import { evaluateResult, loadPersonalHighscore, loadStudentIdentity, saveStudentIdentity, type HighscoreEvaluation, type StudentIdentity } from "./game/highscore";
+import {
+  evaluateResult,
+  loadPersonalHighscore,
+  loadStudentIdentity,
+  saveStudentIdentity,
+  type HighscoreEvaluation,
+  type StudentIdentity
+} from "./game/highscore";
 
 const TOTAL_TASKS = 136;
+
 type Screen = "start" | "game" | "result";
 type PracticeMode = "highscore" | "free";
 
@@ -32,7 +40,7 @@ let student: StudentIdentity = loadResolvedStudentIdentity();
 function loadResolvedStudentIdentity(): StudentIdentity {
   const managedIdentity = loadManagedStudentIdentity();
   if (managedIdentity) {
-    applyManagedStudentIdentity(managedIdentity, saveStudentIdentity);
+    applyManagedStudentIdentity(managedIdentity, (identity) => saveStudentIdentity(identity));
     return { ...managedIdentity, source: "jamf" };
   }
   return loadStudentIdentity();
@@ -99,7 +107,10 @@ function renderStartScreen(profileMessage = ""): void {
 function renderGameScreen(): void {
   app.innerHTML = `
     <main class="app-shell game-screen">
-      <header class="game-header" aria-label="Spielstatus"><div class="brand-block"><div class="brand-mark" aria-hidden="true">×</div><div><p class="eyebrow">Einmaleins</p><p class="round" id="round">Durchlauf 1</p></div></div><div class="header-stats"><div class="stat-card stat-score"><span class="stat-label">Punkte</span><strong id="score">0</strong></div><div class="stat-card stat-time"><span class="stat-label">Zeit</span><strong id="time">10:00</strong></div></div></header>
+      <header class="game-header" aria-label="Spielstatus">
+        <div class="brand-block"><div class="brand-mark" aria-hidden="true">×</div><div><p class="eyebrow">Einmaleins</p><p class="round" id="round">Durchlauf 1</p></div></div>
+        <div class="header-stats"><div class="stat-card stat-score"><span class="stat-label">Punkte</span><strong id="score">0</strong></div><div class="stat-card stat-time"><span class="stat-label">Zeit</span><strong id="time">10:00</strong></div></div>
+      </header>
       <div class="progress-track" aria-label="Fortschritt"><div class="progress-bar" id="progress"></div></div>
       <section class="game-content" aria-label="Aktuelle Aufgabe"><div class="task-card" id="task-card"><p class="task-caption" id="task-caption">Löse die Aufgabe</p><div class="task-equation" aria-live="polite" aria-label="Rechenaufgabe"><span id="factor-a">?</span><span class="operator" aria-hidden="true">×</span><span id="factor-b">?</span><span class="operator" aria-hidden="true">=</span><span class="answer-box" id="answer">?</span></div><div class="feedback-area" aria-live="polite" aria-atomic="true"><p id="feedback" class="feedback feedback-neutral">Gib deine Antwort ein.</p><p id="streak" class="streak" hidden>Serie ×1</p></div></div></section>
       <p class="keyboard-hint">Tipp: Du kannst am PC auch die Zifferntasten 0–9 verwenden.</p>
@@ -143,7 +154,6 @@ function renderGameState(): void {
   const streak = getRequiredElement<HTMLElement>("#streak");
   const taskCard = getRequiredElement<HTMLElement>("#task-card");
   const taskCaption = getRequiredElement<HTMLElement>("#task-caption");
-
   round.textContent = `Durchlauf ${game.round}`;
   score.textContent = String(game.score);
   time.textContent = formatTime(game.elapsedMs);
@@ -156,7 +166,7 @@ function renderGameState(): void {
   if (state.lastAnswer === null) { feedback.textContent = "Gib deine Antwort ein."; feedback.classList.add("feedback-neutral"); }
   else if (state.lastAnswer.correct) { feedback.textContent = `Richtig! +${state.lastAnswer.points} Punkte`; feedback.classList.add("feedback-correct"); taskCard.classList.add("is-correct"); }
   else { feedback.textContent = `Falsch. Die Antwort ist ${state.lastAnswer.expectedAnswer}.`; feedback.classList.add("feedback-wrong"); taskCard.classList.add("is-wrong"); }
-  if (game.streak >= 3) { streak.hidden = false; streak.textContent = `Serie ×${multiplier}`; } else streak.hidden = true;
+  if (game.streak >= 3) { streak.hidden = false; streak.textContent = `Serie ×${multiplier}`; } else { streak.hidden = true; }
 }
 
 function renderResultScreen(): void {
@@ -166,8 +176,16 @@ function renderResultScreen(): void {
   const won = game.phase === "won";
   const headline = won ? "Geschafft!" : "Zeit ist um!";
   const message = won ? "Du hast alle Aufgaben vor Ablauf der zehn Minuten gelöst." : "Dein Ergebnis steht fest.";
-  const highscoreMessage = resultEvaluation?.isNewPersonalBest ? "🏆 Neuer persönlicher Highscore!" : `Persönlicher Rekord: ${resultEvaluation?.personalBest.score ?? loadPersonalHighscore(student.studentId)?.score ?? 0}`;
-  app.innerHTML = `<main class="app-shell result-screen"><section class="result-card" aria-labelledby="result-title"><div class="result-icon" aria-hidden="true">${won ? "✓" : "★"}</div><p class="eyebrow">Einmaleins</p><p class="result-greeting">Gut gespielt, ${escapeHtml(student.name)}!</p><h1 id="result-title">${headline}</h1><p class="result-copy">${message}</p><div class="result-highscore ${resultEvaluation?.isNewPersonalBest ? "is-new" : ""}" aria-live="polite">${highscoreMessage}</div><div class="result-stats" aria-label="Spielergebnis"><div class="result-stat"><span class="stat-label">Punkte</span><strong>${game.score}</strong></div><div class="result-stat"><span class="stat-label">Aufgaben</span><strong>${game.completedTasks} / ${TOTAL_TASKS}</strong></div><div class="result-stat"><span class="stat-label">Modus</span><strong>${practiceMode === "highscore" ? "Mit Highscore" : "Ohne Highscore"}</strong></div></div><button type="button" class="result-button" id="again">Noch eine Runde</button></section></main>`;
+  const highscoreMessage = resultEvaluation?.isNewPersonalBest
+    ? "🏆 Neuer persönlicher Highscore!"
+    : `Persönlicher Rekord: ${resultEvaluation?.personalBest.score ?? loadPersonalHighscore(student.studentId)?.score ?? 0}`;
+  app.innerHTML = `
+    <main class="app-shell result-screen"><section class="result-card" aria-labelledby="result-title">
+      <div class="result-icon" aria-hidden="true">${won ? "✓" : "★"}</div><p class="eyebrow">Einmaleins</p><p class="result-greeting">Gut gespielt, ${escapeHtml(student.name)}!</p><h1 id="result-title">${headline}</h1><p class="result-copy">${message}</p>
+      <div class="result-highscore ${resultEvaluation?.isNewPersonalBest ? "is-new" : ""}" aria-live="polite">${highscoreMessage}</div>
+      <div class="result-stats" aria-label="Spielergebnis"><div class="result-stat"><span class="stat-label">Punkte</span><strong>${game.score}</strong></div><div class="result-stat"><span class="stat-label">Aufgaben</span><strong>${game.completedTasks} / ${TOTAL_TASKS}</strong></div><div class="result-stat"><span class="stat-label">Modus</span><strong>${practiceMode === "highscore" ? "Mit Highscore" : "Ohne Highscore"}</strong></div></div>
+      <button type="button" class="result-button" id="again">Noch eine Runde</button>
+    </section></main>`;
   getRequiredElement<HTMLButtonElement>("#again").addEventListener("click", () => { screen = "start"; resultEvaluation = null; renderStartScreen(); });
 }
 
@@ -185,7 +203,9 @@ function startGame(): void {
     const state = controller.tick();
     renderGameState();
     if (state.game.phase === "won" || state.game.phase === "timeUp") {
-      if (practiceMode === "highscore") resultEvaluation = evaluateResult(student, state.game.score);
+      // The personal highscore is always evaluated at the end of a round.
+      // The practice mode only controls the mode shown to the student.
+      resultEvaluation = evaluateResult(student, state.game.score);
       screen = "result";
       renderResultScreen();
     }
