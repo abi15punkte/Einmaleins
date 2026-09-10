@@ -57,7 +57,7 @@ describe("GameController", () => {
 
   it("zeigt bei falscher erster Ziffer das richtige Ergebnis und behält die Aufgabe im Pool", () => {
     const controller = new GameController(
-      new GameEngine(() => 0.5)
+      new GameEngine(() => 0.99)
     );
 
     const start = controller.start();
@@ -67,13 +67,14 @@ describe("GameController", () => {
 
     expect(expected).toBeGreaterThanOrEqual(10);
 
-    const wrongDigit =
-      expected >= 10
-        ? (Math.floor(expected / 10) + 1) % 10
-        : 9;
+    const firstCorrectDigit = Number(
+      String(expected)[0]
+    );
 
-    expect(String(expected).startsWith(String(wrongDigit)))
-      .toBe(false);
+    const wrongDigit =
+      firstCorrectDigit === 9
+        ? 8
+        : firstCorrectDigit + 1;
 
     const result = controller.pressDigit(wrongDigit);
 
