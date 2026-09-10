@@ -84,6 +84,14 @@ if (
   throw new Error("Required UI element not found.");
 }
 
+const round = roundElement;
+const score = scoreElement;
+const time = timeElement;
+const factorA = factorAElement;
+const factorB = factorBElement;
+const answer = answerElement;
+const feedback = feedbackElement;
+
 function formatTime(elapsedMs: number): string {
   const remainingMs = Math.max(
     0,
@@ -104,31 +112,29 @@ function render(): void {
   const state = controller.getState();
   const task = state.game.currentTask;
 
-  roundElement.textContent = `Runde ${state.game.round}`;
-  scoreElement.textContent = String(state.game.score);
-  timeElement.textContent = formatTime(
-    state.game.elapsedMs
-  );
+  round.textContent = `Runde ${state.game.round}`;
+  score.textContent = String(state.game.score);
+  time.textContent = formatTime(state.game.elapsedMs);
 
   if (task === null) {
-    factorAElement.textContent = "?";
-    factorBElement.textContent = "?";
+    factorA.textContent = "?";
+    factorB.textContent = "?";
   } else {
-    factorAElement.textContent = String(task[0]);
-    factorBElement.textContent = String(task[1]);
+    factorA.textContent = String(task[0]);
+    factorB.textContent = String(task[1]);
   }
 
-  answerElement.textContent =
+  answer.textContent =
     state.input.entered || "?";
 
   if (state.lastAnswer === null) {
-    feedbackElement.textContent =
+    feedback.textContent =
       "Gib deine Antwort ein.";
   } else if (state.lastAnswer.correct) {
-    feedbackElement.textContent =
+    feedback.textContent =
       `Richtig! +${state.lastAnswer.points} Punkte`;
   } else {
-    feedbackElement.textContent =
+    feedback.textContent =
       `Falsch. Die Antwort ist ${state.lastAnswer.expectedAnswer}.`;
   }
 }
@@ -149,6 +155,11 @@ buttons.forEach((button) => {
 
 controller.start();
 render();
+
+window.setInterval(() => {
+  controller.tick();
+  render();
+}, 250);
 
 window.setInterval(() => {
   controller.tick();
