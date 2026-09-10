@@ -3,11 +3,17 @@ import { GameEngine } from "./game/engine";
 import { GameController } from "./game/gameController";
 import { multiplierForStreak } from "./game/scoring";
 
-const app = document.querySelector<HTMLDivElement>("#app");
+function getRequiredElement<T extends HTMLElement>(selector: string): T {
+  const element = document.querySelector<T>(selector);
 
-if (!app) {
-  throw new Error("App container not found.");
+  if (!element) {
+    throw new Error(`Required UI element not found: ${selector}`);
+  }
+
+  return element;
 }
+
+const app = getRequiredElement<HTMLDivElement>("#app");
 
 app.innerHTML = `
   <main class="game-shell">
@@ -75,31 +81,16 @@ app.innerHTML = `
 const engine = new GameEngine();
 const controller = new GameController(engine);
 
-const round = document.querySelector<HTMLElement>("#round");
-const score = document.querySelector<HTMLElement>("#score");
-const time = document.querySelector<HTMLElement>("#time");
-const progress = document.querySelector<HTMLElement>("#progress");
-const factorA = document.querySelector<HTMLElement>("#factor-a");
-const factorB = document.querySelector<HTMLElement>("#factor-b");
-const answer = document.querySelector<HTMLElement>("#answer");
-const feedback = document.querySelector<HTMLElement>("#feedback");
-const streak = document.querySelector<HTMLElement>("#streak");
-const taskCard = document.querySelector<HTMLElement>("#task-card");
-
-if (
-  !round ||
-  !score ||
-  !time ||
-  !progress ||
-  !factorA ||
-  !factorB ||
-  !answer ||
-  !feedback ||
-  !streak ||
-  !taskCard
-) {
-  throw new Error("Required UI element not found.");
-}
+const round = getRequiredElement<HTMLElement>("#round");
+const score = getRequiredElement<HTMLElement>("#score");
+const time = getRequiredElement<HTMLElement>("#time");
+const progress = getRequiredElement<HTMLElement>("#progress");
+const factorA = getRequiredElement<HTMLElement>("#factor-a");
+const factorB = getRequiredElement<HTMLElement>("#factor-b");
+const answer = getRequiredElement<HTMLElement>("#answer");
+const feedback = getRequiredElement<HTMLElement>("#feedback");
+const streak = getRequiredElement<HTMLElement>("#streak");
+const taskCard = getRequiredElement<HTMLElement>("#task-card");
 
 let wrongAnswerTimer: number | null = null;
 
