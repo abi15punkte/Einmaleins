@@ -36,16 +36,16 @@ describe("answer input", () => {
     expect(second.answer).toBe(18);
   });
 
-  it("erkennt eine falsche erste Ziffer sofort", () => {
-    const result = pressDigit(
-      [3, 4],
-      createAnswerInput(),
-      1
-    );
+it("erkennt eine falsche erste Ziffer sofort", () => {
+  const result = pressDigit(
+    [3, 4],
+    createAnswerInput(),
+    2
+  );
 
-    expect(result.state.status).toBe("wrong");
-    expect(result.answer).toBe(1);
-  });
+  expect(result.state.status).toBe("wrong");
+  expect(result.answer).toBe(2);
+});
 
   it("erkennt eine falsche zweite Ziffer", () => {
     const first = pressDigit(
