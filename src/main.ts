@@ -25,45 +25,56 @@ function getRequiredElement<T extends HTMLElement>(selector: string): T {
   return element;
 }
 
+function escapeHtml(value: string): string {
+  return value
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
 const app = getRequiredElement<HTMLDivElement>("#app");
 
 let engine = new GameEngine();
 let controller = new GameController(engine);
 let screen: Screen = "start";
 let practiceMode: PracticeMode = "highscore";
-let student: StudentIdentity = loadStudentIdentity();
-let resultEvaluation: HighscoreEvaluation | null = null;
 let wrongAnswerTimer: number | null = null;
 let gameTimer: number | null = null;
+let resultEvaluation: HighscoreEvaluation | null = null;
+let student: StudentIdentity = loadStudentIdentity();
 
 function renderStartScreen(): void {
-  const highscore = loadPersonalHighscore(student.studentId);
-  const bestText = highscore === null ? "Noch kein persönlicher Highscore" : `Persönlicher Highscore: ${highscore.score}`;
+  student = loadStudentIdentity();
+  const personalHighscore = loadPersonalHighscore(student.studentId);
 
   app.innerHTML = `
     <main class="app-shell start-screen">
       <section class="welcome-card" aria-labelledby="welcome-title">
         <div class="brand-mark brand-mark-large" aria-hidden="true">×</div>
         <p class="eyebrow">Einmaleins</p>
-        <p class="welcome-greeting">Hallo ${escapeHtml(student.name)}!</p>
+        <p class="student-greeting">Hallo, ${escapeHtml(student.name)}!</p>
         <h1 id="welcome-title">Bereit für eine Runde?</h1>
         <p class="welcome-copy">
           Löse so viele Aufgaben wie du kannst. Du hast dafür zehn Minuten.
         </p>
 
-        <div class="personal-best" aria-label="Persönlicher Highscore">
-          <span class="stat-label">Dein Rekord</span>
-          <strong>${bestText}</strong>
-        </div>
+        ${personalHighscore ? `
+          <div class="personal-best" aria-label="Persönlicher Highscore">
+            <span>Dein persönlicher Highscore</span>
+            <strong>${personalHighscore.score} Punkte</strong>
+          </div>
+        ` : ""}
 
         <div class="mode-actions" aria-label="Übungsmodus wählen">
           <button type="button" class="mode-card mode-card-primary" data-mode="highscore">
             <span class="mode-title">Üben mit Highscore</span>
-            <span class="mode-copy">Neue Bestwerte werden als persönlicher Rekord gespeichert.</span>
+            <span class="mode-copy">Dein Ergebnis kann deinen persönlichen Rekord verbessern.</span>
           </button>
           <button type="button" class="mode-card" data-mode="free">
             <span class="mode-title">Üben ohne Highscore</span>
-            <span class="mode-copy">Spiele dieselbe Runde ganz ohne Highscore-Fokus.</span>
+            <span class="mode-copy">Spiele dieselbe Runde ohne persönlichen Rekord zu verändern.</span>
           </button>
         </div>
       </section>
@@ -236,11 +247,9 @@ function renderResultScreen(): void {
   const message = won
     ? "Du hast alle Aufgaben vor Ablauf der zehn Minuten gelöst."
     : "Dein Ergebnis steht fest.";
-  const modeLabel = practiceMode === "highscore" ? "Mit Highscore" : "Ohne Highscore";
-  const evaluation = resultEvaluation;
-  const highscoreMessage = evaluation?.isNewPersonalBest
+  const highscoreMessage = resultEvaluation?.isNewPersonalBest
     ? "🏆 Neuer persönlicher Highscore!"
-    : `Persönlicher Rekord: ${evaluation?.personalBest.score ?? loadPersonalHighscore(student.studentId)?.score ?? 0}`;
+    : `Persönlicher Rekord: ${resultEvaluation?.personalBest.score ?? loadPersonalHighscore(student.studentId)?.score ?? 0}`;
 
   app.innerHTML = `
     <main class="app-shell result-screen">
@@ -250,6 +259,10 @@ function renderResultScreen(): void {
         <p class="result-greeting">Gut gespielt, ${escapeHtml(student.name)}!</p>
         <h1 id="result-title">${headline}</h1>
         <p class="result-copy">${message}</p>
+
+        <div class="result-highscore ${resultEvaluation?.isNewPersonalBest ? "is-new" : ""}" aria-live="polite">
+          ${highscoreMessage}
+        </div>
 
         <div class="result-stats" aria-label="Spielergebnis">
           <div class="result-stat">
@@ -261,15 +274,10 @@ function renderResultScreen(): void {
             <strong>${game.completedTasks} / ${TOTAL_TASKS}</strong>
           </div>
           <div class="result-stat">
-            <span class="stat-label">Rekord</span>
-            <strong>${highscoreMessage}</strong>
+            <span class="stat-label">Modus</span>
+            <strong>${practiceMode === "highscore" ? "Mit Highscore" : "Ohne Highscore"}</strong>
           </div>
         </div>
-
-        ${evaluation?.isNewPersonalBest ? `
-          <p class="new-record-banner">Dein Ergebnis wurde sicher offline gespeichert.</p>
-          <p class="sync-note">Eine spätere schulweite Synchronisierung kann diesen Eintrag übertragen, sobald eine echte Online-Anbindung vorhanden ist.</p>
-        ` : ""}
 
         <button type="button" class="result-button" id="again">Noch eine Runde</button>
       </section>
@@ -277,8 +285,8 @@ function renderResultScreen(): void {
   `;
 
   getRequiredElement<HTMLButtonElement>("#again").addEventListener("click", () => {
-    resultEvaluation = null;
     screen = "start";
+    resultEvaluation = null;
     renderStartScreen();
   });
 }
@@ -290,9 +298,10 @@ function startGame(): void {
   }
 
   clearGameTimer();
+  resultEvaluation = null;
+  student = loadStudentIdentity();
   engine = new GameEngine();
   controller = new GameController(engine);
-  resultEvaluation = null;
   screen = "game";
   controller.start();
   renderGameScreen();
@@ -302,7 +311,10 @@ function startGame(): void {
     renderGameState();
 
     if (state.game.phase === "won" || state.game.phase === "timeUp") {
-      resultEvaluation = evaluateResult(student, state.game.score);
+      if (practiceMode === "highscore") {
+        resultEvaluation = evaluateResult(student, state.game.score);
+      }
+
       screen = "result";
       renderResultScreen();
     }
@@ -335,20 +347,6 @@ function formatTime(elapsedMs: number): string {
   const seconds = totalSeconds % 60;
 
   return `${minutes}:${String(seconds).padStart(2, "0")}`;
-}
-
-function escapeHtml(value: string): string {
-  return value.replace(/[&<>'"]/g, (character) => {
-    const entities: Record<string, string> = {
-      "&": "&amp;",
-      "<": "&lt;",
-      ">": "&gt;",
-      "'": "&#39;",
-      '"': "&quot;"
-    };
-
-    return entities[character] ?? character;
-  });
 }
 
 renderStartScreen();
