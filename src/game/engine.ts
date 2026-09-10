@@ -216,19 +216,15 @@ export class GameEngine {
   ): void {
     let tasks: Task[];
 
-    if (round === 1) {
-      tasks = createRoundOne(this.random).slice(
-        poolIndex * 6,
-        poolIndex * 6 + 6
-      );
-    } else if (round === 2) {
-      tasks = createRoundTwo(this.random).slice(
-        poolIndex * 6,
-        poolIndex * 6 + 6
-      );
-    } else {
-      tasks = createRoundThree(this.random);
-    }
+    if (round === 1 || round === 2) {
+  tasks = createPool(
+    round,
+    poolIndex,
+    this.random
+  );
+} else {
+  tasks = createRoundThree(this.random);
+}
 
     this.state = {
       ...this.state,
