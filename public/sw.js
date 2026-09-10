@@ -1,4 +1,4 @@
-const CACHE_NAME = "einmaleins-v2";
+const CACHE_NAME = "einmaleins-v3";
 const APP_SHELL = ["./", "./index.html", "./manifest.webmanifest", "./einmaleins-icon.svg"];
 
 self.addEventListener("install", (event) => {
