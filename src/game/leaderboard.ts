@@ -88,20 +88,25 @@ function validateLeaderboardEntry(value: unknown): LeaderboardEntry {
   }
 
   const entry = value as Record<string, unknown>;
+  const rank = entry.rank;
+  const name = entry.name;
+  const score = entry.score;
+  const className = entry.className;
+
   if (
-    !Number.isInteger(entry.rank) ||
-    entry.rank < 1 ||
-    typeof entry.name !== "string" ||
-    !Number.isInteger(entry.score) ||
-    entry.score < 0
+    !Number.isInteger(rank) ||
+    rank < 1 ||
+    typeof name !== "string" ||
+    !Number.isInteger(score) ||
+    score < 0
   ) {
     throw new Error("Invalid leaderboard entry.");
   }
 
   return {
-    rank: entry.rank,
-    name: entry.name,
-    className: typeof entry.className === "string" ? entry.className : null,
-    score: entry.score
+    rank,
+    name,
+    className: typeof className === "string" ? className : null,
+    score
   };
 }
