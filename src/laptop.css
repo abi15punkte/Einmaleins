@@ -117,7 +117,7 @@
     width: 45vw !important;
     height: 75vh !important;
     min-height: 75vh !important;
-    margin: 10vh 0 0 5vw !important;
+    margin: 5vh 0 0 0 !important;
     padding: 0 !important;
     align-self: start !important;
     display: grid !important;
@@ -209,14 +209,14 @@
     grid-row: 2 !important;
     width: 40vw !important;
     height: 64vh !important;
-    margin: 0 auto 0 !important;
+    margin: 0 auto !important;
     align-self: end !important;
     display: grid !important;
     grid-template-columns: repeat(3, 12vw) !important;
     grid-template-rows: repeat(4, 12vh) !important;
     column-gap: 2vw !important;
     row-gap: 2vh !important;
-    transform: translate(5vw, 10vh) !important;
+    transform: translate(5vw, 3vh) !important;
   }
 
   .game-screen .keypad-key {
