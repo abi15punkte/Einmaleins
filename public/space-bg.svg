@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#eef9ff"/>
+      <stop offset="0.55" stop-color="#f7fbff"/>
+      <stop offset="1" stop-color="#eaf5ff"/>
+    </linearGradient>
+    <radialGradient id="planetBlue">
+      <stop offset="0" stop-color="#9fdcf7"/>
+      <stop offset="1" stop-color="#65afe0"/>
+    </radialGradient>
+    <radialGradient id="planetPurple">
+      <stop offset="0" stop-color="#c9bbfa"/>
+      <stop offset="1" stop-color="#8a73dd"/>
+    </radialGradient>
+    <radialGradient id="planetGold">
+      <stop offset="0" stop-color="#ffe39a"/>
+      <stop offset="1" stop-color="#f3b84f"/>
+    </radialGradient>
+  </defs>
+  <rect width="1600" height="900" fill="url(#sky)"/>
+  <g opacity="0.28">
+    <ellipse cx="120" cy="790" rx="270" ry="115" fill="#87c8ef"/>
+    <ellipse cx="1520" cy="820" rx="260" ry="130" fill="#f6cc76"/>
+  </g>
+  <g opacity="0.45">
+    <circle cx="130" cy="770" r="118" fill="url(#planetBlue)"/>
+    <ellipse cx="130" cy="770" rx="168" ry="44" fill="none" stroke="#8ac9ed" stroke-width="12" transform="rotate(18 130 770)"/>
+    <circle cx="1460" cy="835" r="112" fill="url(#planetGold)"/>
+    <ellipse cx="1460" cy="835" rx="154" ry="38" fill="none" stroke="#f0c46a" stroke-width="11" transform="rotate(-22 1460 835)"/>
+  </g>
+  <g opacity="0.62">
+    <circle cx="1360" cy="120" r="72" fill="url(#planetPurple)"/>
+    <ellipse cx="1360" cy="120" rx="112" ry="26" fill="none" stroke="#a895ee" stroke-width="9" transform="rotate(12 1360 120)"/>
+    <circle cx="270" cy="115" r="54" fill="#7fc5ef"/>
+  </g>
+  <g fill="#f6c94d" opacity="0.85">
+    <path d="M108 212l8 18 20 2-15 13 4 20-17-10-17 10 4-20-15-13 20-2z"/>
+    <path d="M1490 270l7 16 18 2-14 12 4 18-15-9-15 9 4-18-14-12 18-2z"/>
+    <path d="M820 95l6 14 16 2-12 10 4 16-14-8-14 8 4-16-12-10 16-2z"/>
+    <path d="M1180 760l7 16 17 2-13 11 4 17-15-9-15 9 4-17-13-11 17-2z"/>
+  </g>
+  <g fill="#83bee8" opacity="0.6">
+    <circle cx="210" cy="310" r="5"/><circle cx="360" cy="175" r="4"/><circle cx="1230" cy="250" r="5"/><circle cx="1430" cy="400" r="4"/><circle cx="970" cy="810" r="5"/><circle cx="610" cy="820" r="4"/>
+  </g>
+</svg>
