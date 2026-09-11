@@ -85,7 +85,8 @@ body {
     color: var(--space-text) !important;
   }
 
-  .game-screen .stat-points .stat-label {
+  .game-screen .stat-points .stat-label,
+  .game-screen #round-caption {
     color: var(--button-two-green) !important;
   }
 
@@ -93,8 +94,11 @@ body {
     color: var(--space-text) !important;
   }
 
-  .game-screen .stat-time strong,
-  .game-screen #task-number-caption {
+  .game-screen .stat-time strong {
     color: var(--game-text) !important;
+  }
+
+  .game-screen #task-number-caption {
+    color: var(--space-text) !important;
   }
 }
