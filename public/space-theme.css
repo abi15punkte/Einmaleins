@@ -121,7 +121,7 @@ body {
   .welcome-card h1,
   .result-card h1 {
     margin: 1.2vh 0 !important;
-    color: #000000 !important;
+    color: var(--space-text) !important;
     font-size: clamp(5vh, 5vw, 7vh) !important;
     line-height: 0.98 !important;
     letter-spacing: -0.04em !important;
@@ -131,7 +131,7 @@ body {
   .result-greeting {
     margin: 1.8vh 0 0 !important;
     color: #000000 !important;
-    font-size: 2.3vh !important;
+    font-size: 3.8vh !important;
     font-weight: 800 !important;
   }
 
@@ -152,11 +152,18 @@ body {
   .personal-best,
   .result-highscore {
     margin: 2.4vh auto 0 !important;
-    padding: 1.2vh 1.2vw !important;
-    border: 1px solid rgb(23 32 51 / 7%) !important;
-    border-radius: 0.9vw !important;
-    background: rgb(255 255 255 / 55%) !important;
-    color: #000000 !important;
+    padding: 1.8vh 1.5vw !important;
+    border: 1px solid rgb(82 175 231 / 42%) !important;
+    border-radius: 1.2vw !important;
+    background: linear-gradient(145deg, #68c9f4, #52afe7) !important;
+    color: #ffffff !important;
+    box-shadow: 0 11px 24px rgb(51 93 145 / 17%) !important;
+  }
+
+  .personal-best strong,
+  .result-highscore strong,
+  .personal-best span {
+    color: #ffffff !important;
   }
 
   .result-highscore.is-new {
@@ -165,9 +172,8 @@ body {
     color: #248f5b !important;
   }
 
-  .personal-best strong,
-  .result-highscore strong {
-    color: #000000 !important;
+  .result-highscore.is-new strong {
+    color: #248f5b !important;
   }
 
   .mode-actions {
@@ -343,6 +349,18 @@ body {
 
   .game-screen #time.time-critical {
     color: var(--space-pink) !important;
+  }
+
+  .start-screen .build-version {
+    position: absolute !important;
+    right: 1.2vw !important;
+    bottom: 0.8vh !important;
+    margin: 0 !important;
+    color: rgb(23 32 51 / 42%) !important;
+    font-size: 1.35vh !important;
+    line-height: 1 !important;
+    text-align: right !important;
+    pointer-events: none !important;
   }
 }
 
