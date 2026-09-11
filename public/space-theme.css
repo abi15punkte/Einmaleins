@@ -11,10 +11,17 @@ body {
   background-size: cover !important;
   background-repeat: no-repeat !important;
   background-attachment: fixed !important;
+  color: var(--space-text) !important;
 }
 
 .game-screen .brand-block {
   display: none !important;
+  visibility: hidden !important;
+  width: 0 !important;
+  height: 0 !important;
+  overflow: hidden !important;
+  margin: 0 !important;
+  padding: 0 !important;
 }
 
 .game-screen .keypad-key {
@@ -67,7 +74,9 @@ body {
   .game-screen .stat-label,
   .game-screen .stat-card strong,
   .game-screen .task-equation,
-  .game-screen .keyboard-hint {
+  .game-screen .keyboard-hint,
+  .game-screen .operator,
+  .game-screen .answer-box {
     color: var(--space-text) !important;
   }
 }
