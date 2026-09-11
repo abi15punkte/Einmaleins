@@ -92,6 +92,7 @@
     const taskCard = screen.querySelector("#task-card");
     if (!feedback || !streakElement || !scoreElement || !timeElement || !taskCard) return;
 
+    scoreElement.dataset.displayManaged = "true";
     updateCriticalTime(timeElement);
 
     const signature = `${feedback.className}|${feedback.textContent ?? ""}`;
