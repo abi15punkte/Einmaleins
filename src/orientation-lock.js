@@ -1,26 +1,10 @@
 (() => {
-  const PORTRAIT_QUERY = "(orientation: portrait)";
-  const isPortrait = () => window.matchMedia?.(PORTRAIT_QUERY).matches ?? window.innerHeight > window.innerWidth;
-  const getApp = () => document.getElementById("app");
+  const isPortrait = () => window.innerHeight > window.innerWidth;
 
-  function updatePortraitGuard() {
-    const app = getApp();
-    if (!app) return;
-
+  function updatePortraitState() {
     const portrait = isPortrait();
     document.documentElement.classList.toggle("portrait-blocked", portrait);
-
-    let guard = document.getElementById("portrait-guard");
-    if (portrait && !guard) {
-      guard = document.createElement("div");
-      guard.id = "portrait-guard";
-      guard.setAttribute("role", "dialog");
-      guard.setAttribute("aria-modal", "true");
-      guard.innerHTML = '<div class="portrait-guard-card"><div class="portrait-guard-icon" aria-hidden="true">↻</div><h1>Bitte Gerät drehen</h1><p>Dieses Spiel funktioniert nur im Querformat.</p></div>';
-      document.body.appendChild(guard);
-    } else if (!portrait && guard) {
-      guard.remove();
-    }
+    document.documentElement.setAttribute("data-orientation", portrait ? "portrait" : "landscape");
   }
 
   function tryLockLandscape() {
@@ -30,20 +14,19 @@
     });
   }
 
+  updatePortraitState();
+
   window.addEventListener("load", () => {
     tryLockLandscape();
-    updatePortraitGuard();
+    updatePortraitState();
   });
-  window.addEventListener("resize", updatePortraitGuard, { passive: true });
+  window.addEventListener("resize", updatePortraitState, { passive: true });
   window.addEventListener("orientationchange", () => {
     tryLockLandscape();
-    updatePortraitGuard();
-  });
+    updatePortraitState();
+  }, { passive: true });
+  window.visualViewport?.addEventListener("resize", updatePortraitState, { passive: true });
 
-  const mediaQuery = window.matchMedia?.(PORTRAIT_QUERY);
-  mediaQuery?.addEventListener?.("change", updatePortraitGuard);
-
-  const observer = new MutationObserver(updatePortraitGuard);
-  observer.observe(document.documentElement, { childList: true, subtree: true });
-  updatePortraitGuard();
+  const mediaQuery = window.matchMedia?.("(orientation: portrait)");
+  mediaQuery?.addEventListener?.("change", updatePortraitState);
 })();
