@@ -38,6 +38,7 @@ jobs:
         run: |
           BUILD_ID="${GITHUB_SHA::12}-$(date -u +%Y%m%d%H%M%S)"
           sed -i "s/__BUILD_ID__/${BUILD_ID}/g" dist/index.html dist/sw.js
+          printf '{"buildId":"%s"}\n' "$BUILD_ID" > dist/version.json
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
