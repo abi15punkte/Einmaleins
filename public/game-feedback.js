@@ -110,7 +110,46 @@
     window.setTimeout(() => particle.remove(), POINTS_FLIGHT_MS + 90);
   }
 
+  function tryCloseApp() {
+    window.close();
+    window.setTimeout(() => {
+      const status = document.querySelector("#close-app-status");
+      if (!(status instanceof HTMLElement)) return;
+      status.textContent = "Das iPad verhindert das automatische Schließen. Bitte die Einmaleins-App über den App-Umschalter schließen.";
+      status.hidden = false;
+    }, 250);
+  }
+
+  function ensureResultCloseAction() {
+    const resultCard = document.querySelector(".result-card");
+    if (!(resultCard instanceof HTMLElement) || resultCard.querySelector("#close-app")) return;
+
+    const againButton = resultCard.querySelector("#again");
+    const closeButton = document.createElement("button");
+    closeButton.type = "button";
+    closeButton.className = "result-button";
+    closeButton.id = "close-app";
+    closeButton.textContent = "App schließen";
+    closeButton.addEventListener("click", tryCloseApp);
+
+    const status = document.createElement("p");
+    status.id = "close-app-status";
+    status.className = "profile-status";
+    status.hidden = true;
+    status.setAttribute("aria-live", "polite");
+
+    if (againButton) {
+      againButton.insertAdjacentElement("afterend", closeButton);
+      closeButton.insertAdjacentElement("afterend", status);
+    } else {
+      resultCard.append(closeButton, status);
+    }
+  }
+
   function sync() {
+    const resultScreen = document.querySelector(".result-screen");
+    if (resultScreen) ensureResultCloseAction();
+
     const screen = document.querySelector(".game-screen");
     if (!screen) {
       currentGameScreen = null;
