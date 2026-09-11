@@ -115,7 +115,7 @@
     window.setTimeout(() => {
       const status = document.querySelector("#close-app-status");
       if (!(status instanceof HTMLElement)) return;
-      status.textContent = "Das Beenden wird auf dem iPad nicht unterstützt. Bitte schließe die Einmaleins-App über den App-Umschalter.";
+      status.textContent = "Das Beenden wird auf deinem iPad nicht unterstützt. Bitte schließe die App selbst.";
       status.hidden = false;
     }, 250);
   }
@@ -127,14 +127,14 @@
     const againButton = resultCard.querySelector("#again");
     const closeButton = document.createElement("button");
     closeButton.type = "button";
-    closeButton.className = "result-button";
+    closeButton.className = "result-button result-button-secondary";
     closeButton.id = "close-app";
     closeButton.textContent = "App schließen";
     closeButton.addEventListener("click", tryCloseApp);
 
     const status = document.createElement("p");
     status.id = "close-app-status";
-    status.className = "profile-status";
+    status.className = "close-app-status";
     status.hidden = true;
     status.setAttribute("aria-live", "polite");
 
