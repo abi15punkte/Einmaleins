@@ -8,8 +8,16 @@ import { createLeaderboardClient, type LeaderboardClient } from "./game/leaderbo
 import { queueHighscoreForSync, syncPendingHighscores } from "./game/highscoreSync";
 
 const TOTAL_TASKS = 136;
+const ANSWER_FEEDBACK_MS = 200;
 type Screen = "start" | "game" | "result";
 type PracticeMode = "highscore" | "free";
+type AnswerPresentation = {
+  factorA: string;
+  factorB: string;
+  entered: string;
+  expected: string;
+  status: "wrong-red" | "wrong-black" | "correct-green";
+} | null;
 
 function getRequiredElement<T extends HTMLElement>(selector: string): T {
   const element = document.querySelector<T>(selector);
@@ -27,7 +35,9 @@ let controller = new GameController(engine);
 let screen: Screen = "start";
 let practiceMode: PracticeMode = "highscore";
 let wrongAnswerTimer: number | null = null;
+let answerFeedbackTimer: number | null = null;
 let gameTimer: number | null = null;
+let answerPresentation: AnswerPresentation = null;
 let resultEvaluation: HighscoreEvaluation | null = null;
 let student: StudentIdentity = loadResolvedStudentIdentity();
 let leaderboardClient: LeaderboardClient | null = createLeaderboardClient();
@@ -84,9 +94,44 @@ function handleDigit(digit: number): void {
   if (screen !== "game") return;
   const stateBefore = controller.getState();
   if (stateBefore.input.status !== "waiting") return;
+
+  const previousTask = stateBefore.game.currentTask;
   const stateAfter = controller.pressDigit(digit);
-  renderGameState();
-  if (stateAfter.lastAnswer !== null && !stateAfter.lastAnswer.correct) scheduleNextTaskAfterWrongAnswer();
+  const answerResult = stateAfter.lastAnswer;
+
+  if (answerResult !== null && previousTask !== null) {
+    clearAnswerFeedbackTimer();
+    answerPresentation = {
+      factorA: String(previousTask[0]),
+      factorB: String(previousTask[1]),
+      entered: stateBefore.input.entered + digit,
+      expected: String(answerResult.expectedAnswer),
+      status: answerResult.correct ? "correct-green" : "wrong-red"
+    };
+
+    renderGameState();
+
+    answerFeedbackTimer = window.setTimeout(() => {
+      answerFeedbackTimer = null;
+      if (answerPresentation === null) return;
+
+      if (answerResult.correct) {
+        answerPresentation = null;
+        renderGameState();
+        return;
+      }
+
+      answerPresentation = {
+        ...answerPresentation,
+        status: "wrong-black"
+      };
+      renderGameState();
+    }, ANSWER_FEEDBACK_MS);
+  } else {
+    renderGameState();
+  }
+
+  if (answerResult !== null && !answerResult.correct) scheduleNextTaskAfterWrongAnswer();
 }
 
 function handleKeyboardInput(event: KeyboardEvent): void {
@@ -102,16 +147,38 @@ function renderGameState(): void {
   const multiplier = multiplierForStreak(game.streak);
   const round = getRequiredElement<HTMLElement>("#round"); const roundCaption = getRequiredElement<HTMLElement>("#round-caption"); const taskNumberCaption = getRequiredElement<HTMLElement>("#task-number-caption"); const score = getRequiredElement<HTMLElement>("#score"); const time = getRequiredElement<HTMLElement>("#time"); const progress = getRequiredElement<HTMLElement>("#progress"); const factorA = getRequiredElement<HTMLElement>("#factor-a"); const factorB = getRequiredElement<HTMLElement>("#factor-b"); const answer = getRequiredElement<HTMLElement>("#answer"); const feedback = getRequiredElement<HTMLElement>("#feedback"); const streak = getRequiredElement<HTMLElement>("#streak"); const taskCard = getRequiredElement<HTMLElement>("#task-card");
   round.textContent = `Level ${game.round}`; roundCaption.textContent = `Level ${game.round}`; taskNumberCaption.textContent = `Aufgabe ${Math.min(game.completedTasks + 1, TOTAL_TASKS)}`; score.textContent = String(game.score); time.textContent = formatTime(game.elapsedMs); progress.style.width = `${Math.min((game.completedTasks / TOTAL_TASKS) * 100, 100)}%`;
-  if (task === null) { factorA.textContent = "?"; factorB.textContent = "?"; } else { factorA.textContent = String(task[0]); factorB.textContent = String(task[1]); }
-  answer.textContent = state.input.entered || "?"; feedback.className = "feedback"; taskCard.classList.remove("is-correct", "is-wrong");
+
+  if (answerPresentation !== null) {
+    factorA.textContent = answerPresentation.factorA;
+    factorB.textContent = answerPresentation.factorB;
+    answer.textContent = answerPresentation.status === "wrong-black" ? answerPresentation.expected : answerPresentation.entered;
+    answer.classList.remove("answer-feedback-wrong", "answer-feedback-correct");
+    if (answerPresentation.status === "wrong-red") answer.classList.add("answer-feedback-wrong");
+    if (answerPresentation.status === "correct-green") answer.classList.add("answer-feedback-correct");
+  } else {
+    if (task === null) { factorA.textContent = "?"; factorB.textContent = "?"; } else { factorA.textContent = String(task[0]); factorB.textContent = String(task[1]); }
+    answer.textContent = state.input.entered || "?";
+    answer.classList.remove("answer-feedback-wrong", "answer-feedback-correct");
+  }
+
+  feedback.className = "feedback"; taskCard.classList.remove("is-correct", "is-wrong");
   if (state.lastAnswer === null) { feedback.textContent = "Gib deine Antwort ein."; feedback.classList.add("feedback-neutral"); }
   else if (state.lastAnswer.correct) { feedback.textContent = `Richtig! +${state.lastAnswer.points} Punkte`; feedback.classList.add("feedback-correct"); taskCard.classList.add("is-correct"); }
   else { feedback.textContent = `Falsch. Die Antwort ist ${state.lastAnswer.expectedAnswer}.`; feedback.classList.add("feedback-wrong"); taskCard.classList.add("is-wrong"); }
   if (game.streak >= 3) { streak.hidden = false; streak.textContent = `Serie ×${multiplier}`; } else streak.hidden = true;
 }
 
+function clearAnswerFeedbackTimer(): void {
+  if (answerFeedbackTimer !== null) {
+    window.clearTimeout(answerFeedbackTimer);
+    answerFeedbackTimer = null;
+  }
+  answerPresentation = null;
+}
+
 function renderResultScreen(): void {
   clearGameTimer();
+  clearAnswerFeedbackTimer();
   const game = controller.getState().game;
   const won = game.phase === "won";
   const headline = won ? "Geschafft!" : "Zeit ist um!";
@@ -156,15 +223,17 @@ async function syncPendingIfPossible(): Promise<void> {
 
 function startGame(): void {
   if (wrongAnswerTimer !== null) { window.clearTimeout(wrongAnswerTimer); wrongAnswerTimer = null; }
-  clearGameTimer(); resultEvaluation = null; student = loadResolvedStudentIdentity(); engine = new GameEngine(); controller = new GameController(engine); screen = "game"; controller.start(); renderGameScreen();
+  clearGameTimer(); clearAnswerFeedbackTimer(); resultEvaluation = null; student = loadResolvedStudentIdentity(); engine = new GameEngine(); controller = new GameController(engine); screen = "game"; controller.start(); renderGameScreen();
   gameTimer = window.setInterval(() => { const state = controller.tick(); renderGameState(); if (state.game.phase === "won" || state.game.phase === "timeUp") { resultEvaluation = evaluateResult(student, state.game.score); screen = "result"; renderResultScreen(); } }, 250);
 }
 
-function scheduleNextTaskAfterWrongAnswer(): void { if (wrongAnswerTimer !== null) window.clearTimeout(wrongAnswerTimer); wrongAnswerTimer = window.setTimeout(() => { wrongAnswerTimer = null; controller.advanceAfterWrongAnswer(); renderGameState(); }, 1000); }
+function scheduleNextTaskAfterWrongAnswer(): void { if (wrongAnswerTimer !== null) window.clearTimeout(wrongAnswerTimer); wrongAnswerTimer = window.setTimeout(() => { wrongAnswerTimer = null; clearAnswerFeedbackTimer(); controller.advanceAfterWrongAnswer(); renderGameState(); }, 1000); }
 function clearGameTimer(): void { if (gameTimer !== null) { window.clearInterval(gameTimer); gameTimer = null; } }
-function formatTime(elapsedMs: number): string { const remainingMs = Math.max(0, GAME_DURATION_MS - elapsedMs); const totalSeconds = Math.ceil(remainingMs / 1000); const minutes = Math.floor(totalSeconds / 60); const seconds = totalSeconds % 60; return `${minutes}:${seconds.toString().padStart(2, "0")}`; }
+function formatTime(elapsedMs: number): string { const remainingMs = Math.max(0, GAME_DURATION_MS - elapsedMs); const totalSeconds = Math.ceil(remainingMs / 1000); const minutes = Math.floor(totalSeconds / 60); const seconds = totalSeconds % 60; return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`; }
 
-window.addEventListener("keydown", handleKeyboardInput);
-window.addEventListener("online", () => { void syncPendingIfPossible(); });
+document.addEventListener("keydown", handleKeyboardInput);
+
 void syncPendingIfPossible();
+window.addEventListener("online", () => { void syncPendingIfPossible(); });
+
 renderStartScreen();
