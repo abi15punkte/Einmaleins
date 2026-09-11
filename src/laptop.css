@@ -99,12 +99,7 @@
   }
 
   .game-screen .progress-track {
-    position: absolute !important;
-    left: 2.5vw !important;
-    top: 15vh !important;
-    width: 95vw !important;
-    height: 0.5vh !important;
-    margin: 0 !important;
+    display: none !important;
   }
 
   .game-screen .game-content {
