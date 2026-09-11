@@ -34,6 +34,11 @@ jobs:
       - name: Build
         run: npm run build
 
+      - name: Version build assets
+        run: |
+          BUILD_ID="${GITHUB_SHA::12}-$(date -u +%Y%m%d%H%M%S)"
+          sed -i "s/__BUILD_ID__/${BUILD_ID}/g" dist/index.html dist/sw.js
+
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
@@ -54,4 +59,3 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
-
