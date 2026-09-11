@@ -31,24 +31,22 @@
     text-align: center !important;
   }
 
-  /* Keep the new Level/Aufgabe cards in the same viewport coordinate system
-     as the original right-side cards, independent of the task-card layout. */
-  .game-screen .task-caption {
-    position: static !important;
-    display: block !important;
-    width: 0 !important;
-    height: 0 !important;
-    min-width: 0 !important;
-    min-height: 0 !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    overflow: visible !important;
+  /* Level/Aufgabe are re-parented into the game header so their placement is
+     independent of the task-card grid and its own geometry. */
+  .game-screen .header-statuses {
+    position: absolute !important;
+    top: 2.5vh !important;
+    left: 2.5vw !important;
+    height: 10vh !important;
+    display: flex !important;
+    align-items: stretch !important;
+    gap: 2vw !important;
+    z-index: 20 !important;
   }
 
-  .game-screen #round-caption,
-  .game-screen #task-number-caption {
-    position: fixed !important;
-    top: 2.5vh !important;
+  .game-screen .header-statuses #round-caption,
+  .game-screen .header-statuses #task-number-caption {
+    position: static !important;
     width: 10vw !important;
     min-width: 10vw !important;
     height: 10vh !important;
@@ -65,19 +63,11 @@
     align-items: center !important;
     justify-content: center !important;
     text-align: center !important;
-    z-index: 9999 !important;
-    left: auto !important;
-    right: auto !important;
-    bottom: auto !important;
-    transform: none !important;
-    color: var(--space-text) !important;
+    color: #000000 !important;
     white-space: nowrap !important;
   }
 
-  .game-screen #round-caption { left: 2.5vw !important; }
-  .game-screen #task-number-caption { left: 14.5vw !important; }
-
-  .game-screen .status-caption-label {
+  .game-screen .header-statuses .status-caption-label {
     display: block !important;
     color: var(--space-text) !important;
     font-size: 2vh !important;
@@ -87,7 +77,7 @@
     text-transform: uppercase !important;
   }
 
-  .game-screen .status-caption-value {
+  .game-screen .header-statuses .status-caption-value {
     display: block !important;
     margin-top: 0.3vh !important;
     color: #000000 !important;
@@ -95,6 +85,12 @@
     line-height: 0.9 !important;
     font-weight: 800 !important;
     letter-spacing: -0.02em !important;
+  }
+
+  /* The task card no longer owns the status cards. Keep the old caption
+     container out of the visual layout if it is still present briefly. */
+  .game-screen .task-caption {
+    display: none !important;
   }
 
   .game-screen .task-card {
