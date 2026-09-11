@@ -95,28 +95,9 @@
     border: 1px solid rgb(23 32 51 / 7%) !important;
     box-shadow: 0 4px 14px rgb(23 32 51 / 5%) !important;
     grid-template-rows: 100% !important;
-    transition: background 180ms ease, border-color 180ms ease, box-shadow 180ms ease, transform 120ms ease;
   }
 
-  .game-screen .task-card.streak-2 {
-    background: linear-gradient(145deg, #ffe36f, #ffc65a) !important;
-    border-color: rgb(255 210 86 / 72%) !important;
-    box-shadow: 0 8px 24px rgb(255 198 90 / 20%) !important;
-  }
-
-  .game-screen .task-card.streak-3 {
-    background: linear-gradient(145deg, #ffc169, #ff964e) !important;
-    border-color: rgb(255 150 78 / 72%) !important;
-    box-shadow: 0 8px 24px rgb(255 150 78 / 22%) !important;
-  }
-
-  .game-screen .task-card.streak-5 {
-    background: linear-gradient(145deg, #fa969e, #ee737f) !important;
-    border-color: rgb(238 115 127 / 72%) !important;
-    box-shadow: 0 8px 24px rgb(238 115 127 / 24%) !important;
-  }
-
-  .game-screen .task-card.is-wrong {
+  .game-screen .task-card:has(.answer-box.answer-feedback-wrong) {
     animation: task-card-shake 620ms cubic-bezier(.36,.07,.19,.97) both;
   }
 
