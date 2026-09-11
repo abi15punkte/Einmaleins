@@ -106,22 +106,21 @@
     box-shadow: 0 8px 28px rgb(105 203 108 / 26%), 0 0 0 3px rgb(105 203 108 / 18%);
   }
 
-  .game-screen #score.multiplier-x1 { color: #000000 !important; }
-  .game-screen #score.multiplier-x2 { color: #ffc65a !important; }
-  .game-screen #score.multiplier-x3 { color: #ff964e !important; }
-  .game-screen #score.multiplier-x5 { color: #ee737f !important; }
+  .game-screen #score {
+    color: #000000 !important;
+  }
 
   .points-fly {
     position: fixed;
     z-index: 10000;
     pointer-events: none;
-    font-size: 4.2vh;
+    font-size: 7vh;
     line-height: 1;
     font-weight: 900;
     letter-spacing: -0.03em;
-    text-shadow: 0 3px 8px rgb(23 52 95 / 18%);
+    text-shadow: 0 3px 10px rgb(23 52 95 / 20%);
     transform: translate(-50%, -50%);
-    animation: points-fly-to-score 760ms cubic-bezier(.2,.8,.2,1) forwards;
+    animation: points-fly-to-score 1520ms cubic-bezier(.2,.8,.2,1) forwards;
   }
 
   .points-fly.multiplier-x1 { color: #000000; }
