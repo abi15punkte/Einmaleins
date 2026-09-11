@@ -120,7 +120,7 @@ function renderGameState(): void {
   const task = game.currentTask;
   const multiplier = multiplierForStreak(game.streak);
   const round = getRequiredElement<HTMLElement>("#round"); const roundCaption = getRequiredElement<HTMLElement>("#round-caption"); const taskNumberCaption = getRequiredElement<HTMLElement>("#task-number-caption"); const score = getRequiredElement<HTMLElement>("#score"); const time = getRequiredElement<HTMLElement>("#time"); const progress = getRequiredElement<HTMLElement>("#progress"); const factorA = getRequiredElement<HTMLElement>("#factor-a"); const factorB = getRequiredElement<HTMLElement>("#factor-b"); const answer = getRequiredElement<HTMLElement>("#answer"); const feedback = getRequiredElement<HTMLElement>("#feedback"); const streak = getRequiredElement<HTMLElement>("#streak"); const taskCard = getRequiredElement<HTMLElement>("#task-card");
-  round.textContent = `Level ${game.round}`; roundCaption.innerHTML = `<span class="status-caption-label">Level</span><strong class="status-caption-value">${game.round}</strong>`; taskNumberCaption.innerHTML = `<span class="status-caption-label">Aufgabe</span><strong class="status-caption-value">${Math.min(game.completedTasks + 1, TOTAL_TASKS)}</strong>`; score.textContent = String(game.score); time.textContent = formatTime(game.elapsedMs); progress.style.width = `${Math.min((game.completedTasks / TOTAL_TASKS) * 100, 100)}%`;
+  round.textContent = `Level ${game.round}`; roundCaption.innerHTML = `<span class="status-caption-label">Level</span><strong class="status-caption-value">${game.round}</strong>`; taskNumberCaption.innerHTML = `<span class="status-caption-label">Aufgabe</span><strong class="status-caption-value">${Math.min(game.completedTasks + 1, TOTAL_TASKS)}</strong>`; if (score.dataset.displayManaged !== "true") score.textContent = String(game.score); time.textContent = formatTime(game.elapsedMs); progress.style.width = `${Math.min((game.completedTasks / TOTAL_TASKS) * 100, 100)}%`;
   if (answerPresentation !== null) {
     factorA.textContent = answerPresentation.factorA;
     factorB.textContent = answerPresentation.factorB;
@@ -157,35 +157,50 @@ function renderResultScreen(): void {
 }
 
 async function submitSchoolHighscore(): Promise<void> {
-  const status = document.querySelector<HTMLElement>("#school-status"); const button = document.querySelector<HTMLButtonElement>("#school-submit");
-  if (!resultEvaluation?.isNewPersonalBest || !leaderboardClient) return;
-  if (button) button.disabled = true;
-  if (status) status.textContent = "Eintragung wird geprüft …";
-  queueHighscoreForSync(resultEvaluation.personalBest);
-  try {
-    const result = await syncPendingHighscores(leaderboardClient);
-    if (result.synced > 0 && result.failed === 0) { if (status) status.textContent = "Erfolgreich in die schulweite Liste eingetragen."; return; }
-    if (button) button.disabled = false;
-    if (status) status.textContent = "Gerade keine Internetverbindung. Dein persönlicher Highscore und die ausstehende Eintragung bleiben gespeichert.";
-  } catch {
-    if (button) button.disabled = false;
-    if (status) status.textContent = "Gerade keine Internetverbindung. Dein persönlicher Highscore und die ausstehende Eintragung bleiben gespeichert.";
-  }
+  const status = document.querySelector<HTMLElement>("#school-status");
+  if (!status || !leaderboardClient) return;
+  status.textContent = "Eintrag wird gespeichert …";
+  const game = controller.getState().game;
+  const result = await leaderboardClient.submit({ name: student.name, className: student.className, score: game.score, completedTasks: game.completedTasks });
+  if (result.ok) status.textContent = "Erfolgreich eingetragen.";
+  else status.textContent = result.error;
 }
-
-async function syncPendingIfPossible(): Promise<void> { if (!leaderboardClient) return; if (typeof navigator !== "undefined" && !navigator.onLine) return; await syncPendingHighscores(leaderboardClient); }
 
 function startGame(): void {
-  if (wrongAnswerTimer !== null) { window.clearTimeout(wrongAnswerTimer); wrongAnswerTimer = null; }
-  clearGameTimer(); clearAnswerFeedbackTimer(); resultEvaluation = null; student = loadResolvedStudentIdentity(); engine = new GameEngine(); controller = new GameController(engine); screen = "game"; controller.start(); renderGameScreen();
-  gameTimer = window.setInterval(() => { const state = controller.tick(); renderGameState(); if (state.game.phase === "won" || state.game.phase === "timeUp") { resultEvaluation = evaluateResult(student, state.game.score); screen = "result"; renderResultScreen(); } }, 250);
+  clearGameTimer();
+  clearAnswerFeedbackTimer();
+  clearWrongAnswerTimer();
+  engine = new GameEngine();
+  controller = new GameController(engine);
+  screen = "game";
+  answerPresentation = null;
+  resultEvaluation = null;
+  renderGameScreen();
+  gameTimer = window.setInterval(() => {
+    controller.tick(80);
+    renderGameState();
+    if (controller.getState().game.phase !== "playing") {
+      clearGameTimer();
+      resultEvaluation = evaluateResult(controller.getState().game.score, student.studentId);
+      queueHighscoreForSync(student, controller.getState().game.score, controller.getState().game.completedTasks);
+      renderResultScreen();
+      void syncPendingHighscores();
+    }
+  }, 80);
 }
 
-function scheduleNextTaskAfterWrongAnswer(): void { if (wrongAnswerTimer !== null) window.clearTimeout(wrongAnswerTimer); wrongAnswerTimer = window.setTimeout(() => { wrongAnswerTimer = null; clearAnswerFeedbackTimer(); controller.advanceAfterWrongAnswer(); renderGameState(); }, WRONG_ANSWER_TOTAL_MS); }
-function clearGameTimer(): void { if (gameTimer !== null) { window.clearInterval(gameTimer); gameTimer = null; } }
-function formatTime(elapsedMs: number): string { const remainingMs = Math.max(0, GAME_DURATION_MS - elapsedMs); const totalSeconds = Math.ceil(remainingMs / 1000); const minutes = Math.floor(totalSeconds / 60); const seconds = totalSeconds % 60; return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`; }
+function scheduleNextTaskAfterWrongAnswer(): void {
+  clearWrongAnswerTimer();
+  wrongAnswerTimer = window.setTimeout(() => {
+    wrongAnswerTimer = null;
+    if (screen !== "game") return;
+    controller.advanceAfterWrongAnswer();
+    renderGameState();
+  }, WRONG_ANSWER_TOTAL_MS);
+}
 
+function clearWrongAnswerTimer(): void { if (wrongAnswerTimer !== null) { window.clearTimeout(wrongAnswerTimer); wrongAnswerTimer = null; } }
+function clearGameTimer(): void { if (gameTimer !== null) { window.clearInterval(gameTimer); gameTimer = null; } }
+function formatTime(elapsedMs: number): string { const remaining = Math.max(GAME_DURATION_MS - elapsedMs, 0); const seconds = Math.ceil(remaining / 1000); const minutesPart = Math.floor(seconds / 60); const secondsPart = seconds % 60; return `${minutesPart}:${secondsPart.toString().padStart(2, "0")}`; }
 document.addEventListener("keydown", handleKeyboardInput);
-void syncPendingIfPossible();
-window.addEventListener("online", () => { void syncPendingIfPossible(); });
 renderStartScreen();
