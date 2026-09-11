@@ -7,6 +7,8 @@ const APP_SHELL = [
   "./einmaleins-icon.svg",
   "./space-theme.css?v=23",
   "./game-layout-tweaks.css?build=__BUILD_ID__",
+  "./orientation-lock.css?build=__BUILD_ID__",
+  "./Querformathinweis.png",
   "./Background.png",
   "./Alien.png",
   "./src/responsive.css",
