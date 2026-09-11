@@ -2,7 +2,7 @@
 <html lang="de">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
     <meta name="theme-color" content="#e9f7ff" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
@@ -120,6 +120,17 @@
 
         observer.observe(app, { childList: true, subtree: true });
         moveStatusCaptions();
+      })();
+    </script>
+    <script>
+      (() => {
+        const preventGesture = (event) => event.preventDefault();
+        document.addEventListener("gesturestart", preventGesture, { passive: false });
+        document.addEventListener("gesturechange", preventGesture, { passive: false });
+        document.addEventListener("gestureend", preventGesture, { passive: false });
+        document.addEventListener("touchmove", (event) => {
+          if (!event.target.closest(".highscore-list-scroll")) event.preventDefault();
+        }, { passive: false });
       })();
     </script>
     <script src="./game-feedback.js?build=__BUILD_ID__"></script>
