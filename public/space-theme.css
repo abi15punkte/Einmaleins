@@ -1,5 +1,6 @@
 :root {
   --space-sky: #e9f7ff;
+  --space-text: #52afe7;
 }
 
 html,
@@ -54,5 +55,19 @@ body {
     background: url("./Alien.png") center / contain no-repeat;
     z-index: 9999;
     pointer-events: none;
+  }
+
+  .game-screen {
+    color: var(--space-text) !important;
+  }
+
+  .game-screen .task-caption,
+  .game-screen .feedback,
+  .game-screen .streak,
+  .game-screen .stat-label,
+  .game-screen .stat-card strong,
+  .game-screen .task-equation,
+  .game-screen .keyboard-hint {
+    color: var(--space-text) !important;
   }
 }
