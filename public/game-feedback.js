@@ -54,6 +54,18 @@
     timeElement.classList.toggle("time-critical", seconds <= 59);
   }
 
+  function syncAnswerColor(answerElement) {
+    if (answerElement.classList.contains("answer-feedback-correct")) {
+      answerElement.style.setProperty("color", "#69cb6c", "important");
+      return;
+    }
+    if (answerElement.classList.contains("answer-feedback-wrong")) {
+      answerElement.style.setProperty("color", "#ee737f", "important");
+      return;
+    }
+    answerElement.style.setProperty("color", "#000000", "important");
+  }
+
   function flyPoints(card, scoreElement, points, multiplier) {
     const cardRect = card.getBoundingClientRect();
     const scoreRect = scoreElement.getBoundingClientRect();
@@ -91,10 +103,12 @@
     const scoreElement = screen.querySelector("#score");
     const timeElement = screen.querySelector("#time");
     const taskCard = screen.querySelector("#task-card");
-    if (!feedback || !streakElement || !scoreElement || !timeElement || !taskCard) return;
+    const answerElement = screen.querySelector("#answer");
+    if (!feedback || !streakElement || !scoreElement || !timeElement || !taskCard || !answerElement) return;
 
     scoreElement.dataset.displayManaged = "true";
     updateCriticalTime(timeElement);
+    syncAnswerColor(answerElement);
 
     const signature = `${feedback.className}|${feedback.textContent ?? ""}`;
     if (signature === feedbackSignature) {
