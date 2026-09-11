@@ -1,5 +1,17 @@
-const CACHE_NAME = "einmaleins-v25";
-const APP_SHELL = ["./", "./index.html", "./manifest.webmanifest", "./einmaleins-icon.svg", "./space-theme.css?v=23", "./game-layout-tweaks.css?v=3", "./Background.png", "./Alien.png", "./src/responsive.css", "./src/laptop.css"];
+const BUILD_ID = new URL(self.location.href).searchParams.get("v") || "dev";
+const CACHE_NAME = `einmaleins-${BUILD_ID}`;
+const APP_SHELL = [
+  "./",
+  "./index.html",
+  "./manifest.webmanifest",
+  "./einmaleins-icon.svg",
+  "./space-theme.css?v=23",
+  "./game-layout-tweaks.css?v=3",
+  "./Background.png",
+  "./Alien.png",
+  "./src/responsive.css",
+  "./src/laptop.css",
+];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
@@ -13,7 +25,7 @@ self.addEventListener("activate", (event) => {
     caches.keys().then((keys) =>
       Promise.all(
         keys
-          .filter((key) => key !== CACHE_NAME)
+          .filter((key) => key.startsWith("einmaleins-") && key !== CACHE_NAME)
           .map((key) => caches.delete(key))
       )
     )
