@@ -115,7 +115,7 @@
     window.setTimeout(() => {
       const status = document.querySelector("#close-app-status");
       if (!(status instanceof HTMLElement)) return;
-      status.textContent = "Das iPad verhindert das automatische Schließen. Bitte die Einmaleins-App über den App-Umschalter schließen.";
+      status.textContent = "Das Beenden wird auf dem iPad nicht unterstützt. Bitte schließe die Einmaleins-App über den App-Umschalter.";
       status.hidden = false;
     }, 250);
   }
