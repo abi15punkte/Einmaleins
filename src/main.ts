@@ -95,43 +95,47 @@ function handleDigit(digit: number): void {
   const stateBefore = controller.getState();
   if (stateBefore.input.status !== "waiting") return;
 
-  const previousTask = stateBefore.game.currentTask;
   const stateAfter = controller.pressDigit(digit);
-  const answerResult = stateAfter.lastAnswer;
-
-  if (answerResult !== null && previousTask !== null) {
-    clearAnswerFeedbackTimer();
-    answerPresentation = {
-      factorA: String(previousTask[0]),
-      factorB: String(previousTask[1]),
-      entered: stateBefore.input.entered + digit,
-      expected: String(answerResult.expectedAnswer),
-      status: answerResult.correct ? "correct-green" : "wrong-red"
-    };
-
+  const outcome = stateAfter.lastDigitOutcome;
+  if (!outcome) {
     renderGameState();
-
-    answerFeedbackTimer = window.setTimeout(() => {
-      answerFeedbackTimer = null;
-      if (answerPresentation === null) return;
-
-      if (answerResult.correct) {
-        answerPresentation = null;
-        renderGameState();
-        return;
-      }
-
-      answerPresentation = {
-        ...answerPresentation,
-        status: "wrong-black"
-      };
-      renderGameState();
-    }, ANSWER_FEEDBACK_MS);
-  } else {
-    renderGameState();
+    return;
   }
 
-  if (answerResult !== null && !answerResult.correct) scheduleNextTaskAfterWrongAnswer();
+  clearAnswerFeedbackTimer();
+  answerPresentation = {
+    factorA: String(outcome.task[0]),
+    factorB: String(outcome.task[1]),
+    entered: outcome.entered,
+    expected: String(outcome.expectedAnswer),
+    status: outcome.kind === "wrong" ? "wrong-red" : "correct-green"
+  };
+
+  renderGameState();
+
+  if (outcome.kind === "partial-correct") {
+    answerFeedbackTimer = null;
+    return;
+  }
+
+  answerFeedbackTimer = window.setTimeout(() => {
+    answerFeedbackTimer = null;
+    if (answerPresentation === null) return;
+
+    if (outcome.kind === "correct") {
+      answerPresentation = null;
+      renderGameState();
+      return;
+    }
+
+    answerPresentation = {
+      ...answerPresentation,
+      status: "wrong-black"
+    };
+    renderGameState();
+  }, ANSWER_FEEDBACK_MS);
+
+  if (outcome.kind === "wrong") scheduleNextTaskAfterWrongAnswer();
 }
 
 function handleKeyboardInput(event: KeyboardEvent): void {
@@ -162,7 +166,7 @@ function renderGameState(): void {
   }
 
   feedback.className = "feedback"; taskCard.classList.remove("is-correct", "is-wrong");
-  if (state.lastAnswer === null) { feedback.textContent = "Gib deine Antwort ein."; feedback.classList.add("feedback-neutral"); }
+  if (state.lastAnswer === null || state.input.entered) { feedback.textContent = "Gib deine Antwort ein."; feedback.classList.add("feedback-neutral"); }
   else if (state.lastAnswer.correct) { feedback.textContent = `Richtig! +${state.lastAnswer.points} Punkte`; feedback.classList.add("feedback-correct"); taskCard.classList.add("is-correct"); }
   else { feedback.textContent = `Falsch. Die Antwort ist ${state.lastAnswer.expectedAnswer}.`; feedback.classList.add("feedback-wrong"); taskCard.classList.add("is-wrong"); }
   if (game.streak >= 3) { streak.hidden = false; streak.textContent = `Serie ×${multiplier}`; } else streak.hidden = true;
