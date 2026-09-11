@@ -20,7 +20,7 @@
     padding: 0.5vh 0.5vw !important;
     border: 1px solid rgb(23 32 51 / 7%) !important;
     border-radius: 0.8vw !important;
-    background: rgb(255 255 255 / 78%) !important;
+    background: rgb(255 255 255 / 60%) !important;
     box-shadow: 0 4px 14px rgb(23 32 51 / 5%) !important;
     display: flex !important;
     flex-direction: column !important;
@@ -52,7 +52,7 @@
     box-sizing: border-box !important;
     border: 1px solid rgb(23 32 51 / 7%) !important;
     border-radius: 0.8vw !important;
-    background: rgb(255 255 255 / 78%) !important;
+    background: rgb(255 255 255 / 60%) !important;
     box-shadow: 0 4px 14px rgb(23 32 51 / 5%) !important;
     display: flex !important;
     flex-direction: column !important;
@@ -91,7 +91,7 @@
     width: 45vw !important;
     height: 25vh !important;
     min-height: 25vh !important;
-    background: rgb(255 255 255 / 78%) !important;
+    background: rgb(255 255 255 / 60%) !important;
     border: 1px solid rgb(23 32 51 / 7%) !important;
     box-shadow: 0 4px 14px rgb(23 32 51 / 5%) !important;
     grid-template-rows: 100% !important;
