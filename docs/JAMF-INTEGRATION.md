@@ -7,7 +7,7 @@ Die App übernimmt eine verwaltete Schüleridentität aus der Start-URL. Für de
 - `lastName` → Nachname
 - `deviceGroups` → Gerätegruppen des iPads; daraus wird `M1`–`M16` bzw. `Lehrer` als Klasse erkannt
 
-Jamf School stellt `%UserId%`, `%FirstName%`, `%LastName%` als Benutzervariablen bereit. `%DeviceGroups%` ist eine Gerätevariable und enthält die Gruppen, denen das Gerät angehört. citeturn360290search0turn360290search1
+Jamf School stellt `%UserId%`, `%FirstName%`, `%LastName%` als Benutzervariablen bereit. `%DeviceGroups%` ist eine Gerätevariable und enthält die Gruppen, denen das Gerät angehört.
 
 ## Konkrete Webclip-URL für den aktuellen Test
 
