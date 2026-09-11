@@ -8,13 +8,9 @@ html.portrait-blocked body > #app {
   z-index: 2147483647;
   width: 100vw;
   height: 100vh;
-  display: none;
+  display: block;
   overflow: hidden;
   background: #e9f7ff;
-}
-
-html.portrait-blocked #portrait-guard {
-  display: block !important;
 }
 
 #portrait-guard img {
@@ -23,4 +19,24 @@ html.portrait-blocked #portrait-guard {
   height: 100%;
   object-fit: cover;
   object-position: center;
+}
+
+@media (orientation: landscape) {
+  #portrait-guard {
+    display: none !important;
+  }
+
+  html.portrait-blocked body > #app {
+    visibility: visible !important;
+  }
+}
+
+@media (orientation: portrait) {
+  body > #app {
+    visibility: hidden !important;
+  }
+
+  #portrait-guard {
+    display: block !important;
+  }
 }
