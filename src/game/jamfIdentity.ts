@@ -12,7 +12,7 @@ const PARAMETER_ALIASES = {
   lastName: ["lastName", "LastName", "nachname", "jamfLastName"],
   fullName: ["fullName", "FullName", "studentFullName", "jamfFullName"],
   legacyName: ["studentName", "name", "jamfStudentName"],
-  deviceGroups: ["deviceGroups", "DeviceGroups", "devicegroups", "jamfDeviceGroups"],
+  deviceGroups: ["deviceGroups", "DeviceGroups", "deviceGroup", "DeviceGroup", "devicegroups", "jamfDeviceGroups"],
   userGroups: ["userGroups", "UserGroups", "usergroups", "groups", "jamfGroups"],
   directClass: ["className", "class", "jamfClass"]
 } as const;
