@@ -31,7 +31,7 @@
     text-align: center !important;
   }
 
-  /* Mirror the original status-card group to the left side of the header. */
+  /* Mirror the original status-card sizing on the left. */
   .game-screen .task-caption {
     display: contents !important;
   }
@@ -51,22 +51,37 @@
     background: rgb(255 255 255 / 78%) !important;
     box-shadow: 0 4px 14px rgb(23 32 51 / 5%) !important;
     display: flex !important;
+    flex-direction: column !important;
     align-items: center !important;
     justify-content: center !important;
     text-align: center !important;
+    z-index: 20 !important;
+    color: #000000 !important;
+    white-space: nowrap !important;
+  }
+
+  .game-screen #round-caption { left: 2.5vw !important; right: auto !important; }
+  .game-screen #task-number-caption { left: 14.5vw !important; right: auto !important; }
+
+  .game-screen .status-caption-label {
+    display: block !important;
     color: var(--space-text) !important;
     font-size: 2vh !important;
     line-height: 1 !important;
+    font-weight: 800 !important;
     letter-spacing: 0.08em !important;
     text-transform: uppercase !important;
-    white-space: nowrap !important;
-    z-index: 20 !important;
-    left: auto !important;
-    right: auto !important;
   }
 
-  .game-screen #round-caption { left: 2.5vw !important; }
-  .game-screen #task-number-caption { left: 14.5vw !important; }
+  .game-screen .status-caption-value {
+    display: block !important;
+    margin-top: 0.3vh !important;
+    color: #000000 !important;
+    font-size: 4vh !important;
+    line-height: 0.9 !important;
+    font-weight: 800 !important;
+    letter-spacing: -0.02em !important;
+  }
 
   .game-screen .task-card {
     width: 45vw !important;
