@@ -77,6 +77,14 @@ body {
     color: var(--game-text) !important;
   }
 
+  .game-screen .answer-box.answer-feedback-wrong {
+    color: #d94a4a !important;
+  }
+
+  .game-screen .answer-box.answer-feedback-correct {
+    color: var(--button-two-green) !important;
+  }
+
   .game-screen .task-equation .operator,
   .game-screen .task-caption,
   .game-screen .streak,
