@@ -161,9 +161,19 @@ async function submitSchoolHighscore(): Promise<void> {
   if (!status || !leaderboardClient) return;
   status.textContent = "Eintrag wird gespeichert …";
   const game = controller.getState().game;
-  const result = await leaderboardClient.submit({ name: student.name, className: student.className, score: game.score, completedTasks: game.completedTasks });
-  if (result.ok) status.textContent = "Erfolgreich eingetragen.";
-  else status.textContent = result.error;
+  const record = {
+    studentId: student.studentId,
+    name: student.name,
+    className: student.className,
+    score: game.score,
+    achievedAt: new Date().toISOString()
+  };
+  try {
+    await leaderboardClient.submit(record);
+    status.textContent = "Erfolgreich eingetragen.";
+  } catch (error) {
+    status.textContent = error instanceof Error ? error.message : "Eintrag konnte nicht gespeichert werden.";
+  }
 }
 
 function startGame(): void {
@@ -181,10 +191,15 @@ function startGame(): void {
     renderGameState();
     if (controller.getState().game.phase !== "playing") {
       clearGameTimer();
-      resultEvaluation = evaluateResult(controller.getState().game.score, student.studentId);
-      queueHighscoreForSync(student, controller.getState().game.score, controller.getState().game.completedTasks);
+      const game = controller.getState().game;
+      resultEvaluation = evaluateResult(student, game.score);
+      if (resultEvaluation.isNewPersonalBest) {
+        queueHighscoreForSync(resultEvaluation.personalBest);
+      }
       renderResultScreen();
-      void syncPendingHighscores();
+      if (leaderboardClient) {
+        void syncPendingHighscores(leaderboardClient);
+      }
     }
   }, 80);
 }
