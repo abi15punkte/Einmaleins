@@ -182,6 +182,7 @@ function startGame(): void {
   clearWrongAnswerTimer();
   engine = new GameEngine();
   controller = new GameController(engine);
+  controller.start();
   screen = "game";
   answerPresentation = null;
   resultEvaluation = null;
