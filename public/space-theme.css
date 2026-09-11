@@ -307,6 +307,43 @@ body {
     color: rgb(23 32 51 / 68%) !important;
     font-size: 1.7vh !important;
   }
+
+  .game-screen .task-equation,
+  .game-screen .answer-box {
+    color: var(--game-text) !important;
+  }
+
+  .game-screen #answer.answer-feedback-correct {
+    color: var(--button-two-green) !important;
+  }
+
+  .game-screen #answer.answer-feedback-wrong {
+    color: var(--space-pink) !important;
+  }
+
+  .game-screen .task-equation .operator,
+  .game-screen .task-caption,
+  .game-screen .streak,
+  .game-screen .stat-label,
+  .game-screen .keyboard-hint,
+  .game-screen #round-caption,
+  .game-screen #task-number-caption {
+    color: var(--space-text) !important;
+  }
+
+  .game-screen .stat-card strong,
+  .game-screen .stat-time strong,
+  .game-screen #score {
+    color: #000000 !important;
+  }
+
+  .game-screen .stat-points .stat-label {
+    color: var(--button-two-green) !important;
+  }
+
+  .game-screen #time.time-critical {
+    color: var(--space-pink) !important;
+  }
 }
 
 @media (orientation: landscape) and (max-height: 700px) {
