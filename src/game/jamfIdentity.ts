@@ -10,8 +10,8 @@ const PARAMETER_ALIASES = {
   studentId: ["studentId", "jamfStudentId", "userId", "UserId", "jamfUserId"],
   firstName: ["firstName", "FirstName", "vorname", "jamfFirstName"],
   lastName: ["lastName", "LastName", "nachname", "jamfLastName"],
-  legacyName: ["studentName", "name", "jamfStudentName"],
-  groups: ["userGroups", "UserGroups", "groups", "jamfGroups"],
+  fullName: ["fullName", "FullName", "studentName", "name", "jamfStudentName"],
+  groups: ["userGroups", "UserGroups", "usergroups", "groups", "jamfGroups"],
   directClass: ["className", "class", "jamfClass"]
 } as const;
 
@@ -28,7 +28,7 @@ export function loadManagedStudentIdentity(locationObject: Location | null = get
   const studentId = findFirst(sources, PARAMETER_ALIASES.studentId);
   const firstName = findFirst(sources, PARAMETER_ALIASES.firstName);
   const lastName = findFirst(sources, PARAMETER_ALIASES.lastName);
-  const legacyName = findFirst(sources, PARAMETER_ALIASES.legacyName);
+  const fullName = findFirst(sources, PARAMETER_ALIASES.fullName);
   const className = findManagedClassName(sources);
 
   if (!studentId || !className) return null;
@@ -41,8 +41,8 @@ export function loadManagedStudentIdentity(locationObject: Location | null = get
     };
   }
 
-  if (legacyName) {
-    return { studentId, name: legacyName, className };
+  if (fullName) {
+    return { studentId, name: fullName, className };
   }
 
   return null;
@@ -68,8 +68,10 @@ function findManagedClassName(sources: URLSearchParams[]): string | null {
 
 function findValidClassGroup(value: string | null): string | null {
   if (!value) return null;
+
   const candidates = value
-    .split(/[,;|]/)
+    .replace(/[\[\]{}\"]/g, "")
+    .split(/[\n,;|]/)
     .map((candidate) => candidate.trim())
     .filter(Boolean);
 
