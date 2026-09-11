@@ -101,6 +101,11 @@
     animation: task-card-shake 620ms cubic-bezier(.36,.07,.19,.97) both;
   }
 
+  .game-screen .task-card.is-correct {
+    animation: task-card-pop 360ms cubic-bezier(.2,.8,.2,1) both;
+    box-shadow: 0 8px 28px rgb(105 203 108 / 26%), 0 0 0 3px rgb(105 203 108 / 18%);
+  }
+
   .game-screen .task-equation {
     grid-row: 1 !important;
   }
@@ -127,4 +132,11 @@
   68% { transform: translateX(-0.3vw) rotate(-0.3deg); }
   78% { transform: translateX(0.2vw) rotate(0.2deg); }
   88% { transform: translateX(-0.1vw) rotate(-0.1deg); }
+}
+
+@keyframes task-card-pop {
+  0% { transform: translateY(0) scale(1); }
+  35% { transform: translateY(-0.9vh) scale(1.035); }
+  65% { transform: translateY(0.35vh) scale(0.992); }
+  100% { transform: translateY(0) scale(1); }
 }
