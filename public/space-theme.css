@@ -314,6 +314,29 @@ body {
     font-size: 1.7vh !important;
   }
 
+  .result-card > #again,
+  .result-card > #close-app {
+    width: 100% !important;
+    margin-top: 1.6vh !important;
+    background: rgb(255 255 255 / 88%) !important;
+    color: #000000 !important;
+    border: 1px solid rgb(23 32 51 / 9%) !important;
+    box-shadow: 0 9px 20px rgb(51 93 145 / 9%) !important;
+  }
+
+  .result-card > #again:hover,
+  .result-card > #close-app:hover {
+    border-color: rgb(82 175 231 / 48%) !important;
+    box-shadow: 0 12px 26px rgb(51 93 145 / 13%) !important;
+  }
+
+  #close-app-status {
+    margin: 1.5vh 0 0 !important;
+    color: #d6293f !important;
+    font-weight: 800 !important;
+    line-height: 1.35 !important;
+  }
+
   .game-screen .task-equation,
   .game-screen .answer-box {
     color: var(--game-text) !important;
