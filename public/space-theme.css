@@ -2,6 +2,7 @@
   --space-sky: #e9f7ff;
   --space-text: #52afe7;
   --game-text: #000000;
+  --button-two-green: #69cb6c;
 }
 
 html,
@@ -82,5 +83,10 @@ body {
   .game-screen .stat-label,
   .game-screen .keyboard-hint {
     color: var(--space-text) !important;
+  }
+
+  .game-screen .stat-time strong,
+  .game-screen #task-number-caption {
+    color: var(--button-two-green) !important;
   }
 }
