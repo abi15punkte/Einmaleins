@@ -7,7 +7,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="apple-mobile-web-app-title" content="Einmaleins" />
-    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="manifest" href="./manifest.webmanifest?build=__BUILD_ID__" />
     <link rel="apple-touch-icon" href="./einmaleins-icon.svg" />
     <link rel="stylesheet" href="./src/responsive.css" />
     <link rel="stylesheet" href="./src/laptop.css" />
@@ -23,11 +23,24 @@
       if ("serviceWorker" in navigator) {
         window.addEventListener("load", () => {
           navigator.serviceWorker
-            .register("./sw.js?v=25", { scope: "./", updateViaCache: "none" })
-            .then((registration) => registration.update())
+            .register("./sw.js?v=__BUILD_ID__", { scope: "./", updateViaCache: "none" })
+            .then((registration) => {
+              void registration.update();
+              window.addEventListener("pageshow", () => void registration.update());
+              document.addEventListener("visibilitychange", () => {
+                if (document.visibilityState === "visible") void registration.update();
+              });
+            })
             .catch(() => {
               // The app remains fully usable when service workers are unavailable.
             });
+
+          let reloadedForControllerChange = false;
+          navigator.serviceWorker.addEventListener("controllerchange", () => {
+            if (reloadedForControllerChange) return;
+            reloadedForControllerChange = true;
+            window.location.reload();
+          });
         });
       }
     </script>
