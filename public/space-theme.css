@@ -1,6 +1,7 @@
 :root {
   --space-sky: #e9f7ff;
   --space-text: #52afe7;
+  --game-text: #000000;
 }
 
 html,
@@ -68,15 +69,18 @@ body {
     color: var(--space-text) !important;
   }
 
-  .game-screen .task-caption,
-  .game-screen .feedback,
-  .game-screen .streak,
-  .game-screen .stat-label,
   .game-screen .stat-card strong,
   .game-screen .task-equation,
-  .game-screen .keyboard-hint,
-  .game-screen .operator,
-  .game-screen .answer-box {
+  .game-screen .answer-box,
+  .game-screen .feedback {
+    color: var(--game-text) !important;
+  }
+
+  .game-screen .task-equation .operator,
+  .game-screen .task-caption,
+  .game-screen .streak,
+  .game-screen .stat-label,
+  .game-screen .keyboard-hint {
     color: var(--space-text) !important;
   }
 }
