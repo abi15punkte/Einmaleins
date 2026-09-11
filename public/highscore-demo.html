@@ -2,31 +2,55 @@
 <html lang="de">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#eef2f7">
   <title>Einmaleins – Highscore-Demo</title>
   <style>
-    :root{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#172033;background:#eef2f7}
-    *{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(circle at 50% -10%,#fff 0,#f6f8fb 36%,#eef2f7 78%)}
-    main{width:min(100%,900px);margin:0 auto;padding:28px 20px 40px}.card{background:#fff;border:1px solid rgb(23 32 51 / 7%);border-radius:28px;padding:34px;box-shadow:0 22px 60px rgb(23 32 51 / 10%)}
-    .eyebrow{margin:0;font-weight:800}.muted{color:#6f798a}.timer{margin-top:22px;padding:16px 18px;border-radius:16px;background:#f3f5f8;display:flex;justify-content:space-between;gap:20px;align-items:center}.timer strong{font-size:1.6rem}
-    .bar{height:8px;margin-top:12px;border-radius:999px;background:#dce2ea;overflow:hidden}.bar>span{display:block;height:100%;width:0;background:#172033;transition:width .2s linear}
-    .status{margin-top:16px;font-weight:800}.ok{color:#248f5b}.list{margin-top:26px;border:1px solid rgb(23 32 51 / 9%);border-radius:18px;overflow:hidden}.row{display:grid;grid-template-columns:52px 1fr 90px;gap:10px;align-items:center;padding:14px 16px;border-top:1px solid rgb(23 32 51 / 8%)}.row:first-child{border-top:0}.row.me{background:#edf8f1}.rank{font-weight:800}.name{font-weight:750}.class{display:block;color:#7a8495;font-size:.8rem;margin-top:2px}.score{text-align:right;font-weight:850;font-variant-numeric:tabular-nums}
-    .note{margin-top:18px;padding:12px 14px;border-radius:13px;background:#f3f5f8;color:#596477;font-size:.9rem}
-    button{width:100%;min-height:52px;margin-top:18px;border:0;border-radius:14px;background:#172033;color:#fff;font-weight:800;font-size:1rem}
-    @media(max-width:600px){main{padding:16px 14px 28px}.card{padding:24px 18px;border-radius:24px}.row{grid-template-columns:40px 1fr 78px;padding:13px 12px}}
+    :root{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#172033;background:#eef2f7;font-synthesis:none;text-rendering:optimizeLegibility}
+    *{box-sizing:border-box}
+    html,body{min-width:320px;min-height:100%;margin:0}
+    body{min-height:100vh;background:radial-gradient(circle at 50% -10%,#fff 0,#f6f8fb 36%,#eef2f7 78%);overscroll-behavior:none;touch-action:manipulation}
+    button{font:inherit}
+    main{width:min(100%,980px);min-height:100vh;margin:0 auto;padding:28px 28px 32px;display:grid;place-items:center}
+    .card{width:min(100%,700px);padding:clamp(32px,6vw,64px);text-align:center;border:1px solid rgb(23 32 51 / 7%);border-radius:32px;background:rgb(255 255 255 / 94%);box-shadow:0 22px 60px rgb(23 32 51 / 10%)}
+    .brand-mark{width:64px;height:64px;margin:0 auto 22px;display:grid;place-items:center;border-radius:18px;background:#172033;color:#fff;font-size:2.3rem;font-weight:800;box-shadow:0 8px 20px rgb(23 32 51 / 16%)}
+    .eyebrow{margin:0;font-size:1.05rem;font-weight:800;letter-spacing:-.02em}
+    h1{margin:12px 0;font-size:clamp(2rem,5vw,3.1rem);line-height:1.05;letter-spacing:-.045em}
+    .muted{max-width:520px;margin:0 auto;color:#6f798a;font-size:1.05rem;line-height:1.55}
+    .timer{margin-top:26px;padding:12px 15px 13px;border-radius:14px;background:#f3f5f8;display:flex;justify-content:space-between;gap:20px;align-items:center;color:#4f596b;font-weight:750}
+    .timer strong{font-size:1.05rem;color:#172033}
+    .bar{height:5px;margin-top:12px;border-radius:999px;background:#dce2ea;overflow:hidden}.bar>span{display:block;height:100%;width:0;background:#172033;transition:width .2s linear}
+    .status{margin:16px 0 0;color:#7a8495;font-size:.9rem;font-weight:750}.status.ok{color:#248f5b}
+    .list-shell{margin-top:24px;text-align:left}.list-heading{margin:0 0 10px;color:#6f798a;font-size:.78rem;font-weight:800;text-transform:uppercase;letter-spacing:.12em}
+    .highscore-list-scroll{max-height:min(58vh,520px);overflow-y:auto;overflow-x:hidden;border:1px solid rgb(23 32 51 / 8%);border-radius:18px;background:#fff;touch-action:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+    .row{display:grid;grid-template-columns:52px 1fr auto;gap:12px;align-items:center;padding:13px 16px;border-top:1px solid rgb(23 32 51 / 8%);touch-action:auto}.row:first-child{border-top:0}
+    .row.me{background:#edf8f1}
+    .row.rank-gold{background:#fbf5df}.row.rank-silver{background:#f0f2f5}.row.rank-bronze{background:#f7eee7}
+    .row.rank-gold.me,.row.rank-silver.me,.row.rank-bronze.me{background:#edf8f1}
+    .rank{font-weight:800;color:#6f798a}.rank-gold .rank{color:#9a7819}.rank-silver .rank{color:#66707d}.rank-bronze .rank{color:#96613f}
+    .name{font-weight:800}.class{display:block;margin-top:2px;color:#7a8495;font-size:.8rem}
+    .entry-meta{display:flex;align-items:center;gap:10px;min-width:0}.mascot-slot{width:34px;height:34px;flex:0 0 34px;border-radius:10px;display:grid;place-items:center;border:1px solid rgb(23 32 51 / 8%);background:#f3f5f8;color:#a0a8b5;font-size:.72rem;font-weight:800;overflow:hidden}.mascot-slot img{width:100%;height:100%;object-fit:contain}.achievement-stars{display:flex;gap:2px;align-items:center;flex:0 0 auto}.achievement-stars span{font-size:.9rem;line-height:1;color:#cfd4dc}.achievement-stars span.is-earned{color:#d6aa2b}
+    .score{text-align:right;font-weight:850;font-variant-numeric:tabular-nums;white-space:nowrap}.row.me .score{color:#248f5b}
+    .note{margin-top:18px;padding:12px 14px;border-radius:13px;background:#f3f5f8;color:#596477;font-size:.88rem}
+    button{width:100%;min-height:56px;margin-top:18px;border:0;border-radius:15px;background:#172033;color:#fff;font-size:1rem;font-weight:800;cursor:pointer;touch-action:manipulation;transition:transform 100ms ease,background 100ms ease}button:active{transform:translateY(2px) scale(.995)}button:hover{background:#253049}
+    @media(max-width:600px){main{padding:16px 14px 20px}.card{padding:28px 18px;border-radius:24px}.brand-mark{width:56px;height:56px;font-size:2rem}.muted{font-size:.96rem}.row{grid-template-columns:40px 1fr auto;padding:12px 12px}.mascot-slot{width:30px;height:30px;flex-basis:30px}.achievement-stars span{font-size:.8rem}}
   </style>
 </head>
 <body>
 <main>
   <section class="card">
-    <p class="eyebrow">Einmaleins · Testmodus</p>
+    <div class="brand-mark" aria-hidden="true">·</div>
+    <p class="eyebrow">Einmaleins</p>
     <h1>Schulweite Highscoreliste</h1>
-    <p class="muted" id="intro">Eine Minute Spielzeit wird simuliert. Danach wird dein Ergebnis testweise übertragen.</p>
-    <div class="timer"><span>Zeit</span><strong id="time">1:00</strong></div>
+    <p class="muted" id="intro">Eine kurze Demo simuliert Spielzeit und Übertragung.</p>
+    <div class="timer"><span>Zeit</span><strong id="time">0:10</strong></div>
     <div class="bar"><span id="bar"></span></div>
     <p class="status" id="status">Testspiel läuft …</p>
-    <div id="leaderboard" class="list" hidden></div>
-    <div class="note" id="note">Die folgenden Einträge sind frei erfunden und dienen nur der Darstellung.</div>
+    <section class="list-shell" aria-labelledby="list-heading">
+      <p class="list-heading" id="list-heading">Beispielrangliste</p>
+      <div id="leaderboard" class="highscore-list-scroll" hidden></div>
+    </section>
+    <div class="note" id="note">Die Einträge sind frei erfunden und dienen nur der Darstellung. Klassentier und bis zu fünf Errungenschaftssterne sind als Platzhalter vorbereitet.</div>
     <button id="restart" type="button">Demo erneut starten</button>
   </section>
 </main>
@@ -46,30 +70,33 @@
   const className = classMatch ? classMatch.toUpperCase() : (stored && typeof stored.className === "string" && stored.className ? stored.className : "M1");
   const requestedScore = Number(params.get("score"));
   const myScore = Number.isInteger(requestedScore) && requestedScore >= 0 ? requestedScore : 742;
-  const baseEntries = [
-    {name:"Sophie Weber",className:"M3",score:1288},
-    {name:"Lukas Hoffmann",className:"M6",score:1196},
-    {name:"Emma Schneider",className:"M1",score:1034},
-    {name:"Noah Fischer",className:"M8",score:987},
-    {name:"Mia Wagner",className:"M4",score:931},
-    {name:"Ben Müller",className:"M2",score:884},
-    {name:"Lea Becker",className:"M5",score:816},
-    {name:name,className:className,score:myScore,studentId},
-    {name:"Paul Krüger",className:"M7",score:731}
+  const CLASS_MASCOTS = { M1: null, M2: null, M3: null, M4: null, M5: null, M6: null, M7: null, M8: null, M9: null, M10: null, M11: null, M12: null, M13: null, M14: null, M15: null, M16: null, Lehrer: null };
+  const ACHIEVEMENT_STARS = { "Schnellstarter": true, "Fehlerfrei": true, "Serienprofi": true, "Levelmeister": false, "Rekordjäger": false };
+  const demoRows = [
+    {name:"Sophie Weber",className:"M3",score:1288,stars:5},
+    {name:"Lukas Hoffmann",className:"M6",score:1196,stars:4},
+    {name:"Emma Schneider",className:"M1",score:1034,stars:3},
+    {name:"Noah Fischer",className:"M8",score:987,stars:2},
+    {name:"Mia Wagner",className:"M4",score:931,stars:2},
+    {name:"Ben Müller",className:"M2",score:884,stars:1},
+    {name:"Lea Becker",className:"M5",score:816,stars:1},
+    {name:name,className:className,score:myScore,studentId,stars:0},
+    {name:"Paul Krüger",className:"M7",score:731,stars:0}
   ];
   const timeEl=document.getElementById("time"),bar=document.getElementById("bar"),status=document.getElementById("status"),list=document.getElementById("leaderboard"),intro=document.getElementById("intro"),restart=document.getElementById("restart");
-  intro.textContent=`Eine Minute Spielzeit wird simuliert. Danach wird ${name} testweise mit ${myScore} Punkten übertragen.`;
+  intro.textContent=`Zehn Sekunden Spielzeit werden simuliert. Danach wird ${name} testweise mit ${myScore} Punkten übertragen.`;
+  function mascotMarkup(entry){ const mascot=CLASS_MASCOTS[entry.className] || ""; return `<span class="mascot-slot" aria-label="Klassentier${mascot ? "" : " – Platzhalter"}">${mascot ? `<img src="${escapeAttr(mascot)}" alt="">` : "KT"}</span>`; }
+  function starsMarkup(count){ return `<span class="achievement-stars" aria-label="${count} von 5 Errungenschaften">${Array.from({length:5},(_,i)=>`<span class="${i<count?"is-earned":""}" aria-hidden="true">★</span>`).join("")}</span>`; }
   let startedAt=0, timer=0;
-  function start(){
-    startedAt=Date.now();clearInterval(timer);status.textContent="Testspiel läuft …";status.className="status";list.hidden=true;timeEl.textContent="1:00";bar.style.width="0%";
-    timer=window.setInterval(() => { const elapsed=Date.now()-startedAt; const remaining=Math.max(0,60000-elapsed); const seconds=Math.ceil(remaining/1000); timeEl.textContent=`0:${String(seconds).padStart(2,"0")}`;bar.style.width=`${Math.min(100,elapsed/60000*100)}%`;if(remaining<=0){clearInterval(timer);finish();}},100);
-  }
-  function finish(){
-    const sorted=[...baseEntries].sort((a,b)=>b.score-a.score).map((entry,index)=>({...entry,rank:index+1}));
-    const me=sorted.find((entry)=>entry.studentId===studentId && entry.name===name && entry.score===myScore);
-    status.textContent=`Übertragung simuliert · ${me ? `Platz ${me.rank}` : "Eintrag übernommen"}`;status.className="status ok";list.innerHTML=sorted.map((entry)=>`<div class="row ${entry.studentId===studentId?"me":""}"><div class="rank">${entry.rank}</div><div><div class="name">${escapeHtml(entry.name)}${entry.studentId===studentId?" · Du":""}</div><span class="class">Klasse ${escapeHtml(entry.className || "–")}</span></div><div class="score">${entry.score}</div></div>`).join("");list.hidden=false;
-  }
+  function start(){ startedAt=Date.now();clearInterval(timer);status.textContent="Testspiel läuft …";status.className="status";list.hidden=true;timeEl.textContent="0:10";bar.style.width="0%";timer=window.setInterval(()=>{const elapsed=Date.now()-startedAt;const remaining=Math.max(0,10000-elapsed);const seconds=Math.ceil(remaining/1000);timeEl.textContent=`0:${String(seconds).padStart(2,"0")}`;bar.style.width=`${Math.min(100,elapsed/10000*100)}%`;if(remaining<=0){clearInterval(timer);finish();}},50); }
+  function finish(){ const sorted=[...demoRows].sort((a,b)=>b.score-a.score).map((entry,index)=>({...entry,rank:index+1}));const me=sorted.find(entry=>entry.studentId===studentId&&entry.name===name&&entry.score===myScore);status.textContent=`Übertragung simuliert · ${me?`Platz ${me.rank}`:"Eintrag übernommen"}`;status.className="status ok";list.innerHTML=sorted.map(entry=>`<div class="row ${entry.studentId===studentId?"me":""} ${entry.rank===1?"rank-gold":entry.rank===2?"rank-silver":entry.rank===3?"rank-bronze":""}"><div class="rank">${entry.rank}</div><div class="entry-meta">${mascotMarkup(entry)}<div><div class="name">${escapeHtml(entry.name)}${entry.studentId===studentId?" · Du":""}</div><span class="class">Klasse ${escapeHtml(entry.className||"–")}</span></div>${starsMarkup(entry.stars)}</div><div class="score">${entry.score}</div></div>`).join("");list.hidden=false; }
   function escapeHtml(value){return value.replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;");}
+  function escapeAttr(value){return escapeHtml(value);}
+  const preventGesture=event=>event.preventDefault();
+  document.addEventListener("gesturestart",preventGesture,{passive:false});
+  document.addEventListener("gesturechange",preventGesture,{passive:false});
+  document.addEventListener("gestureend",preventGesture,{passive:false});
+  document.addEventListener("touchmove",event=>{if(!event.target.closest(".highscore-list-scroll"))event.preventDefault();},{passive:false});
   restart.addEventListener("click",start);start();
 })();
 </script>
