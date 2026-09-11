@@ -133,8 +133,8 @@
 
   .points-fly.multiplier-x1 { color: #000000; }
   .points-fly.multiplier-x2 { color: #ffc65a; }
-  .points-fly.multiplier-x3 { color: #ff964e; }
-  .points-fly.multiplier-x5 { color: #ee737f; }
+  .points-fly.multiplier-x3 { color: #ee737f; }
+  .points-fly.multiplier-x5 { color: #9877e6; }
 
   @media (prefers-reduced-motion: reduce) {
     .game-screen .task-card.correct-pop,
