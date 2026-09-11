@@ -3,6 +3,9 @@
   --space-text: #52afe7;
   --game-text: #000000;
   --button-two-green: #69cb6c;
+  --space-yellow: #ffc65a;
+  --space-violet: #9877e6;
+  --space-pink: #ee737f;
 }
 
 html,
@@ -54,7 +57,9 @@ body {
 }
 
 @media (orientation: landscape) {
-  .game-screen::after {
+  .game-screen::after,
+  .start-screen::after,
+  .result-screen::after {
     content: "";
     position: absolute;
     left: -4vw;
@@ -66,47 +71,251 @@ body {
     pointer-events: none;
   }
 
-  .game-screen {
+  .start-screen,
+  .result-screen {
+    width: 100vw !important;
+    height: 100vh !important;
+    min-height: 100vh !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 8vh 7vw 7vh !important;
+    position: relative !important;
+    overflow: hidden !important;
     color: var(--space-text) !important;
   }
 
-  .game-screen .stat-card strong,
-  .game-screen .task-equation,
-  .game-screen .answer-box,
-  .game-screen .feedback {
-    color: var(--game-text) !important;
+  .welcome-card,
+  .result-card {
+    width: min(76vw, 1080px) !important;
+    max-height: 86vh !important;
+    padding: 5vh 5vw !important;
+    overflow: auto !important;
+    border: 1px solid rgb(23 32 51 / 8%) !important;
+    border-radius: 2vw !important;
+    background: rgb(255 255 255 / 72%) !important;
+    box-shadow: 0 18px 50px rgb(23 32 51 / 8%) !important;
+    backdrop-filter: blur(7px);
+    -webkit-backdrop-filter: blur(7px);
   }
 
-  .game-screen .answer-box.answer-feedback-wrong {
-    color: #d94a4a !important;
+  .start-screen .brand-mark-large {
+    width: 8vh !important;
+    height: 8vh !important;
+    margin: 0 auto 2vh !important;
+    border-radius: 1.4vw !important;
+    background: linear-gradient(145deg, #68c9f4, #52afe7) !important;
+    color: #ffffff !important;
+    font-size: 3.4vh !important;
+    box-shadow: 0 9px 20px rgb(51 93 145 / 16%) !important;
   }
 
-  .game-screen .answer-box.answer-feedback-correct {
-    color: var(--button-two-green) !important;
+  .start-screen .eyebrow,
+  .result-screen .eyebrow {
+    color: var(--space-text) !important;
+    font-size: 2.2vh !important;
+    font-weight: 900 !important;
+    letter-spacing: 0.08em !important;
+    text-transform: uppercase !important;
   }
 
-  .game-screen .task-equation .operator,
-  .game-screen .task-caption,
-  .game-screen .streak,
-  .game-screen .stat-label,
-  .game-screen .keyboard-hint,
-  .game-screen #round-caption {
+  .welcome-card h1,
+  .result-card h1 {
+    margin: 1.2vh 0 !important;
+    color: #000000 !important;
+    font-size: clamp(5vh, 5vw, 7vh) !important;
+    line-height: 0.98 !important;
+    letter-spacing: -0.04em !important;
+  }
+
+  .student-greeting,
+  .result-greeting {
+    margin: 1.8vh 0 0 !important;
+    color: #000000 !important;
+    font-size: 2.3vh !important;
+    font-weight: 800 !important;
+  }
+
+  .welcome-copy,
+  .result-copy {
+    color: rgb(23 32 51 / 66%) !important;
+    font-size: 2.1vh !important;
+    line-height: 1.45 !important;
+  }
+
+  .student-class,
+  .managed-profile-note {
+    color: var(--space-text) !important;
+    font-size: 1.8vh !important;
+    font-weight: 800 !important;
+  }
+
+  .personal-best,
+  .result-highscore {
+    margin: 2.4vh auto 0 !important;
+    padding: 1.2vh 1.2vw !important;
+    border: 1px solid rgb(23 32 51 / 7%) !important;
+    border-radius: 0.9vw !important;
+    background: rgb(255 255 255 / 55%) !important;
+    color: #000000 !important;
+  }
+
+  .result-highscore.is-new {
+    background: rgb(105 203 108 / 14%) !important;
+    border-color: rgb(105 203 108 / 22%) !important;
+    color: #248f5b !important;
+  }
+
+  .personal-best strong,
+  .result-highscore strong {
+    color: #000000 !important;
+  }
+
+  .mode-actions {
+    margin-top: 3vh !important;
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 1.2vw !important;
+  }
+
+  .mode-card {
+    min-height: 16vh !important;
+    padding: 2vh 1.5vw !important;
+    border: 1px solid rgb(23 32 51 / 9%) !important;
+    border-radius: 1.2vw !important;
+    background: rgb(255 255 255 / 72%) !important;
+    color: #000000 !important;
+    box-shadow: 0 9px 20px rgb(51 93 145 / 9%) !important;
+  }
+
+  .mode-card:hover {
+    border-color: rgb(82 175 231 / 48%) !important;
+    box-shadow: 0 12px 26px rgb(51 93 145 / 13%) !important;
+    transform: translateY(-2px) !important;
+  }
+
+  .mode-card-primary {
+    border-color: rgb(82 175 231 / 42%) !important;
+    background: linear-gradient(145deg, #68c9f4, #52afe7) !important;
+    color: #ffffff !important;
+    box-shadow: 0 11px 24px rgb(51 93 145 / 17%) !important;
+  }
+
+  .mode-card-primary .mode-copy,
+  .mode-card-primary .mode-title {
+    color: #ffffff !important;
+  }
+
+  .mode-card:not(.mode-card-primary) .mode-title {
     color: var(--space-text) !important;
   }
 
-  .game-screen .stat-points .stat-label {
-    color: var(--button-two-green) !important;
+  .mode-title {
+    font-size: 2.4vh !important;
+    font-weight: 900 !important;
   }
 
-  .game-screen .stat-time .stat-label {
+  .mode-copy {
+    color: rgb(23 32 51 / 64%) !important;
+    font-size: 1.8vh !important;
+    line-height: 1.35 !important;
+  }
+
+  .profile-panel {
+    margin-top: 2vh !important;
+    border: 1px solid rgb(23 32 51 / 8%) !important;
+    border-radius: 1vw !important;
+    background: rgb(255 255 255 / 52%) !important;
+  }
+
+  .profile-panel summary,
+  .profile-form label,
+  .profile-status {
+    color: #000000 !important;
+  }
+
+  .profile-form input {
+    border-color: rgb(23 32 51 / 12%) !important;
+    border-radius: 0.8vw !important;
+    background: rgb(255 255 255 / 82%) !important;
+  }
+
+  .profile-save,
+  .result-button {
+    min-height: 6.5vh !important;
+    border-radius: 0.9vw !important;
+    background: linear-gradient(145deg, #68c9f4, #52afe7) !important;
+    color: #ffffff !important;
+    box-shadow: 0 9px 18px rgb(51 93 145 / 14%) !important;
+  }
+
+  .profile-save:hover,
+  .result-button:hover {
+    filter: brightness(1.04) saturate(1.04);
+  }
+
+  .result-icon {
+    width: 8vh !important;
+    height: 8vh !important;
+    margin: 0 auto 2vh !important;
+    border-radius: 1.4vw !important;
+    background: linear-gradient(145deg, #95df84, #69cb6c) !important;
+    color: #ffffff !important;
+    font-size: 3.4vh !important;
+    box-shadow: 0 9px 20px rgb(51 93 145 / 14%) !important;
+  }
+
+  .result-stats {
+    margin: 3vh 0 !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 1vw !important;
+  }
+
+  .result-stat {
+    min-width: 0 !important;
+    padding: 1.8vh 1vw !important;
+    border: 1px solid rgb(23 32 51 / 8%) !important;
+    border-radius: 0.9vw !important;
+    background: rgb(255 255 255 / 58%) !important;
+    box-shadow: 0 5px 14px rgb(51 93 145 / 7%) !important;
+    text-align: center !important;
+  }
+
+  .result-stat .stat-label {
     color: var(--space-text) !important;
+    font-size: 1.7vh !important;
+    font-weight: 900 !important;
   }
 
-  .game-screen .stat-time strong {
-    color: var(--game-text) !important;
+  .result-stat strong {
+    color: #000000 !important;
+    font-size: 3.7vh !important;
   }
 
-  .game-screen #task-number-caption {
-    color: var(--space-text) !important;
+  .school-entry {
+    margin: 2vh 0 !important;
+    padding: 1.5vh 1.2vw !important;
+    border: 1px solid rgb(152 119 230 / 22%) !important;
+    border-radius: 1vw !important;
+    background: rgb(152 119 230 / 8%) !important;
   }
+
+  .school-entry strong {
+    color: var(--space-violet) !important;
+  }
+
+  .school-entry p {
+    color: rgb(23 32 51 / 68%) !important;
+    font-size: 1.7vh !important;
+  }
+}
+
+@media (orientation: landscape) and (max-height: 700px) {
+  .welcome-card,
+  .result-card {
+    padding-top: 3.5vh !important;
+    padding-bottom: 3.5vh !important;
+  }
+
+  .mode-card { min-height: 14vh !important; }
+  .result-stats { margin: 2vh 0 !important; }
 }
