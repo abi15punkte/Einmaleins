@@ -3,41 +3,42 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <meta name="theme-color" content="#eef2f7">
+  <meta name="theme-color" content="#e9f7ff">
   <title>Einmaleins – Highscore-Demo</title>
   <style>
-    :root{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#172033;background:#eef2f7;font-synthesis:none;text-rendering:optimizeLegibility}
+    :root{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#172033;background:#e9f7ff;font-synthesis:none;text-rendering:optimizeLegibility}
     *{box-sizing:border-box}
     html,body{min-width:320px;min-height:100%;margin:0}
-    body{min-height:100vh;background:radial-gradient(circle at 50% -10%,#fff 0,#f6f8fb 36%,#eef2f7 78%);overscroll-behavior:none;touch-action:manipulation}
+    body{min-height:100vh;background-color:#e9f7ff;background-image:url("./Background.png");background-position:center;background-size:cover;background-repeat:no-repeat;background-attachment:fixed;color:#52afe7;overscroll-behavior:none;touch-action:manipulation}
     button{font:inherit}
-    main{width:min(100%,980px);min-height:100vh;margin:0 auto;padding:20px 24px 26px;display:grid;place-items:center}
-    .card{position:relative;width:min(100%,980px);min-height:min(92vh,760px);padding:30px 34px 26px;text-align:center;overflow:hidden;border:1px solid rgb(23 32 51 / 7%);border-radius:32px;background:rgb(255 255 255 / 93%);box-shadow:0 22px 60px rgb(23 32 51 / 10%)}
-    .space-background{position:absolute;inset:0;background-image:linear-gradient(rgb(255 255 255 / 82%),rgb(255 255 255 / 82%)),url("./space-background.svg");background-size:cover;background-position:center;opacity:.68;pointer-events:none}
+    main{width:min(100%,980px);min-height:100vh;margin:0 auto;padding:20px 24px 26px;display:grid;place-items:center;position:relative;overflow:hidden}
+    main::after{content:"";position:fixed;left:-4vw;bottom:3vh;width:24vw;height:24vw;background:url("./Alien.png") center / contain no-repeat;z-index:9999;pointer-events:none}
+    .card{position:relative;width:min(100%,980px);min-height:min(92vh,760px);padding:30px 34px 26px;text-align:center;overflow:hidden;border:1px solid rgb(23 32 51 / 7%);border-radius:32px;background:rgb(255 255 255 / 72%);box-shadow:0 18px 50px rgb(23 32 51 / 8%);backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px)}
+    .space-background{display:none}
     .content{position:relative;z-index:1}
     .brand-row{display:flex;justify-content:center;align-items:center;gap:14px;margin-bottom:16px}
-    .brand-mark{width:54px;height:54px;display:grid;place-items:center;border-radius:16px;background:#172033;color:#fff;font-size:2rem;font-weight:800;box-shadow:0 8px 20px rgb(23 32 51 / 16%)}
-    .alien{width:86px;height:86px;object-fit:contain;filter:drop-shadow(0 8px 18px rgb(23 32 51 / 14%))}
-    .eyebrow{margin:0;font-size:1.05rem;font-weight:800;letter-spacing:-.02em}
-    h1{margin:10px 0 8px;font-size:clamp(2rem,5vw,3.1rem);line-height:1.05;letter-spacing:-.045em}
-    .muted{max-width:620px;margin:0 auto;color:#6f798a;font-size:1.02rem;line-height:1.5}
-    .timer{max-width:620px;margin:20px auto 0;padding:11px 15px 12px;border-radius:14px;background:rgb(243 245 248 / 92%);display:flex;justify-content:space-between;gap:20px;align-items:center;color:#4f596b;font-weight:750}
-    .timer strong{font-size:1.05rem;color:#172033}
-    .bar{max-width:620px;height:5px;margin:10px auto 0;border-radius:999px;background:#dce2ea;overflow:hidden}.bar>span{display:block;height:100%;width:0;background:#172033;transition:width .2s linear}
+    .brand-mark{width:54px;height:54px;display:grid;place-items:center;border-radius:16px;background:linear-gradient(145deg,#68c9f4,#52afe7);color:#fff;font-size:2rem;font-weight:800;box-shadow:0 9px 20px rgb(51 93 145 / 16%)}
+    .alien{display:none}
+    .eyebrow{margin:0;font-size:1.05rem;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:#52afe7}
+    h1{margin:10px 0 8px;font-size:clamp(2rem,5vw,3.1rem);line-height:1.05;letter-spacing:-.045em;color:#000}
+    .muted{max-width:620px;margin:0 auto;color:rgb(23 32 51 / 66%);font-size:1.02rem;line-height:1.5}
+    .timer{max-width:620px;margin:20px auto 0;padding:11px 15px 12px;border-radius:14px;background:rgb(255 255 255 / 58%);display:flex;justify-content:space-between;gap:20px;align-items:center;color:#52afe7;font-weight:800}
+    .timer strong{font-size:1.05rem;color:#000}
+    .bar{max-width:620px;height:5px;margin:10px auto 0;border-radius:999px;background:#dce2ea;overflow:hidden}.bar>span{display:block;height:100%;width:0;background:#52afe7;transition:width .2s linear}
     .status{margin:14px 0 0;color:#7a8495;font-size:.9rem;font-weight:750}.status.ok{color:#248f5b}
-    .list-shell{width:min(100%,760px);margin:18px auto 0;text-align:left}.list-heading{margin:0 0 8px;color:#6f798a;font-size:.76rem;font-weight:800;text-transform:uppercase;letter-spacing:.12em}
+    .list-shell{width:min(100%,760px);margin:18px auto 0;text-align:left}.list-heading{margin:0 0 8px;color:#52afe7;font-size:.76rem;font-weight:900;text-transform:uppercase;letter-spacing:.12em}
     .highscore-list-scroll{max-height:min(48vh,410px);overflow-y:auto;overflow-x:hidden;border:1px solid rgb(23 32 51 / 8%);border-radius:18px;background:rgb(255 255 255 / 95%);touch-action:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
     .row{display:grid;grid-template-columns:52px 1fr auto;gap:12px;align-items:center;padding:12px 14px;border-top:1px solid rgb(23 32 51 / 8%);touch-action:auto}.row:first-child{border-top:0}
     .row.me{background:#edf8f1}
-    .row.rank-gold{background:#fbf5df}.row.rank-silver{background:#f0f2f5}.row.rank-bronze{background:#f7eee7}
+    .row.rank-gold{background:#fff6d8}.row.rank-silver{background:#f0f2f5}.row.rank-bronze{background:#f7eee7}
     .row.rank-gold.me,.row.rank-silver.me,.row.rank-bronze.me{background:#edf8f1}
     .rank{font-weight:800;color:#6f798a}.rank-gold .rank{color:#9a7819}.rank-silver .rank{color:#66707d}.rank-bronze .rank{color:#96613f}
     .entry-meta{display:flex;align-items:center;gap:9px;min-width:0}.mascot-slot{width:38px;height:38px;flex:0 0 38px;border-radius:11px;display:grid;place-items:center;border:1px solid rgb(23 32 51 / 8%);background:#f3f5f8;color:#a0a8b5;font-size:.69rem;font-weight:800;overflow:hidden}.mascot-slot img{width:100%;height:100%;object-fit:contain}.achievement-stars{display:flex;gap:1px;align-items:center;flex:0 0 auto}.achievement-stars span{font-size:.84rem;line-height:1;color:#cfd4dc}.achievement-stars span.is-earned{color:#d6aa2b}
-    .name{font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.class{display:block;margin-top:2px;color:#7a8495;font-size:.78rem}
-    .score{text-align:right;font-weight:850;font-variant-numeric:tabular-nums;white-space:nowrap}.row.me .score{color:#248f5b}
-    .note{max-width:760px;margin:14px auto 0;padding:10px 12px;border-radius:13px;background:rgb(243 245 248 / 92%);color:#596477;font-size:.84rem;text-align:left}
-    button{width:min(100%,760px);min-height:52px;margin-top:14px;border:0;border-radius:15px;background:#172033;color:#fff;font-size:1rem;font-weight:800;cursor:pointer;touch-action:manipulation;transition:transform 100ms ease,background 100ms ease}button:active{transform:translateY(2px) scale(.995)}button:hover{background:#253049}
-    @media(max-width:700px){main{padding:12px}.card{min-height:95vh;padding:24px 14px 20px;border-radius:24px}.brand-mark{width:50px;height:50px}.alien{width:70px;height:70px}.muted{font-size:.94rem}.row{grid-template-columns:38px 1fr auto;padding:11px 10px}.mascot-slot{width:30px;height:30px;flex-basis:30px}.achievement-stars span{font-size:.72rem}.score{font-size:.92rem}}
+    .name{font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#000}.class{display:block;margin-top:2px;color:#52afe7;font-size:.78rem;font-weight:800}
+    .score{text-align:right;font-weight:850;font-variant-numeric:tabular-nums;white-space:nowrap;color:#000}.row.me .score{color:#248f5b}
+    .note{max-width:760px;margin:14px auto 0;padding:10px 12px;border-radius:13px;background:rgb(255 255 255 / 58%);color:rgb(23 32 51 / 68%);font-size:.84rem;text-align:left}
+    button{width:min(100%,760px);min-height:52px;margin-top:14px;border:0;border-radius:15px;background:linear-gradient(145deg,#68c9f4,#52afe7);color:#fff;font-size:1rem;font-weight:800;cursor:pointer;touch-action:manipulation;transition:transform 100ms ease,filter 100ms ease}button:active{transform:translateY(2px) scale(.995)}button:hover{filter:brightness(1.04) saturate(1.04)}
+    @media(max-width:700px){main{padding:12px}.card{min-height:95vh;padding:24px 14px 20px;border-radius:24px}.muted{font-size:.94rem}.row{grid-template-columns:38px 1fr auto;padding:11px 10px}.mascot-slot{width:30px;height:30px;flex-basis:30px}.achievement-stars span{font-size:.72rem}.score{font-size:.92rem}}
   </style>
 </head>
 <body>
@@ -46,7 +47,6 @@
     <div class="space-background" aria-hidden="true"></div>
     <div class="content">
       <div class="brand-row">
-        <img class="alien" src="./Alien.png" alt="Alien">
         <div>
           <p class="eyebrow">Einmaleins</p>
           <p class="muted" style="margin:2px 0 0;font-size:.88rem">Schulweite Highscoreliste</p>
