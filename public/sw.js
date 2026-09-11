@@ -6,7 +6,7 @@ const APP_SHELL = [
   "./manifest.webmanifest",
   "./einmaleins-icon.svg",
   "./space-theme.css?v=23",
-  "./game-layout-tweaks.css?v=3",
+  "./game-layout-tweaks.css?build=__BUILD_ID__",
   "./Background.png",
   "./Alien.png",
   "./src/responsive.css",
