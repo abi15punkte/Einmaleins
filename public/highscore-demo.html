@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>Einmaleins – Highscore-Demo</title>
+  <style>
+    :root{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#172033;background:#eef2f7}
+    *{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(circle at 50% -10%,#fff 0,#f6f8fb 36%,#eef2f7 78%)}
+    main{width:min(100%,900px);margin:0 auto;padding:28px 20px 40px}.card{background:#fff;border:1px solid rgb(23 32 51 / 7%);border-radius:28px;padding:34px;box-shadow:0 22px 60px rgb(23 32 51 / 10%)}
+    .eyebrow{margin:0;font-weight:800}.muted{color:#6f798a}.timer{margin-top:22px;padding:16px 18px;border-radius:16px;background:#f3f5f8;display:flex;justify-content:space-between;gap:20px;align-items:center}.timer strong{font-size:1.6rem}
+    .bar{height:8px;margin-top:12px;border-radius:999px;background:#dce2ea;overflow:hidden}.bar>span{display:block;height:100%;width:0;background:#172033;transition:width .2s linear}
+    .status{margin-top:16px;font-weight:800}.ok{color:#248f5b}.list{margin-top:26px;border:1px solid rgb(23 32 51 / 9%);border-radius:18px;overflow:hidden}.row{display:grid;grid-template-columns:52px 1fr 90px;gap:10px;align-items:center;padding:14px 16px;border-top:1px solid rgb(23 32 51 / 8%)}.row:first-child{border-top:0}.row.me{background:#edf8f1}.rank{font-weight:800}.name{font-weight:750}.class{display:block;color:#7a8495;font-size:.8rem;margin-top:2px}.score{text-align:right;font-weight:850;font-variant-numeric:tabular-nums}
+    .note{margin-top:18px;padding:12px 14px;border-radius:13px;background:#f3f5f8;color:#596477;font-size:.9rem}
+    button{width:100%;min-height:52px;margin-top:18px;border:0;border-radius:14px;background:#172033;color:#fff;font-weight:800;font-size:1rem}
+    @media(max-width:600px){main{padding:16px 14px 28px}.card{padding:24px 18px;border-radius:24px}.row{grid-template-columns:40px 1fr 78px;padding:13px 12px}}
+  </style>
+</head>
+<body>
+<main>
+  <section class="card">
+    <p class="eyebrow">Einmaleins · Testmodus</p>
+    <h1>Schulweite Highscoreliste</h1>
+    <p class="muted" id="intro">Eine Minute Spielzeit wird simuliert. Danach wird dein Ergebnis testweise übertragen.</p>
+    <div class="timer"><span>Zeit</span><strong id="time">1:00</strong></div>
+    <div class="bar"><span id="bar"></span></div>
+    <p class="status" id="status">Testspiel läuft …</p>
+    <div id="leaderboard" class="list" hidden></div>
+    <div class="note" id="note">Die folgenden Einträge sind frei erfunden und dienen nur der Darstellung.</div>
+    <button id="restart" type="button">Demo erneut starten</button>
+  </section>
+</main>
+<script>
+(() => {
+  const params = new URLSearchParams(location.search);
+  const hash = new URLSearchParams(location.hash.replace(/^#\??/, ""));
+  const get = (key, fallback = "") => params.get(key) || hash.get(key) || fallback;
+  const firstName = get("firstName", "Schüler");
+  const lastName = get("lastName", "");
+  const name = get("fullName", `${firstName}${lastName ? ` ${lastName}` : ""}`).trim();
+  const studentId = get("studentId", "demo-student");
+  const deviceGroups = get("deviceGroups", "");
+  const classMatch = deviceGroups.split(/[,;|]/).map((x) => x.trim()).find((x) => /^(M(?:[1-9]|1[0-6])|Lehrer)$/i.test(x));
+  const className = classMatch ? classMatch.toUpperCase() : "M1";
+  const requestedScore = Number(params.get("score"));
+  const myScore = Number.isInteger(requestedScore) && requestedScore >= 0 ? requestedScore : 742;
+  const baseEntries = [
+    {name:"Sophie Weber",className:"M3",score:1288},
+    {name:"Lukas Hoffmann",className:"M6",score:1196},
+    {name:"Emma Schneider",className:"M1",score:1034},
+    {name:"Noah Fischer",className:"M8",score:987},
+    {name:"Mia Wagner",className:"M4",score:931},
+    {name:"Ben Müller",className:"M2",score:884},
+    {name:"Lea Becker",className:"M5",score:816},
+    {name:name,className:className,score:myScore,studentId},
+    {name:"Paul Krüger",className:"M7",score:731}
+  ];
+  const timeEl=document.getElementById("time"),bar=document.getElementById("bar"),status=document.getElementById("status"),list=document.getElementById("leaderboard"),intro=document.getElementById("intro"),restart=document.getElementById("restart");
+  intro.textContent=`Eine Minute Spielzeit wird simuliert. Danach wird ${name} testweise mit ${myScore} Punkten übertragen.`;
+  let startedAt=0, timer=0;
+  function start(){
+    startedAt=Date.now();clearInterval(timer);status.textContent="Testspiel läuft …";status.className="status";list.hidden=true;timeEl.textContent="1:00";bar.style.width="0%";
+    timer=window.setInterval(() => { const elapsed=Date.now()-startedAt; const remaining=Math.max(0,60000-elapsed); const seconds=Math.ceil(remaining/1000); timeEl.textContent=`0:${String(seconds).padStart(2,"0")}`;bar.style.width=`${Math.min(100,elapsed/60000*100)}%`;if(remaining<=0){clearInterval(timer);finish();}},100);
+  }
+  function finish(){
+    const sorted=[...baseEntries].sort((a,b)=>b.score-a.score).map((entry,index)=>({...entry,rank:index+1}));
+    const me=sorted.find((entry)=>entry.studentId===studentId && entry.name===name && entry.score===myScore);
+    status.textContent=`Übertragung simuliert · ${me ? `Platz ${me.rank}` : "Eintrag übernommen"}`;status.className="status ok";list.innerHTML=sorted.map((entry)=>`<div class="row ${entry.studentId===studentId?"me":""}"><div class="rank">${entry.rank}</div><div><div class="name">${escapeHtml(entry.name)}${entry.studentId===studentId?" · Du":""}</div><span class="class">Klasse ${escapeHtml(entry.className || "–")}</span></div><div class="score">${entry.score}</div></div>`).join("");list.hidden=false;
+  }
+  function escapeHtml(value){return value.replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;");}
+  restart.addEventListener("click",start);start();
+})();
+</script>
+</body>
+</html>
