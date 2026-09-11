@@ -101,9 +101,39 @@
     animation: task-card-shake 620ms cubic-bezier(.36,.07,.19,.97) both;
   }
 
-  .game-screen .task-card.is-correct {
-    animation: task-card-pop 360ms cubic-bezier(.2,.8,.2,1) both;
+  .game-screen .task-card.correct-pop {
+    animation: task-card-pop 420ms cubic-bezier(.2,.8,.2,1) both;
     box-shadow: 0 8px 28px rgb(105 203 108 / 26%), 0 0 0 3px rgb(105 203 108 / 18%);
+  }
+
+  .game-screen #score.multiplier-x1 { color: #000000 !important; }
+  .game-screen #score.multiplier-x2 { color: #ffc65a !important; }
+  .game-screen #score.multiplier-x3 { color: #ff964e !important; }
+  .game-screen #score.multiplier-x5 { color: #ee737f !important; }
+
+  .points-fly {
+    position: fixed;
+    z-index: 10000;
+    pointer-events: none;
+    font-size: 4.2vh;
+    line-height: 1;
+    font-weight: 900;
+    letter-spacing: -0.03em;
+    text-shadow: 0 3px 8px rgb(23 52 95 / 18%);
+    transform: translate(-50%, -50%);
+    animation: points-fly-to-score 760ms cubic-bezier(.2,.8,.2,1) forwards;
+  }
+
+  .points-fly.multiplier-x1 { color: #000000; }
+  .points-fly.multiplier-x2 { color: #ffc65a; }
+  .points-fly.multiplier-x3 { color: #ff964e; }
+  .points-fly.multiplier-x5 { color: #ee737f; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .game-screen .task-card.correct-pop,
+    .points-fly {
+      animation: none !important;
+    }
   }
 
   .game-screen .task-equation {
@@ -139,4 +169,19 @@
   35% { transform: translateY(-0.9vh) scale(1.035); }
   65% { transform: translateY(0.35vh) scale(0.992); }
   100% { transform: translateY(0) scale(1); }
+}
+
+@keyframes points-fly-to-score {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.7) rotate(-4deg);
+  }
+  12% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.12) rotate(0deg);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(calc(-50% + var(--fly-x)), calc(-50% + var(--fly-y))) scale(0.72) rotate(5deg);
+  }
 }
