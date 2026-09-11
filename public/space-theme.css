@@ -81,12 +81,12 @@ body {
   .game-screen .task-caption,
   .game-screen .streak,
   .game-screen .stat-label,
-  .game-screen .keyboard-hint {
+  .game-screen .keyboard-hint,
+  .game-screen #round-caption {
     color: var(--space-text) !important;
   }
 
-  .game-screen .stat-points .stat-label,
-  .game-screen #round-caption {
+  .game-screen .stat-points .stat-label {
     color: var(--button-two-green) !important;
   }
 
