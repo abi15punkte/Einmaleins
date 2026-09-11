@@ -1,5 +1,5 @@
-const CACHE_NAME = "einmaleins-v23";
-const APP_SHELL = ["./", "./index.html", "./manifest.webmanifest", "./einmaleins-icon.svg", "./space-theme.css?v=23", "./Background.png", "./Alien.png", "./src/responsive.css", "./src/laptop.css"];
+const CACHE_NAME = "einmaleins-v24";
+const APP_SHELL = ["./", "./index.html", "./manifest.webmanifest", "./einmaleins-icon.svg", "./space-theme.css?v=23", "./game-layout-tweaks.css?v=2", "./header-statuses.js", "./Background.png", "./Alien.png", "./src/responsive.css", "./src/laptop.css"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
@@ -27,8 +27,6 @@ self.addEventListener("fetch", (event) => {
   const requestUrl = new URL(event.request.url);
   const isNavigation = event.request.mode === "navigate" || requestUrl.pathname.endsWith("/index.html");
 
-  // Always prefer the network while online so the browser gets the current version.
-  // Fall back to the cached response only when the network is unavailable.
   event.respondWith(
     fetch(event.request, { cache: "no-store" })
       .then((response) => {
