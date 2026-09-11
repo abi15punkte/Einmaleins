@@ -227,3 +227,10 @@
     line-height: 1 !important;
   }
 }
+
+/* Undo the separate 12vh relative offset introduced by commit 7f639c6. */
+@media (min-width: 1000px) and (orientation: landscape) {
+  .game-screen .task-card {
+    top: 0 !important;
+  }
+}
