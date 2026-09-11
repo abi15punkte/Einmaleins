@@ -45,7 +45,7 @@
     particle.style.setProperty("--fly-y", `${targetY - startY}px`);
     document.body.appendChild(particle);
 
-    window.setTimeout(() => particle.remove(), 850);
+    window.setTimeout(() => particle.remove(), 1610);
   }
 
   function sync() {
