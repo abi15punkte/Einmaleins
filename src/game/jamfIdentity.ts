@@ -10,7 +10,8 @@ const PARAMETER_ALIASES = {
   studentId: ["studentId", "jamfStudentId", "userId", "UserId", "jamfUserId"],
   firstName: ["firstName", "FirstName", "vorname", "jamfFirstName"],
   lastName: ["lastName", "LastName", "nachname", "jamfLastName"],
-  fullName: ["fullName", "FullName", "studentName", "name", "jamfStudentName"],
+  fullName: ["fullName", "FullName", "studentFullName", "jamfFullName"],
+  legacyName: ["studentName", "name", "jamfStudentName"],
   groups: ["userGroups", "UserGroups", "usergroups", "groups", "jamfGroups"],
   directClass: ["className", "class", "jamfClass"]
 } as const;
@@ -29,23 +30,20 @@ export function loadManagedStudentIdentity(locationObject: Location | null = get
   const firstName = findFirst(sources, PARAMETER_ALIASES.firstName);
   const lastName = findFirst(sources, PARAMETER_ALIASES.lastName);
   const fullName = findFirst(sources, PARAMETER_ALIASES.fullName);
+  const legacyName = findFirst(sources, PARAMETER_ALIASES.legacyName);
   const className = findManagedClassName(sources);
+  const name = buildManagedName(firstName, lastName, fullName, legacyName);
 
-  if (!studentId || !className) return null;
+  // A valid Jamf School owner plus a readable name is enough to identify the player.
+  // The class group is optional so other Jamf School groups (for example Förderkinder)
+  // do not incorrectly force the manual profile fallback.
+  if (!studentId || !name) return null;
 
-  if (firstName && lastName) {
-    return {
-      studentId,
-      name: `${firstName} ${lastName}`.trim(),
-      className
-    };
-  }
-
-  if (fullName) {
-    return { studentId, name: fullName, className };
-  }
-
-  return null;
+  return {
+    studentId,
+    name,
+    className
+  };
 }
 
 export function applyManagedStudentIdentity(
@@ -58,6 +56,19 @@ export function applyManagedStudentIdentity(
     className: managedIdentity.className,
     source: "jamf"
   });
+}
+
+function buildManagedName(
+  firstName: string | null,
+  lastName: string | null,
+  fullName: string | null,
+  legacyName: string | null
+): string | null {
+  if (firstName && lastName) return `${firstName} ${lastName}`.trim();
+  if (fullName) return fullName;
+  if (legacyName) return legacyName;
+  if (firstName) return firstName;
+  return null;
 }
 
 function findManagedClassName(sources: URLSearchParams[]): string | null {
