@@ -112,11 +112,11 @@
     width: 50vw !important;
     height: 40vh !important;
     min-height: 40vh !important;
-    margin: 11vh 0 0 2.5vw !important;
+    margin: 12vh 0 0 2.5vw !important;
     padding: 0 !important;
     align-self: start !important;
     display: grid !important;
-    grid-template-rows: 20% 15% 30% 15% 20% !important;
+    grid-template-rows: 15% 10% 50% 10% 15% !important;
     border-radius: 2vw !important;
     overflow: visible !important;
   }
@@ -161,6 +161,7 @@
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
+    align-self: stretch !important;
     gap: 1.4vw !important;
     font-size: 15vh !important;
     line-height: 1 !important;
