@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>Jamf Test – Einmaleins</title>
+  <style>
+    :root { color-scheme: light; font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+    body { margin: 0; padding: 32px; background: #f5f5f7; color: #111; }
+    main { max-width: 900px; margin: 0 auto; }
+    h1 { font-size: 32px; margin: 0 0 8px; }
+    p { font-size: 18px; }
+    .card { background: white; border-radius: 18px; padding: 24px; margin-top: 20px; box-shadow: 0 2px 12px rgba(0,0,0,.08); }
+    dt { font-weight: 700; margin-top: 16px; }
+    dd { margin: 6px 0 0; padding: 10px 12px; background: #f0f0f2; border-radius: 10px; word-break: break-all; font-family: ui-monospace,SFMono-Regular,Menlo,monospace; }
+    .ok { color: #087f23; font-weight: 700; }
+    .warn { color: #b3261e; font-weight: 700; }
+    code { font-family: ui-monospace,SFMono-Regular,Menlo,monospace; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Jamf Web-Clip-Test</h1>
+    <p>Diese Seite zeigt exakt, was beim Öffnen des Web Clips an die Web-App übergeben wurde.</p>
+    <section class="card">
+      <dl id="details"></dl>
+    </section>
+  </main>
+  <script>
+    const query = new URLSearchParams(window.location.search);
+    const hash = new URLSearchParams(window.location.hash.replace(/^#/, ""));
+    const get = (key) => query.get(key) ?? hash.get(key) ?? "";
+    const rows = [
+      ["Aktuelle URL", window.location.href],
+      ["Query (?…)", window.location.search || "(leer)"],
+      ["Hash (#…)", window.location.hash || "(leer)"],
+      ["studentId", get("studentId")],
+      ["firstName", get("firstName")],
+      ["lastName", get("lastName")],
+      ["fullName", get("fullName")],
+      ["deviceGroups", get("deviceGroups")],
+      ["userGroups", get("userGroups")]
+    ];
+    const details = document.getElementById("details");
+    for (const [label, value] of rows) {
+      const dt = document.createElement("dt");
+      dt.textContent = label;
+      const dd = document.createElement("dd");
+      dd.textContent = value || "(leer)";
+      if (label !== "Aktuelle URL" && label !== "Query (?…)" && label !== "Hash (#…)") {
+        dd.className = value ? "ok" : "warn";
+      }
+      details.append(dt, dd);
+    }
+  </script>
+</body>
+</html>
