@@ -1,0 +1,90 @@
+/* Small landscape game-layout refinements. */
+@media (orientation: landscape) {
+  .game-screen .header-stats {
+    position: absolute !important;
+    top: 2.5vh !important;
+    right: 0 !important;
+    width: 100vw !important;
+    height: 10vh !important;
+    display: block !important;
+    pointer-events: none !important;
+  }
+
+  .game-screen .stat-card,
+  .game-screen #round-caption,
+  .game-screen #task-number-caption {
+    width: 10vw !important;
+    min-width: 10vw !important;
+    height: 10vh !important;
+    min-height: 10vh !important;
+    padding: 0.5vh 0.5vw !important;
+    border: 1px solid rgb(23 32 51 / 7%) !important;
+    border-radius: 0.8vw !important;
+    background: rgb(255 255 255 / 78%) !important;
+    box-shadow: 0 4px 14px rgb(23 32 51 / 5%) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-align: center !important;
+    pointer-events: none !important;
+  }
+
+  .game-screen .stat-score,
+  .game-screen .stat-time,
+  .game-screen #round-caption,
+  .game-screen #task-number-caption {
+    position: fixed !important;
+    top: 2.5vh !important;
+    margin: 0 !important;
+    z-index: 20 !important;
+  }
+
+  .game-screen .stat-score { right: 38.5vw !important; }
+  .game-screen .stat-time { right: 26.5vw !important; }
+  .game-screen #round-caption {
+    right: 14.5vw !important;
+    left: auto !important;
+    color: var(--space-text) !important;
+    font-size: 2vh !important;
+    line-height: 1 !important;
+    letter-spacing: 0.08em !important;
+    text-transform: uppercase !important;
+    white-space: nowrap !important;
+  }
+  .game-screen #task-number-caption {
+    right: 2.5vw !important;
+    color: var(--space-text) !important;
+    font-size: 2vh !important;
+    line-height: 1 !important;
+    letter-spacing: 0.08em !important;
+    text-transform: uppercase !important;
+    white-space: nowrap !important;
+  }
+
+  .game-screen .task-caption {
+    display: contents !important;
+  }
+
+  .game-screen .task-card {
+    width: 45vw !important;
+    height: 65vh !important;
+    min-height: 65vh !important;
+    background: rgb(255 255 255 / 78%) !important;
+    border: 1px solid rgb(23 32 51 / 7%) !important;
+    box-shadow: 0 4px 14px rgb(23 32 51 / 5%) !important;
+    grid-template-rows: 100% !important;
+  }
+
+  .game-screen .task-equation {
+    grid-row: 1 !important;
+  }
+
+  .game-screen .feedback-area {
+    display: none !important;
+  }
+
+  .game-screen .task-equation .operator {
+    color: var(--space-text) !important;
+  }
+}
