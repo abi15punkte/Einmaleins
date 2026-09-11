@@ -8,7 +8,7 @@ import { createLeaderboardClient, type LeaderboardClient } from "./game/leaderbo
 import { queueHighscoreForSync, syncPendingHighscores } from "./game/highscoreSync";
 
 const TOTAL_TASKS = 136;
-const ANSWER_FEEDBACK_MS = 200;
+const ANSWER_FEEDBACK_MS = 500;
 type Screen = "start" | "game" | "result";
 type PracticeMode = "highscore" | "free";
 type AnswerPresentation = {
@@ -56,19 +56,7 @@ function renderStartScreen(profileMessage = ""): void {
   leaderboardClient = createLeaderboardClient();
   const personalHighscore = loadPersonalHighscore(student.studentId);
   const showManualProfile = student.source !== "jamf";
-  app.innerHTML = `
-    <main class="app-shell start-screen"><section class="welcome-card" aria-labelledby="welcome-title">
-      <div class="brand-mark brand-mark-large" aria-hidden="true">·</div><p class="eyebrow">Einmaleins</p><p class="student-greeting">Hallo, ${escapeHtml(student.name)}!</p><h1 id="welcome-title">Bereit für eine Runde?</h1>
-      <p class="welcome-copy">Löse so viele Aufgaben wie du kannst. Du hast dafür zehn Minuten.</p>
-      ${student.className ? `<p class="student-class">Klasse ${escapeHtml(student.className)}</p>` : ""}
-      ${personalHighscore ? `<div class="personal-best" aria-label="Persönlicher Highscore"><span>Dein persönlicher Highscore</span><strong>${personalHighscore.score} Punkte</strong></div>` : ""}
-      ${showManualProfile ? `<details class="profile-panel"><summary>Spielerprofil bearbeiten</summary><form id="profile-form" class="profile-form"><label><span>Name</span><input id="student-name" name="name" type="text" maxlength="30" autocomplete="name" value="${escapeHtml(student.name)}" required /></label><label><span>Klasse <small>(optional)</small></span><input id="student-class" name="className" type="text" maxlength="20" autocomplete="off" value="${escapeHtml(student.className ?? "")}" /></label><button type="submit" class="profile-save">Profil speichern</button><p id="profile-status" class="profile-status" aria-live="polite">${escapeHtml(profileMessage)}</p></form></details>` : `<p class="managed-profile-note">Name und Klassenangabe wurden von der Schulverwaltung übernommen.</p>`}
-      <div class="mode-actions" aria-label="Übungsmodus wählen">
-        <button type="button" class="mode-card mode-card-primary" data-mode="highscore"><span class="mode-title">Üben mit Highscore</span><span class="mode-copy">Spiele mit persönlicher Rekordauswertung und Highscore-Hinweis.</span></button>
-        <button type="button" class="mode-card" data-mode="free"><span class="mode-title">Üben ohne Highscore</span><span class="mode-copy">Spiele ohne Highscore-Fokus; dein persönlicher Rekord wird am Ende trotzdem geprüft.</span></button>
-      </div>
-    </section></main>`;
-
+  app.innerHTML = `<main class="app-shell start-screen"><section class="welcome-card" aria-labelledby="welcome-title"><div class="brand-mark brand-mark-large" aria-hidden="true">·</div><p class="eyebrow">Einmaleins</p><p class="student-greeting">Hallo, ${escapeHtml(student.name)}!</p><h1 id="welcome-title">Bereit für eine Runde?</h1><p class="welcome-copy">Löse so viele Aufgaben wie du kannst. Du hast dafür zehn Minuten.</p>${student.className ? `<p class="student-class">Klasse ${escapeHtml(student.className)}</p>` : ""}${personalHighscore ? `<div class="personal-best" aria-label="Persönlicher Highscore"><span>Dein persönlicher Highscore</span><strong>${personalHighscore.score} Punkte</strong></div>` : ""}${showManualProfile ? `<details class="profile-panel"><summary>Spielerprofil bearbeiten</summary><form id="profile-form" class="profile-form"><label><span>Name</span><input id="student-name" name="name" type="text" maxlength="30" autocomplete="name" value="${escapeHtml(student.name)}" required /></label><label><span>Klasse <small>(optional)</small></span><input id="student-class" name="className" type="text" maxlength="20" autocomplete="off" value="${escapeHtml(student.className ?? "")}" /></label><button type="submit" class="profile-save">Profil speichern</button><p id="profile-status" class="profile-status" aria-live="polite">${escapeHtml(profileMessage)}</p></form></details>` : `<p class="managed-profile-note">Name und Klassenangabe wurden von der Schulverwaltung übernommen.</p>`}<div class="mode-actions" aria-label="Übungsmodus wählen"><button type="button" class="mode-card mode-card-primary" data-mode="highscore"><span class="mode-title">Üben mit Highscore</span><span class="mode-copy">Spiele mit persönlicher Rekordauswertung und Highscore-Hinweis.</span></button><button type="button" class="mode-card" data-mode="free"><span class="mode-title">Üben ohne Highscore</span><span class="mode-copy">Spiele ohne Highscore-Fokus; dein persönlicher Rekord wird am Ende trotzdem geprüft.</span></button></div></section></main>`;
   if (showManualProfile) {
     getRequiredElement<HTMLFormElement>("#profile-form").addEventListener("submit", (event) => {
       event.preventDefault();
@@ -94,47 +82,20 @@ function handleDigit(digit: number): void {
   if (screen !== "game") return;
   const stateBefore = controller.getState();
   if (stateBefore.input.status !== "waiting") return;
-
   const stateAfter = controller.pressDigit(digit);
   const outcome = stateAfter.lastDigitOutcome;
-  if (!outcome) {
-    renderGameState();
-    return;
-  }
-
+  if (!outcome) { renderGameState(); return; }
   clearAnswerFeedbackTimer();
-  answerPresentation = {
-    factorA: String(outcome.task[0]),
-    factorB: String(outcome.task[1]),
-    entered: outcome.entered,
-    expected: String(outcome.expectedAnswer),
-    status: outcome.kind === "wrong" ? "wrong-red" : "correct-green"
-  };
-
+  answerPresentation = { factorA: String(outcome.task[0]), factorB: String(outcome.task[1]), entered: outcome.entered, expected: String(outcome.expectedAnswer), status: outcome.kind === "wrong" ? "wrong-red" : "correct-green" };
   renderGameState();
-
-  if (outcome.kind === "partial-correct") {
-    answerFeedbackTimer = null;
-    return;
-  }
-
+  if (outcome.kind === "partial-correct") return;
   answerFeedbackTimer = window.setTimeout(() => {
     answerFeedbackTimer = null;
     if (answerPresentation === null) return;
-
-    if (outcome.kind === "correct") {
-      answerPresentation = null;
-      renderGameState();
-      return;
-    }
-
-    answerPresentation = {
-      ...answerPresentation,
-      status: "wrong-black"
-    };
+    if (outcome.kind === "correct") { answerPresentation = null; renderGameState(); return; }
+    answerPresentation = { ...answerPresentation, status: "wrong-black" };
     renderGameState();
   }, ANSWER_FEEDBACK_MS);
-
   if (outcome.kind === "wrong") scheduleNextTaskAfterWrongAnswer();
 }
 
@@ -151,7 +112,6 @@ function renderGameState(): void {
   const multiplier = multiplierForStreak(game.streak);
   const round = getRequiredElement<HTMLElement>("#round"); const roundCaption = getRequiredElement<HTMLElement>("#round-caption"); const taskNumberCaption = getRequiredElement<HTMLElement>("#task-number-caption"); const score = getRequiredElement<HTMLElement>("#score"); const time = getRequiredElement<HTMLElement>("#time"); const progress = getRequiredElement<HTMLElement>("#progress"); const factorA = getRequiredElement<HTMLElement>("#factor-a"); const factorB = getRequiredElement<HTMLElement>("#factor-b"); const answer = getRequiredElement<HTMLElement>("#answer"); const feedback = getRequiredElement<HTMLElement>("#feedback"); const streak = getRequiredElement<HTMLElement>("#streak"); const taskCard = getRequiredElement<HTMLElement>("#task-card");
   round.textContent = `Level ${game.round}`; roundCaption.textContent = `Level ${game.round}`; taskNumberCaption.textContent = `Aufgabe ${Math.min(game.completedTasks + 1, TOTAL_TASKS)}`; score.textContent = String(game.score); time.textContent = formatTime(game.elapsedMs); progress.style.width = `${Math.min((game.completedTasks / TOTAL_TASKS) * 100, 100)}%`;
-
   if (answerPresentation !== null) {
     factorA.textContent = answerPresentation.factorA;
     factorB.textContent = answerPresentation.factorB;
@@ -164,7 +124,6 @@ function renderGameState(): void {
     answer.textContent = state.input.entered || "?";
     answer.classList.remove("answer-feedback-wrong", "answer-feedback-correct");
   }
-
   feedback.className = "feedback"; taskCard.classList.remove("is-correct", "is-wrong");
   if (state.lastAnswer === null || state.input.entered) { feedback.textContent = "Gib deine Antwort ein."; feedback.classList.add("feedback-neutral"); }
   else if (state.lastAnswer.correct) { feedback.textContent = `Richtig! +${state.lastAnswer.points} Punkte`; feedback.classList.add("feedback-correct"); taskCard.classList.add("is-correct"); }
@@ -172,13 +131,7 @@ function renderGameState(): void {
   if (game.streak >= 3) { streak.hidden = false; streak.textContent = `Serie ×${multiplier}`; } else streak.hidden = true;
 }
 
-function clearAnswerFeedbackTimer(): void {
-  if (answerFeedbackTimer !== null) {
-    window.clearTimeout(answerFeedbackTimer);
-    answerFeedbackTimer = null;
-  }
-  answerPresentation = null;
-}
+function clearAnswerFeedbackTimer(): void { if (answerFeedbackTimer !== null) { window.clearTimeout(answerFeedbackTimer); answerFeedbackTimer = null; } answerPresentation = null; }
 
 function renderResultScreen(): void {
   clearGameTimer();
@@ -188,29 +141,21 @@ function renderResultScreen(): void {
   const headline = won ? "Geschafft!" : "Zeit ist um!";
   const message = won ? "Du hast alle Aufgaben vor Ablauf der zehn Minuten gelöst." : "Dein Ergebnis steht fest.";
   const highscoreMessage = resultEvaluation?.isNewPersonalBest ? "🏆 Neuer persönlicher Highscore!" : `Persönlicher Rekord: ${resultEvaluation?.personalBest.score ?? loadPersonalHighscore(student.studentId)?.score ?? 0}`;
-  const schoolEntry = resultEvaluation?.isNewPersonalBest && leaderboardClient
-    ? `<div class="school-entry" aria-labelledby="school-entry-title"><p id="school-entry-title"><strong>Schulweite Highscoreliste</strong></p><p>Dein neuer Rekord kann freiwillig in die schulweite Liste eingetragen werden.</p><button type="button" class="result-button" id="school-submit">In die schulweite Liste eintragen</button><p id="school-status" class="profile-status" aria-live="polite">Nur wenn du möchtest.</p></div>`
-    : "";
+  const schoolEntry = resultEvaluation?.isNewPersonalBest && leaderboardClient ? `<div class="school-entry" aria-labelledby="school-entry-title"><p id="school-entry-title"><strong>Schulweite Highscoreliste</strong></p><p>Dein neuer Rekord kann freiwillig in die schulweite Liste eingetragen werden.</p><button type="button" class="result-button" id="school-submit">In die schulweite Liste eintragen</button><p id="school-status" class="profile-status" aria-live="polite">Nur wenn du möchtest.</p></div>` : "";
   app.innerHTML = `<main class="app-shell result-screen"><section class="result-card" aria-labelledby="result-title"><div class="result-icon" aria-hidden="true">${won ? "✓" : "★"}</div><p class="eyebrow">Einmaleins</p><p class="result-greeting">Gut gespielt, ${escapeHtml(student.name)}!</p><h1 id="result-title">${headline}</h1><p class="result-copy">${message}</p><div class="result-highscore ${resultEvaluation?.isNewPersonalBest ? "is-new" : ""}" aria-live="polite">${highscoreMessage}</div><div class="result-stats" aria-label="Spielergebnis"><div class="result-stat"><span class="stat-label">Punkte</span><strong>${game.score}</strong></div><div class="result-stat"><span class="stat-label">Aufgaben</span><strong>${game.completedTasks} / ${TOTAL_TASKS}</strong></div><div class="result-stat"><span class="stat-label">Modus</span><strong>${practiceMode === "highscore" ? "Mit Highscore" : "Ohne Highscore"}</strong></div></div>${schoolEntry}<button type="button" class="result-button" id="again">Noch eine Runde</button></section></main>`;
   document.querySelectorAll<HTMLButtonElement>("#school-submit").forEach((button) => button.addEventListener("click", () => { void submitSchoolHighscore(); }));
   getRequiredElement<HTMLButtonElement>("#again").addEventListener("click", () => { screen = "start"; resultEvaluation = null; renderStartScreen(); });
 }
 
 async function submitSchoolHighscore(): Promise<void> {
-  const status = document.querySelector<HTMLElement>("#school-status");
-  const button = document.querySelector<HTMLButtonElement>("#school-submit");
+  const status = document.querySelector<HTMLElement>("#school-status"); const button = document.querySelector<HTMLButtonElement>("#school-submit");
   if (!resultEvaluation?.isNewPersonalBest || !leaderboardClient) return;
   if (button) button.disabled = true;
   if (status) status.textContent = "Eintragung wird geprüft …";
-
   queueHighscoreForSync(resultEvaluation.personalBest);
-
   try {
     const result = await syncPendingHighscores(leaderboardClient);
-    if (result.synced > 0 && result.failed === 0) {
-      if (status) status.textContent = "Erfolgreich in die schulweite Liste eingetragen.";
-      return;
-    }
+    if (result.synced > 0 && result.failed === 0) { if (status) status.textContent = "Erfolgreich in die schulweite Liste eingetragen."; return; }
     if (button) button.disabled = false;
     if (status) status.textContent = "Gerade keine Internetverbindung. Dein persönlicher Highscore und die ausstehende Eintragung bleiben gespeichert.";
   } catch {
@@ -219,11 +164,7 @@ async function submitSchoolHighscore(): Promise<void> {
   }
 }
 
-async function syncPendingIfPossible(): Promise<void> {
-  if (!leaderboardClient) return;
-  if (typeof navigator !== "undefined" && !navigator.onLine) return;
-  await syncPendingHighscores(leaderboardClient);
-}
+async function syncPendingIfPossible(): Promise<void> { if (!leaderboardClient) return; if (typeof navigator !== "undefined" && !navigator.onLine) return; await syncPendingHighscores(leaderboardClient); }
 
 function startGame(): void {
   if (wrongAnswerTimer !== null) { window.clearTimeout(wrongAnswerTimer); wrongAnswerTimer = null; }
@@ -236,8 +177,6 @@ function clearGameTimer(): void { if (gameTimer !== null) { window.clearInterval
 function formatTime(elapsedMs: number): string { const remainingMs = Math.max(0, GAME_DURATION_MS - elapsedMs); const totalSeconds = Math.ceil(remainingMs / 1000); const minutes = Math.floor(totalSeconds / 60); const seconds = totalSeconds % 60; return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`; }
 
 document.addEventListener("keydown", handleKeyboardInput);
-
 void syncPendingIfPossible();
 window.addEventListener("online", () => { void syncPendingIfPossible(); });
-
 renderStartScreen();
