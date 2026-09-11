@@ -1,78 +1,7 @@
 /* Small landscape game-layout refinements. */
 @media (orientation: landscape) {
-  .game-screen .game-header {
-    position: relative !important;
-  }
-
-  /* Level + task number: left side of the existing header. */
-  .game-screen .brand-block {
-    position: absolute !important;
-    left: 2.5vw !important;
-    top: 2.5vh !important;
-    width: auto !important;
-    height: 10vh !important;
-    display: flex !important;
-    align-items: center !important;
-    gap: 2vw !important;
-    z-index: 20 !important;
-  }
-
-  .game-screen .brand-block .brand-mark,
-  .game-screen .brand-block .eyebrow {
-    display: none !important;
-  }
-
-  .game-screen .brand-block .round {
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    width: 10vw !important;
-    min-width: 10vw !important;
-    height: 10vh !important;
-    margin: 0 !important;
-    padding: 0.5vh 0.5vw !important;
-    border: 1px solid rgb(23 32 51 / 7%) !important;
-    border-radius: 0.8vw !important;
-    background: rgb(255 255 255 / 78%) !important;
-    box-shadow: 0 4px 14px rgb(23 32 51 / 5%) !important;
-    color: var(--space-text) !important;
-    font-size: 2vh !important;
-    font-weight: 700 !important;
-    line-height: 1 !important;
-    letter-spacing: 0.08em !important;
-    text-transform: uppercase !important;
-    white-space: nowrap !important;
-  }
-
-  .game-screen #task-number-caption {
-    position: fixed !important;
-    top: 2.5vh !important;
-    left: calc(2.5vw + 12vw) !important;
-    right: auto !important;
-    z-index: 20 !important;
-    width: 10vw !important;
-    min-width: 10vw !important;
-    height: 10vh !important;
-    min-height: 10vh !important;
-    margin: 0 !important;
-    padding: 0.5vh 0.5vw !important;
-    border: 1px solid rgb(23 32 51 / 7%) !important;
-    border-radius: 0.8vw !important;
-    background: rgb(255 255 255 / 78%) !important;
-    box-shadow: 0 4px 14px rgb(23 32 51 / 5%) !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    color: var(--space-text) !important;
-    font-size: 2vh !important;
-    font-weight: 700 !important;
-    line-height: 1 !important;
-    letter-spacing: 0.08em !important;
-    text-transform: uppercase !important;
-    white-space: nowrap !important;
-  }
-
-  /* Keep Punkte + Zeit exactly where the original landscape layout placed them. */
+  /* Keep the original Punkte/Zeit header group exactly where the base
+     landscape layout places it: top-right, with the same gap and sizing. */
   .game-screen .header-stats {
     position: absolute !important;
     top: 2.5vh !important;
@@ -86,25 +15,58 @@
   }
 
   .game-screen .stat-card {
-    position: static !important;
     width: 10vw !important;
     min-width: 10vw !important;
     height: 10vh !important;
     min-height: 10vh !important;
     padding: 0.5vh 0.5vw !important;
+    border: 1px solid rgb(23 32 51 / 7%) !important;
     border-radius: 0.8vw !important;
+    background: rgb(255 255 255 / 78%) !important;
+    box-shadow: 0 4px 14px rgb(23 32 51 / 5%) !important;
     display: flex !important;
     flex-direction: column !important;
     align-items: center !important;
     justify-content: center !important;
     text-align: center !important;
-    pointer-events: auto !important;
   }
 
-  /* Level/task are no longer part of the task-card caption area. */
+  /* Mirror the original status-card group to the left side of the header. */
   .game-screen .task-caption {
     display: contents !important;
   }
+
+  .game-screen #round-caption,
+  .game-screen #task-number-caption {
+    position: fixed !important;
+    top: 2.5vh !important;
+    width: 10vw !important;
+    min-width: 10vw !important;
+    height: 10vh !important;
+    min-height: 10vh !important;
+    margin: 0 !important;
+    padding: 0.5vh 0.5vw !important;
+    border: 1px solid rgb(23 32 51 / 7%) !important;
+    border-radius: 0.8vw !important;
+    background: rgb(255 255 255 / 78%) !important;
+    box-shadow: 0 4px 14px rgb(23 32 51 / 5%) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-align: center !important;
+    color: var(--space-text) !important;
+    font-size: 2vh !important;
+    line-height: 1 !important;
+    letter-spacing: 0.08em !important;
+    text-transform: uppercase !important;
+    white-space: nowrap !important;
+    z-index: 20 !important;
+    left: auto !important;
+    right: auto !important;
+  }
+
+  .game-screen #round-caption { left: 2.5vw !important; }
+  .game-screen #task-number-caption { left: 14.5vw !important; }
 
   .game-screen .task-card {
     width: 45vw !important;
