@@ -11,47 +11,59 @@
     html,body{min-width:320px;min-height:100%;margin:0}
     body{min-height:100vh;background:radial-gradient(circle at 50% -10%,#fff 0,#f6f8fb 36%,#eef2f7 78%);overscroll-behavior:none;touch-action:manipulation}
     button{font:inherit}
-    main{width:min(100%,980px);min-height:100vh;margin:0 auto;padding:28px 28px 32px;display:grid;place-items:center}
-    .card{width:min(100%,700px);padding:clamp(32px,6vw,64px);text-align:center;border:1px solid rgb(23 32 51 / 7%);border-radius:32px;background:rgb(255 255 255 / 94%);box-shadow:0 22px 60px rgb(23 32 51 / 10%)}
-    .brand-mark{width:64px;height:64px;margin:0 auto 22px;display:grid;place-items:center;border-radius:18px;background:#172033;color:#fff;font-size:2.3rem;font-weight:800;box-shadow:0 8px 20px rgb(23 32 51 / 16%)}
+    main{width:min(100%,980px);min-height:100vh;margin:0 auto;padding:20px 24px 26px;display:grid;place-items:center}
+    .card{position:relative;width:min(100%,980px);min-height:min(92vh,760px);padding:30px 34px 26px;text-align:center;overflow:hidden;border:1px solid rgb(23 32 51 / 7%);border-radius:32px;background:rgb(255 255 255 / 93%);box-shadow:0 22px 60px rgb(23 32 51 / 10%)}
+    .space-background{position:absolute;inset:0;background-image:linear-gradient(rgb(255 255 255 / 82%),rgb(255 255 255 / 82%)),url("./space-background.svg");background-size:cover;background-position:center;opacity:.68;pointer-events:none}
+    .content{position:relative;z-index:1}
+    .brand-row{display:flex;justify-content:center;align-items:center;gap:14px;margin-bottom:16px}
+    .brand-mark{width:54px;height:54px;display:grid;place-items:center;border-radius:16px;background:#172033;color:#fff;font-size:2rem;font-weight:800;box-shadow:0 8px 20px rgb(23 32 51 / 16%)}
+    .alien{width:86px;height:86px;object-fit:contain;filter:drop-shadow(0 8px 18px rgb(23 32 51 / 14%))}
     .eyebrow{margin:0;font-size:1.05rem;font-weight:800;letter-spacing:-.02em}
-    h1{margin:12px 0;font-size:clamp(2rem,5vw,3.1rem);line-height:1.05;letter-spacing:-.045em}
-    .muted{max-width:520px;margin:0 auto;color:#6f798a;font-size:1.05rem;line-height:1.55}
-    .timer{margin-top:26px;padding:12px 15px 13px;border-radius:14px;background:#f3f5f8;display:flex;justify-content:space-between;gap:20px;align-items:center;color:#4f596b;font-weight:750}
+    h1{margin:10px 0 8px;font-size:clamp(2rem,5vw,3.1rem);line-height:1.05;letter-spacing:-.045em}
+    .muted{max-width:620px;margin:0 auto;color:#6f798a;font-size:1.02rem;line-height:1.5}
+    .timer{max-width:620px;margin:20px auto 0;padding:11px 15px 12px;border-radius:14px;background:rgb(243 245 248 / 92%);display:flex;justify-content:space-between;gap:20px;align-items:center;color:#4f596b;font-weight:750}
     .timer strong{font-size:1.05rem;color:#172033}
-    .bar{height:5px;margin-top:12px;border-radius:999px;background:#dce2ea;overflow:hidden}.bar>span{display:block;height:100%;width:0;background:#172033;transition:width .2s linear}
-    .status{margin:16px 0 0;color:#7a8495;font-size:.9rem;font-weight:750}.status.ok{color:#248f5b}
-    .list-shell{margin-top:24px;text-align:left}.list-heading{margin:0 0 10px;color:#6f798a;font-size:.78rem;font-weight:800;text-transform:uppercase;letter-spacing:.12em}
-    .highscore-list-scroll{max-height:min(58vh,520px);overflow-y:auto;overflow-x:hidden;border:1px solid rgb(23 32 51 / 8%);border-radius:18px;background:#fff;touch-action:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
-    .row{display:grid;grid-template-columns:52px 1fr auto;gap:12px;align-items:center;padding:13px 16px;border-top:1px solid rgb(23 32 51 / 8%);touch-action:auto}.row:first-child{border-top:0}
+    .bar{max-width:620px;height:5px;margin:10px auto 0;border-radius:999px;background:#dce2ea;overflow:hidden}.bar>span{display:block;height:100%;width:0;background:#172033;transition:width .2s linear}
+    .status{margin:14px 0 0;color:#7a8495;font-size:.9rem;font-weight:750}.status.ok{color:#248f5b}
+    .list-shell{width:min(100%,760px);margin:18px auto 0;text-align:left}.list-heading{margin:0 0 8px;color:#6f798a;font-size:.76rem;font-weight:800;text-transform:uppercase;letter-spacing:.12em}
+    .highscore-list-scroll{max-height:min(48vh,410px);overflow-y:auto;overflow-x:hidden;border:1px solid rgb(23 32 51 / 8%);border-radius:18px;background:rgb(255 255 255 / 95%);touch-action:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+    .row{display:grid;grid-template-columns:52px 1fr auto;gap:12px;align-items:center;padding:12px 14px;border-top:1px solid rgb(23 32 51 / 8%);touch-action:auto}.row:first-child{border-top:0}
     .row.me{background:#edf8f1}
     .row.rank-gold{background:#fbf5df}.row.rank-silver{background:#f0f2f5}.row.rank-bronze{background:#f7eee7}
     .row.rank-gold.me,.row.rank-silver.me,.row.rank-bronze.me{background:#edf8f1}
     .rank{font-weight:800;color:#6f798a}.rank-gold .rank{color:#9a7819}.rank-silver .rank{color:#66707d}.rank-bronze .rank{color:#96613f}
-    .name{font-weight:800}.class{display:block;margin-top:2px;color:#7a8495;font-size:.8rem}
-    .entry-meta{display:flex;align-items:center;gap:10px;min-width:0}.mascot-slot{width:34px;height:34px;flex:0 0 34px;border-radius:10px;display:grid;place-items:center;border:1px solid rgb(23 32 51 / 8%);background:#f3f5f8;color:#a0a8b5;font-size:.72rem;font-weight:800;overflow:hidden}.mascot-slot img{width:100%;height:100%;object-fit:contain}.achievement-stars{display:flex;gap:2px;align-items:center;flex:0 0 auto}.achievement-stars span{font-size:.9rem;line-height:1;color:#cfd4dc}.achievement-stars span.is-earned{color:#d6aa2b}
+    .entry-meta{display:flex;align-items:center;gap:9px;min-width:0}.mascot-slot{width:38px;height:38px;flex:0 0 38px;border-radius:11px;display:grid;place-items:center;border:1px solid rgb(23 32 51 / 8%);background:#f3f5f8;color:#a0a8b5;font-size:.69rem;font-weight:800;overflow:hidden}.mascot-slot img{width:100%;height:100%;object-fit:contain}.achievement-stars{display:flex;gap:1px;align-items:center;flex:0 0 auto}.achievement-stars span{font-size:.84rem;line-height:1;color:#cfd4dc}.achievement-stars span.is-earned{color:#d6aa2b}
+    .name{font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.class{display:block;margin-top:2px;color:#7a8495;font-size:.78rem}
     .score{text-align:right;font-weight:850;font-variant-numeric:tabular-nums;white-space:nowrap}.row.me .score{color:#248f5b}
-    .note{margin-top:18px;padding:12px 14px;border-radius:13px;background:#f3f5f8;color:#596477;font-size:.88rem}
-    button{width:100%;min-height:56px;margin-top:18px;border:0;border-radius:15px;background:#172033;color:#fff;font-size:1rem;font-weight:800;cursor:pointer;touch-action:manipulation;transition:transform 100ms ease,background 100ms ease}button:active{transform:translateY(2px) scale(.995)}button:hover{background:#253049}
-    @media(max-width:600px){main{padding:16px 14px 20px}.card{padding:28px 18px;border-radius:24px}.brand-mark{width:56px;height:56px;font-size:2rem}.muted{font-size:.96rem}.row{grid-template-columns:40px 1fr auto;padding:12px 12px}.mascot-slot{width:30px;height:30px;flex-basis:30px}.achievement-stars span{font-size:.8rem}}
+    .note{max-width:760px;margin:14px auto 0;padding:10px 12px;border-radius:13px;background:rgb(243 245 248 / 92%);color:#596477;font-size:.84rem;text-align:left}
+    button{width:min(100%,760px);min-height:52px;margin-top:14px;border:0;border-radius:15px;background:#172033;color:#fff;font-size:1rem;font-weight:800;cursor:pointer;touch-action:manipulation;transition:transform 100ms ease,background 100ms ease}button:active{transform:translateY(2px) scale(.995)}button:hover{background:#253049}
+    @media(max-width:700px){main{padding:12px}.card{min-height:95vh;padding:24px 14px 20px;border-radius:24px}.brand-mark{width:50px;height:50px}.alien{width:70px;height:70px}.muted{font-size:.94rem}.row{grid-template-columns:38px 1fr auto;padding:11px 10px}.mascot-slot{width:30px;height:30px;flex-basis:30px}.achievement-stars span{font-size:.72rem}.score{font-size:.92rem}}
   </style>
 </head>
 <body>
 <main>
   <section class="card">
-    <div class="brand-mark" aria-hidden="true">·</div>
-    <p class="eyebrow">Einmaleins</p>
-    <h1>Schulweite Highscoreliste</h1>
-    <p class="muted" id="intro">Eine kurze Demo simuliert Spielzeit und Übertragung.</p>
-    <div class="timer"><span>Zeit</span><strong id="time">0:10</strong></div>
-    <div class="bar"><span id="bar"></span></div>
-    <p class="status" id="status">Testspiel läuft …</p>
-    <section class="list-shell" aria-labelledby="list-heading">
-      <p class="list-heading" id="list-heading">Beispielrangliste</p>
-      <div id="leaderboard" class="highscore-list-scroll" hidden></div>
-    </section>
-    <div class="note" id="note">Die Einträge sind frei erfunden und dienen nur der Darstellung. Klassentier und bis zu fünf Errungenschaftssterne sind als Platzhalter vorbereitet.</div>
-    <button id="restart" type="button">Demo erneut starten</button>
+    <div class="space-background" aria-hidden="true"></div>
+    <div class="content">
+      <div class="brand-row">
+        <img class="alien" src="./Alien.png" alt="Alien">
+        <div>
+          <p class="eyebrow">Einmaleins</p>
+          <p class="muted" style="margin:2px 0 0;font-size:.88rem">Schulweite Highscoreliste</p>
+        </div>
+      </div>
+      <h1>Schulweite Highscoreliste</h1>
+      <p class="muted" id="intro">Eine kurze Demo simuliert Spielzeit und Übertragung.</p>
+      <div class="timer"><span>Zeit</span><strong id="time">0:10</strong></div>
+      <div class="bar"><span id="bar"></span></div>
+      <p class="status" id="status">Testspiel läuft …</p>
+      <section class="list-shell" aria-labelledby="list-heading">
+        <p class="list-heading" id="list-heading">Beispielrangliste</p>
+        <div id="leaderboard" class="highscore-list-scroll" hidden></div>
+      </section>
+      <div class="note" id="note">Die Einträge sind frei erfunden. Klassentier und bis zu fünf Errungenschaftssterne sind als Platzhalter vorbereitet.</div>
+      <button id="restart" type="button">Demo erneut starten</button>
+    </div>
   </section>
 </main>
 <script>
@@ -71,7 +83,6 @@
   const requestedScore = Number(params.get("score"));
   const myScore = Number.isInteger(requestedScore) && requestedScore >= 0 ? requestedScore : 742;
   const CLASS_MASCOTS = { M1: null, M2: null, M3: null, M4: null, M5: null, M6: null, M7: null, M8: null, M9: null, M10: null, M11: null, M12: null, M13: null, M14: null, M15: null, M16: null, Lehrer: null };
-  const ACHIEVEMENT_STARS = { "Schnellstarter": true, "Fehlerfrei": true, "Serienprofi": true, "Levelmeister": false, "Rekordjäger": false };
   const demoRows = [
     {name:"Sophie Weber",className:"M3",score:1288,stars:5},
     {name:"Lukas Hoffmann",className:"M6",score:1196,stars:4},
@@ -89,7 +100,7 @@
   function starsMarkup(count){ return `<span class="achievement-stars" aria-label="${count} von 5 Errungenschaften">${Array.from({length:5},(_,i)=>`<span class="${i<count?"is-earned":""}" aria-hidden="true">★</span>`).join("")}</span>`; }
   let startedAt=0, timer=0;
   function start(){ startedAt=Date.now();clearInterval(timer);status.textContent="Testspiel läuft …";status.className="status";list.hidden=true;timeEl.textContent="0:10";bar.style.width="0%";timer=window.setInterval(()=>{const elapsed=Date.now()-startedAt;const remaining=Math.max(0,10000-elapsed);const seconds=Math.ceil(remaining/1000);timeEl.textContent=`0:${String(seconds).padStart(2,"0")}`;bar.style.width=`${Math.min(100,elapsed/10000*100)}%`;if(remaining<=0){clearInterval(timer);finish();}},50); }
-  function finish(){ const sorted=[...demoRows].sort((a,b)=>b.score-a.score).map((entry,index)=>({...entry,rank:index+1}));const me=sorted.find(entry=>entry.studentId===studentId&&entry.name===name&&entry.score===myScore);status.textContent=`Übertragung simuliert · ${me?`Platz ${me.rank}`:"Eintrag übernommen"}`;status.className="status ok";list.innerHTML=sorted.map(entry=>`<div class="row ${entry.studentId===studentId?"me":""} ${entry.rank===1?"rank-gold":entry.rank===2?"rank-silver":entry.rank===3?"rank-bronze":""}"><div class="rank">${entry.rank}</div><div class="entry-meta">${mascotMarkup(entry)}<div><div class="name">${escapeHtml(entry.name)}${entry.studentId===studentId?" · Du":""}</div><span class="class">Klasse ${escapeHtml(entry.className||"–")}</span></div>${starsMarkup(entry.stars)}</div><div class="score">${entry.score}</div></div>`).join("");list.hidden=false; }
+  function finish(){ const sorted=[...demoRows].sort((a,b)=>b.score-a.score).map((entry,index)=>({...entry,rank:index+1}));const me=sorted.find(entry=>entry.studentId===studentId&&entry.name===name&&entry.score===myScore);status.textContent=`Übertragung simuliert · ${me?`Platz ${me.rank}`:"Eintrag übernommen"}`;status.className="status ok";list.innerHTML=sorted.map(entry=>`<div class="row ${entry.studentId===studentId?"me":""} ${entry.rank===1?"rank-gold":entry.rank===2?"rank-silver":entry.rank===3?"rank-bronze":""}"><div class="rank">${entry.rank}</div><div class="entry-meta">${mascotMarkup(entry)}<div style="min-width:0"><div class="name">${escapeHtml(entry.name)}${entry.studentId===studentId?" · Du":""}</div><span class="class">Klasse ${escapeHtml(entry.className||"–")}</span></div>${starsMarkup(entry.stars)}</div><div class="score">${entry.score}</div></div>`).join("");list.hidden=false; }
   function escapeHtml(value){return value.replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;");}
   function escapeAttr(value){return escapeHtml(value);}
   const preventGesture=event=>event.preventDefault();
