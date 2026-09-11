@@ -8,7 +8,9 @@ import { createLeaderboardClient, type LeaderboardClient } from "./game/leaderbo
 import { queueHighscoreForSync, syncPendingHighscores } from "./game/highscoreSync";
 
 const TOTAL_TASKS = 136;
-const ANSWER_FEEDBACK_MS = 500;
+const ANSWER_FEEDBACK_RED_MS = 500;
+const ANSWER_FEEDBACK_RESULT_MS = 1000;
+const WRONG_ANSWER_TOTAL_MS = ANSWER_FEEDBACK_RED_MS + ANSWER_FEEDBACK_RESULT_MS;
 type Screen = "start" | "game" | "result";
 type PracticeMode = "highscore" | "free";
 type AnswerPresentation = {
@@ -89,13 +91,20 @@ function handleDigit(digit: number): void {
   answerPresentation = { factorA: String(outcome.task[0]), factorB: String(outcome.task[1]), entered: outcome.entered, expected: String(outcome.expectedAnswer), status: outcome.kind === "wrong" ? "wrong-red" : "correct-green" };
   renderGameState();
   if (outcome.kind === "partial-correct") return;
+  const feedbackDelay = outcome.kind === "wrong" ? ANSWER_FEEDBACK_RED_MS : ANSWER_FEEDBACK_RESULT_MS;
   answerFeedbackTimer = window.setTimeout(() => {
     answerFeedbackTimer = null;
     if (answerPresentation === null) return;
     if (outcome.kind === "correct") { answerPresentation = null; renderGameState(); return; }
     answerPresentation = { ...answerPresentation, status: "wrong-black" };
     renderGameState();
-  }, ANSWER_FEEDBACK_MS);
+    answerFeedbackTimer = window.setTimeout(() => {
+      answerFeedbackTimer = null;
+      if (answerPresentation === null) return;
+      answerPresentation = null;
+      renderGameState();
+    }, ANSWER_FEEDBACK_RESULT_MS);
+  }, feedbackDelay);
   if (outcome.kind === "wrong") scheduleNextTaskAfterWrongAnswer();
 }
 
@@ -172,7 +181,7 @@ function startGame(): void {
   gameTimer = window.setInterval(() => { const state = controller.tick(); renderGameState(); if (state.game.phase === "won" || state.game.phase === "timeUp") { resultEvaluation = evaluateResult(student, state.game.score); screen = "result"; renderResultScreen(); } }, 250);
 }
 
-function scheduleNextTaskAfterWrongAnswer(): void { if (wrongAnswerTimer !== null) window.clearTimeout(wrongAnswerTimer); wrongAnswerTimer = window.setTimeout(() => { wrongAnswerTimer = null; clearAnswerFeedbackTimer(); controller.advanceAfterWrongAnswer(); renderGameState(); }, 1000); }
+function scheduleNextTaskAfterWrongAnswer(): void { if (wrongAnswerTimer !== null) window.clearTimeout(wrongAnswerTimer); wrongAnswerTimer = window.setTimeout(() => { wrongAnswerTimer = null; clearAnswerFeedbackTimer(); controller.advanceAfterWrongAnswer(); renderGameState(); }, WRONG_ANSWER_TOTAL_MS); }
 function clearGameTimer(): void { if (gameTimer !== null) { window.clearInterval(gameTimer); gameTimer = null; } }
 function formatTime(elapsedMs: number): string { const remainingMs = Math.max(0, GAME_DURATION_MS - elapsedMs); const totalSeconds = Math.ceil(remainingMs / 1000); const minutes = Math.floor(totalSeconds / 60); const seconds = totalSeconds % 60; return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`; }
 
