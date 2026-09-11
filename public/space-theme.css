@@ -121,7 +121,7 @@ body {
   .welcome-card h1,
   .result-card h1 {
     margin: 1.2vh 0 !important;
-    color: var(--space-text) !important;
+    color: #000000 !important;
     font-size: clamp(5vh, 5vw, 7vh) !important;
     line-height: 0.98 !important;
     letter-spacing: -0.04em !important;
