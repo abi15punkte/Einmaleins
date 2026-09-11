@@ -34,14 +34,16 @@
 (() => {
   const params = new URLSearchParams(location.search);
   const hash = new URLSearchParams(location.hash.replace(/^#\??/, ""));
-  const get = (key, fallback = "") => params.get(key) || hash.get(key) || fallback;
+  let stored = null;
+  try { stored = JSON.parse(localStorage.getItem("einmaleins.student.profile.v1") || "null"); } catch {}
+  const get = (key, fallback = "") => params.get(key) || hash.get(key) || (stored && typeof stored[key] === "string" ? stored[key] : "") || fallback;
   const firstName = get("firstName", "Schüler");
   const lastName = get("lastName", "");
   const name = get("fullName", `${firstName}${lastName ? ` ${lastName}` : ""}`).trim();
   const studentId = get("studentId", "demo-student");
   const deviceGroups = get("deviceGroups", "");
   const classMatch = deviceGroups.split(/[,;|]/).map((x) => x.trim()).find((x) => /^(M(?:[1-9]|1[0-6])|Lehrer)$/i.test(x));
-  const className = classMatch ? classMatch.toUpperCase() : "M1";
+  const className = classMatch ? classMatch.toUpperCase() : (stored && typeof stored.className === "string" && stored.className ? stored.className : "M1");
   const requestedScore = Number(params.get("score"));
   const myScore = Number.isInteger(requestedScore) && requestedScore >= 0 ? requestedScore : 742;
   const baseEntries = [
