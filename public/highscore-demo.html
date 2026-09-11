@@ -17,9 +17,7 @@
     .space-background{display:none}
     .content{position:relative;z-index:1}
     .brand-row{display:flex;justify-content:center;align-items:center;gap:14px;margin-bottom:16px}
-    .brand-mark{width:54px;height:54px;display:grid;place-items:center;border-radius:16px;background:linear-gradient(145deg,#68c9f4,#52afe7);color:#fff;font-size:2rem;font-weight:800;box-shadow:0 9px 20px rgb(51 93 145 / 16%)}
-    .alien{display:none}
-    .eyebrow{margin:0;font-size:1.05rem;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:#52afe7}
+    .eyebrow{margin:0;font-size:clamp(2rem,5vw,3.7rem);font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:#52afe7;line-height:1}
     h1{margin:10px 0 8px;font-size:clamp(2rem,5vw,3.1rem);line-height:1.05;letter-spacing:-.045em;color:#000}
     .muted{max-width:620px;margin:0 auto;color:rgb(23 32 51 / 66%);font-size:1.02rem;line-height:1.5}
     .timer{max-width:620px;margin:20px auto 0;padding:11px 15px 12px;border-radius:14px;background:rgb(255 255 255 / 58%);display:flex;justify-content:space-between;gap:20px;align-items:center;color:#52afe7;font-weight:800}
@@ -38,7 +36,7 @@
     .score{text-align:right;font-weight:850;font-variant-numeric:tabular-nums;white-space:nowrap;color:#000}.row.me .score{color:#248f5b}
     .note{max-width:760px;margin:14px auto 0;padding:10px 12px;border-radius:13px;background:rgb(255 255 255 / 58%);color:rgb(23 32 51 / 68%);font-size:.84rem;text-align:left}
     button{width:min(100%,760px);min-height:52px;margin-top:14px;border:0;border-radius:15px;background:linear-gradient(145deg,#68c9f4,#52afe7);color:#fff;font-size:1rem;font-weight:800;cursor:pointer;touch-action:manipulation;transition:transform 100ms ease,filter 100ms ease}button:active{transform:translateY(2px) scale(.995)}button:hover{filter:brightness(1.04) saturate(1.04)}
-    @media(max-width:700px){main{padding:12px}.card{min-height:95vh;padding:24px 14px 20px;border-radius:24px}.muted{font-size:.94rem}.row{grid-template-columns:38px 1fr auto;padding:11px 10px}.mascot-slot{width:30px;height:30px;flex-basis:30px}.achievement-stars span{font-size:.72rem}.score{font-size:.92rem}}
+    @media(max-width:700px){main{padding:12px}.card{min-height:95vh;padding:24px 14px 20px;border-radius:24px}.eyebrow{font-size:clamp(2.1rem,9vw,3.2rem)}.muted{font-size:.94rem}.row{grid-template-columns:38px 1fr auto;padding:11px 10px}.mascot-slot{width:30px;height:30px;flex-basis:30px}.achievement-stars span{font-size:.72rem}.score{font-size:.92rem}}
   </style>
 </head>
 <body>
@@ -49,7 +47,6 @@
       <div class="brand-row">
         <div>
           <p class="eyebrow">Einmaleins</p>
-          <p class="muted" style="margin:2px 0 0;font-size:.88rem">Schulweite Highscoreliste</p>
         </div>
       </div>
       <h1>Schulweite Highscoreliste</h1>
