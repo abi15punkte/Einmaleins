@@ -20,6 +20,27 @@
     <div id="app"></div>
 
     <script>
+      (() => {
+        const BUILD_ID = "__BUILD_ID__";
+        if (BUILD_ID === "__BUILD_ID__") return;
+
+        const BUILD_CHECK_URL = `./version.json?from=${encodeURIComponent(BUILD_ID)}&t=${Date.now()}`;
+        fetch(BUILD_CHECK_URL, { cache: "no-store" })
+          .then((response) => response.ok ? response.json() : null)
+          .then((payload) => {
+            if (!payload || typeof payload.buildId !== "string" || payload.buildId === BUILD_ID) return;
+            const url = new URL(window.location.href);
+            url.searchParams.set("build", payload.buildId);
+            url.searchParams.set("refresh", String(Date.now()));
+            window.location.replace(url.href);
+          })
+          .catch(() => {
+            // The app remains usable when the build marker cannot be checked.
+          });
+      })();
+    </script>
+
+    <script>
       if ("serviceWorker" in navigator) {
         window.addEventListener("load", () => {
           navigator.serviceWorker
@@ -93,55 +114,6 @@
 
         observer.observe(app, { childList: true, subtree: true });
         moveStatusCaptions();
-      })();
-    </script>
-    <script>
-      (() => {
-        let currentGameScreen = null;
-        let streak = 0;
-        let lastFeedbackSignature = "";
-
-        function syncStreakFill() {
-          const gameScreen = document.querySelector(".game-screen");
-          if (!gameScreen) {
-            currentGameScreen = null;
-            streak = 0;
-            lastFeedbackSignature = "";
-            return;
-          }
-
-          if (gameScreen !== currentGameScreen) {
-            currentGameScreen = gameScreen;
-            streak = 0;
-            lastFeedbackSignature = "";
-          }
-
-          const taskCard = gameScreen.querySelector("#task-card");
-          const feedback = gameScreen.querySelector("#feedback");
-          if (!taskCard || !feedback) return;
-
-          const signature = `${feedback.className}|${feedback.textContent ?? ""}`;
-          if (signature !== lastFeedbackSignature) {
-            lastFeedbackSignature = signature;
-            if (feedback.classList.contains("feedback-wrong")) {
-              streak = 0;
-            } else if (feedback.classList.contains("feedback-correct")) {
-              streak += 1;
-            }
-          }
-
-          taskCard.classList.remove("streak-2", "streak-3", "streak-5");
-          if (streak >= 5) {
-            taskCard.classList.add("streak-5");
-          } else if (streak >= 3) {
-            taskCard.classList.add("streak-3");
-          } else if (streak >= 2) {
-            taskCard.classList.add("streak-2");
-          }
-        }
-
-        window.setInterval(syncStreakFill, 100);
-        syncStreakFill();
       })();
     </script>
   </body>
