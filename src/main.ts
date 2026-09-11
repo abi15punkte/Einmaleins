@@ -11,6 +11,7 @@ const TOTAL_TASKS = 136;
 const ANSWER_FEEDBACK_RED_MS = 750;
 const ANSWER_FEEDBACK_RESULT_MS = 750;
 const WRONG_ANSWER_TOTAL_MS = ANSWER_FEEDBACK_RED_MS + ANSWER_FEEDBACK_RESULT_MS;
+const BUILD_RELOAD_SESSION_KEY = "einmaleins:version-reload";
 type Screen = "start" | "game" | "result";
 type PracticeMode = "highscore" | "free";
 type AnswerPresentation = {
@@ -29,6 +30,51 @@ function getRequiredElement<T extends HTMLElement>(selector: string): T {
 
 function escapeHtml(value: string): string {
   return value.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;").replaceAll("'", "&#039;");
+}
+
+function getCurrentBuildId(): string {
+  const manifestLink = document.querySelector<HTMLLinkElement>('link[rel="manifest"]');
+  if (!manifestLink) return "dev";
+  const buildId = new URL(manifestLink.href, document.baseURI).searchParams.get("build");
+  if (!buildId || buildId === "__BUILD_ID__") return "dev";
+  return buildId;
+}
+
+const CURRENT_BUILD_ID = getCurrentBuildId();
+let buildCheckPromise: Promise<void> | null = null;
+
+async function checkForLatestBuild(): Promise<void> {
+  if (CURRENT_BUILD_ID === "dev" || buildCheckPromise !== null) return buildCheckPromise ?? Promise.resolve();
+
+  buildCheckPromise = (async () => {
+    try {
+      const response = await fetch(`./version.json?from=${encodeURIComponent(CURRENT_BUILD_ID)}&t=${Date.now()}`, {
+        cache: "no-store",
+        headers: { "cache-control": "no-cache" }
+      });
+      if (!response.ok) return;
+      const payload: unknown = await response.json();
+      if (!payload || typeof payload !== "object" || !("buildId" in payload) || typeof payload.buildId !== "string") return;
+      const latestBuildId = payload.buildId;
+      if (!latestBuildId || latestBuildId === CURRENT_BUILD_ID) {
+        sessionStorage.removeItem(BUILD_RELOAD_SESSION_KEY);
+        return;
+      }
+
+      const attemptedReload = sessionStorage.getItem(BUILD_RELOAD_SESSION_KEY);
+      if (attemptedReload === `${CURRENT_BUILD_ID}->${latestBuildId}`) return;
+
+      sessionStorage.setItem(BUILD_RELOAD_SESSION_KEY, `${CURRENT_BUILD_ID}->${latestBuildId}`);
+      const url = new URL(window.location.href);
+      url.searchParams.set("build", latestBuildId);
+      url.searchParams.set("refresh", String(Date.now()));
+      window.location.replace(url.href);
+    } catch {
+      // Offline or temporarily unreachable: keep using the cached/current build.
+    }
+  })();
+
+  return buildCheckPromise;
 }
 
 const app = getRequiredElement<HTMLDivElement>("#app");
@@ -58,7 +104,8 @@ function renderStartScreen(profileMessage = ""): void {
   leaderboardClient = createLeaderboardClient();
   const personalHighscore = loadPersonalHighscore(student.studentId);
   const showManualProfile = student.source !== "jamf";
-  app.innerHTML = `<main class="app-shell start-screen"><section class="welcome-card" aria-labelledby="welcome-title"><div class="brand-mark brand-mark-large" aria-hidden="true">·</div><p class="eyebrow">Einmaleins</p><p class="student-greeting">Hallo, ${escapeHtml(student.name)}!</p><h1 id="welcome-title">Bereit für eine Runde?</h1><p class="welcome-copy">Löse so viele Aufgaben wie du kannst. Du hast dafür zehn Minuten.</p>${student.className ? `<p class="student-class">Klasse ${escapeHtml(student.className)}</p>` : ""}${personalHighscore ? `<div class="personal-best" aria-label="Persönlicher Highscore"><span>Dein persönlicher Highscore</span><strong>${personalHighscore.score} Punkte</strong></div>` : ""}${showManualProfile ? `<details class="profile-panel"><summary>Spielerprofil bearbeiten</summary><form id="profile-form" class="profile-form"><label><span>Name</span><input id="student-name" name="name" type="text" maxlength="30" autocomplete="name" value="${escapeHtml(student.name)}" required /></label><label><span>Klasse <small>(optional)</small></span><input id="student-class" name="className" type="text" maxlength="20" autocomplete="off" value="${escapeHtml(student.className ?? "")}" /></label><button type="submit" class="profile-save">Profil speichern</button><p id="profile-status" class="profile-status" aria-live="polite">${escapeHtml(profileMessage)}</p></form></details>` : `<p class="managed-profile-note">Name und Klassenangabe wurden von der Schulverwaltung übernommen.</p>`}<div class="mode-actions" aria-label="Übungsmodus wählen"><button type="button" class="mode-card mode-card-primary" data-mode="highscore"><span class="mode-title">Üben mit Highscore</span><span class="mode-copy">Spiele mit persönlicher Rekordauswertung und Highscore-Hinweis.</span></button><button type="button" class="mode-card" data-mode="free"><span class="mode-title">Üben ohne Highscore</span><span class="mode-copy">Spiele ohne Highscore-Fokus; dein persönlicher Rekord wird am Ende trotzdem geprüft.</span></button></div></section></main>`;
+  const versionMarkup = CURRENT_BUILD_ID !== "dev" ? `<p class="build-version" aria-label="Build-Version">Build ${escapeHtml(CURRENT_BUILD_ID)}</p>` : "";
+  app.innerHTML = `<main class="app-shell start-screen"><section class="welcome-card" aria-labelledby="welcome-title"><div class="brand-mark brand-mark-large" aria-hidden="true">·</div><p class="eyebrow">Einmaleins</p><p class="student-greeting">Hallo, ${escapeHtml(student.name)}!</p><h1 id="welcome-title">Bereit für eine Runde?</h1><p class="welcome-copy">Löse so viele Aufgaben wie du kannst. Du hast dafür zehn Minuten.</p>${student.className ? `<p class="student-class">Klasse ${escapeHtml(student.className)}</p>` : ""}${personalHighscore ? `<div class="personal-best" aria-label="Persönlicher Highscore"><span>Dein persönlicher Highscore</span><strong>${personalHighscore.score} Punkte</strong></div>` : ""}${showManualProfile ? `<details class="profile-panel"><summary>Spielerprofil bearbeiten</summary><form id="profile-form" class="profile-form"><label><span>Name</span><input id="student-name" name="name" type="text" maxlength="30" autocomplete="name" value="${escapeHtml(student.name)}" required /></label><label><span>Klasse <small>(optional)</small></span><input id="student-class" name="className" type="text" maxlength="20" autocomplete="off" value="${escapeHtml(student.className ?? "")}" /></label><button type="submit" class="profile-save">Profil speichern</button><p id="profile-status" class="profile-status" aria-live="polite">${escapeHtml(profileMessage)}</p></form></details>` : `<p class="managed-profile-note">Name und Klassenangabe wurden von der Schulverwaltung übernommen.</p>`}<div class="mode-actions" aria-label="Übungsmodus wählen"><button type="button" class="mode-card mode-card-primary" data-mode="highscore"><span class="mode-title">Üben mit Highscore</span><span class="mode-copy">Spiele mit persönlicher Rekordauswertung und Highscore-Hinweis.</span></button><button type="button" class="mode-card" data-mode="free"><span class="mode-title">Üben ohne Highscore</span><span class="mode-copy">Spiele ohne Highscore-Fokus; dein persönlicher Rekord wird am Ende trotzdem geprüft.</span></button></div>${versionMarkup}</section></main>`;
   if (showManualProfile) {
     getRequiredElement<HTMLFormElement>("#profile-form").addEventListener("submit", (event) => {
       event.preventDefault();
@@ -72,6 +119,7 @@ function renderStartScreen(profileMessage = ""): void {
     });
   }
   document.querySelectorAll<HTMLButtonElement>("[data-mode]").forEach((button) => button.addEventListener("click", () => { practiceMode = button.dataset.mode === "free" ? "free" : "highscore"; startGame(); }));
+  void checkForLatestBuild();
 }
 
 function renderGameScreen(): void {
