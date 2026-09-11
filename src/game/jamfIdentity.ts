@@ -12,7 +12,8 @@ const PARAMETER_ALIASES = {
   lastName: ["lastName", "LastName", "nachname", "jamfLastName"],
   fullName: ["fullName", "FullName", "studentFullName", "jamfFullName"],
   legacyName: ["studentName", "name", "jamfStudentName"],
-  groups: ["userGroups", "UserGroups", "usergroups", "groups", "jamfGroups"],
+  deviceGroups: ["deviceGroups", "DeviceGroups", "devicegroups", "jamfDeviceGroups"],
+  userGroups: ["userGroups", "UserGroups", "usergroups", "groups", "jamfGroups"],
   directClass: ["className", "class", "jamfClass"]
 } as const;
 
@@ -35,8 +36,7 @@ export function loadManagedStudentIdentity(locationObject: Location | null = get
   const name = buildManagedName(firstName, lastName, fullName, legacyName);
 
   // A valid Jamf School owner plus a readable name is enough to identify the player.
-  // The class group is optional so other Jamf School groups (for example Förderkinder)
-  // do not incorrectly force the manual profile fallback.
+  // The class can come from a device group, user group, or explicit class parameter.
   if (!studentId || !name) return null;
 
   return {
@@ -72,9 +72,15 @@ function buildManagedName(
 }
 
 function findManagedClassName(sources: URLSearchParams[]): string | null {
-  const groupValue = findFirst(sources, PARAMETER_ALIASES.groups);
+  const deviceGroupValue = findFirst(sources, PARAMETER_ALIASES.deviceGroups);
+  const userGroupValue = findFirst(sources, PARAMETER_ALIASES.userGroups);
   const directClass = findFirst(sources, PARAMETER_ALIASES.directClass);
-  return findValidClassGroup(groupValue) ?? findValidClassGroup(directClass);
+
+  // Jamf School exposes device groups separately from user groups. For this setup,
+  // the M1-M16 class marker is carried by the device group, so prefer that value.
+  return findValidClassGroup(deviceGroupValue)
+    ?? findValidClassGroup(userGroupValue)
+    ?? findValidClassGroup(directClass);
 }
 
 function findValidClassGroup(value: string | null): string | null {
