@@ -110,6 +110,14 @@
     color: #000000 !important;
   }
 
+  .game-screen .stat-score.score-arrival {
+    animation: score-box-arrival 420ms cubic-bezier(.2,.8,.2,1) both;
+  }
+
+  .game-screen #time.time-critical {
+    color: #ee737f !important;
+  }
+
   .points-fly {
     position: fixed;
     z-index: 10000;
@@ -130,6 +138,7 @@
 
   @media (prefers-reduced-motion: reduce) {
     .game-screen .task-card.correct-pop,
+    .game-screen .stat-score.score-arrival,
     .points-fly {
       animation: none !important;
     }
@@ -168,6 +177,21 @@
   35% { transform: translateY(-0.9vh) scale(1.035); }
   65% { transform: translateY(0.35vh) scale(0.992); }
   100% { transform: translateY(0) scale(1); }
+}
+
+@keyframes score-box-arrival {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 4px 14px rgb(23 32 51 / 5%);
+  }
+  35% {
+    transform: scale(1.05);
+    box-shadow: 0 8px 22px rgb(105 203 108 / 18%), 0 0 0 3px rgb(105 203 108 / 14%);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 4px 14px rgb(23 32 51 / 5%);
+  }
 }
 
 @keyframes points-fly-to-score {
