@@ -7,10 +7,15 @@ export interface ManagedStudentIdentity {
 }
 
 const PARAMETER_ALIASES = {
-  studentId: ["studentId", "jamfStudentId"],
-  name: ["studentName", "name", "jamfStudentName"],
-  className: ["className", "class", "jamfClass"]
+  studentId: ["studentId", "jamfStudentId", "userId", "UserId", "jamfUserId"],
+  firstName: ["firstName", "FirstName", "vorname", "jamfFirstName"],
+  lastName: ["lastName", "LastName", "nachname", "jamfLastName"],
+  legacyName: ["studentName", "name", "jamfStudentName"],
+  groups: ["userGroups", "UserGroups", "groups", "jamfGroups"],
+  directClass: ["className", "class", "jamfClass"]
 } as const;
+
+const VALID_CLASS_GROUP = /^(?:M(?:[1-9]|1[0-6])|Lehrer)$/i;
 
 export function loadManagedStudentIdentity(locationObject: Location | null = getLocation()): ManagedStudentIdentity | null {
   if (!locationObject) return null;
@@ -21,12 +26,26 @@ export function loadManagedStudentIdentity(locationObject: Location | null = get
   ];
 
   const studentId = findFirst(sources, PARAMETER_ALIASES.studentId);
-  const name = findFirst(sources, PARAMETER_ALIASES.name);
-  const className = findFirst(sources, PARAMETER_ALIASES.className);
+  const firstName = findFirst(sources, PARAMETER_ALIASES.firstName);
+  const lastName = findFirst(sources, PARAMETER_ALIASES.lastName);
+  const legacyName = findFirst(sources, PARAMETER_ALIASES.legacyName);
+  const className = findManagedClassName(sources);
 
-  if (!studentId || !name) return null;
+  if (!studentId || !className) return null;
 
-  return { studentId, name, className: className || null };
+  if (firstName && lastName) {
+    return {
+      studentId,
+      name: `${firstName} ${lastName}`.trim(),
+      className
+    };
+  }
+
+  if (legacyName) {
+    return { studentId, name: legacyName, className };
+  }
+
+  return null;
 }
 
 export function applyManagedStudentIdentity(
@@ -39,6 +58,34 @@ export function applyManagedStudentIdentity(
     className: managedIdentity.className,
     source: "jamf"
   });
+}
+
+function findManagedClassName(sources: URLSearchParams[]): string | null {
+  const groupValue = findFirst(sources, PARAMETER_ALIASES.groups);
+  const directClass = findFirst(sources, PARAMETER_ALIASES.directClass);
+  return findValidClassGroup(groupValue) ?? findValidClassGroup(directClass);
+}
+
+function findValidClassGroup(value: string | null): string | null {
+  if (!value) return null;
+  const candidates = value
+    .split(/[,;|]/)
+    .map((candidate) => candidate.trim())
+    .filter(Boolean);
+
+  for (const candidate of candidates) {
+    if (VALID_CLASS_GROUP.test(candidate)) {
+      return normalizeClassGroup(candidate);
+    }
+  }
+
+  return null;
+}
+
+function normalizeClassGroup(value: string): string {
+  const normalized = value.trim();
+  if (/^lehrer$/i.test(normalized)) return "Lehrer";
+  return normalized.toUpperCase();
 }
 
 function findFirst(sources: URLSearchParams[], aliases: readonly string[]): string | null {
