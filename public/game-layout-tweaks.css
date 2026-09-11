@@ -1,7 +1,5 @@
 /* Small landscape game-layout refinements. */
 @media (orientation: landscape) {
-  /* Keep the original Punkte/Zeit header group exactly where the base
-     landscape layout places it: top-right, with the same gap and sizing. */
   .game-screen .header-stats {
     position: absolute !important;
     top: 2.5vh !important;
@@ -31,8 +29,6 @@
     text-align: center !important;
   }
 
-  /* Level/Aufgabe are re-parented into the game header so their placement is
-     independent of the task-card grid and its own geometry. */
   .game-screen .header-statuses {
     position: absolute !important;
     top: 2.5vh !important;
@@ -87,16 +83,14 @@
     letter-spacing: -0.02em !important;
   }
 
-  /* The task card no longer owns the status cards. Keep the old caption
-     container out of the visual layout if it is still present briefly. */
   .game-screen .task-caption {
     display: none !important;
   }
 
   .game-screen .task-card {
     width: 45vw !important;
-    height: 65vh !important;
-    min-height: 65vh !important;
+    height: 50vh !important;
+    min-height: 50vh !important;
     background: rgb(255 255 255 / 78%) !important;
     border: 1px solid rgb(23 32 51 / 7%) !important;
     box-shadow: 0 4px 14px rgb(23 32 51 / 5%) !important;
@@ -107,7 +101,9 @@
     grid-row: 1 !important;
   }
 
-  .game-screen .feedback-area {
+  .game-screen .task-card .feedback-area,
+  .game-screen .task-card #feedback,
+  .game-screen .task-card #streak {
     display: none !important;
   }
 
