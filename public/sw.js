@@ -25,18 +25,28 @@ self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") return;
 
   const requestUrl = new URL(event.request.url);
-  const isSameOrigin = requestUrl.origin === self.location.origin;
-  if (!isSameOrigin) return;
+  const isNavigation = event.request.mode === "navigate" || requestUrl.pathname.endsWith("/index.html");
 
+  // Always prefer the network while online so the browser gets the current version.
+  // Fall back to the cached response only when the network is unavailable.
   event.respondWith(
     fetch(event.request, { cache: "no-store" })
       .then((response) => {
-        if (response.ok) {
+        if (response.ok && requestUrl.origin === self.location.origin) {
           const copy = response.clone();
           void caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
+
+          if (isNavigation) {
+            const indexCopy = response.clone();
+            void caches.open(CACHE_NAME).then((cache) => cache.put("./index.html", indexCopy));
+          }
         }
         return response;
       })
-      .catch(() => caches.match(event.request).then((cached) => cached || caches.match("./index.html")))
+      .catch(() =>
+        caches.match(event.request).then((cached) =>
+          cached ?? caches.match("./index.html")
+        )
+      )
   );
 });
