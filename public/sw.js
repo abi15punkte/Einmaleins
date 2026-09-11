@@ -26,7 +26,7 @@ const HIGHSCORE_ASSETS = [
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll([...APP_SHELL, ...HIGHSCORE_ASSETS]))
+    caches.open(CACHE_NAME).then((cache) => cache.addAll(APP_SHELL))
   );
   self.skipWaiting();
 });
@@ -49,7 +49,7 @@ self.addEventListener("fetch", (event) => {
 
   const requestUrl = new URL(event.request.url);
   const isNavigation = event.request.mode === "navigate" || requestUrl.pathname.endsWith("/index.html");
-  const isHighscoreAsset = HIGHSCORE_ASSETS.some((asset) => {
+  const isHighscoreAsset = requestUrl.origin === self.location.origin && HIGHSCORE_ASSETS.some((asset) => {
     const assetUrl = new URL(asset, self.location.href);
     return requestUrl.pathname === assetUrl.pathname;
   });
@@ -59,7 +59,7 @@ self.addEventListener("fetch", (event) => {
       caches.match(event.request).then((cached) => {
         if (cached) return cached;
         return fetch(event.request, { cache: "no-store" }).then((response) => {
-          if (response.ok && requestUrl.origin === self.location.origin) {
+          if (response.ok) {
             const copy = response.clone();
             void caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
           }
