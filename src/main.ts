@@ -8,8 +8,8 @@ import { createLeaderboardClient, type LeaderboardClient } from "./game/leaderbo
 import { queueHighscoreForSync, syncPendingHighscores } from "./game/highscoreSync";
 
 const TOTAL_TASKS = 136;
-const ANSWER_FEEDBACK_RED_MS = 500;
-const ANSWER_FEEDBACK_RESULT_MS = 1000;
+const ANSWER_FEEDBACK_RED_MS = 750;
+const ANSWER_FEEDBACK_RESULT_MS = 750;
 const WRONG_ANSWER_TOTAL_MS = ANSWER_FEEDBACK_RED_MS + ANSWER_FEEDBACK_RESULT_MS;
 type Screen = "start" | "game" | "result";
 type PracticeMode = "highscore" | "free";
@@ -91,7 +91,7 @@ function handleDigit(digit: number): void {
   answerPresentation = { factorA: String(outcome.task[0]), factorB: String(outcome.task[1]), entered: outcome.entered, expected: String(outcome.expectedAnswer), status: outcome.kind === "wrong" ? "wrong-red" : "correct-green" };
   renderGameState();
   if (outcome.kind === "partial-correct") return;
-  const feedbackDelay = outcome.kind === "wrong" ? ANSWER_FEEDBACK_RED_MS : ANSWER_FEEDBACK_RESULT_MS;
+  const feedbackDelay = ANSWER_FEEDBACK_RESULT_MS;
   answerFeedbackTimer = window.setTimeout(() => {
     answerFeedbackTimer = null;
     if (answerPresentation === null) return;
