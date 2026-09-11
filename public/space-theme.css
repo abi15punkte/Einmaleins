@@ -57,8 +57,8 @@ body {
   .game-screen::after {
     content: "";
     position: absolute;
-    left: -6vw;
-    bottom: -1vh;
+    left: -4vw;
+    bottom: 1vh;
     width: 24vw;
     height: 24vw;
     background: url("./Alien.png") center / contain no-repeat;
