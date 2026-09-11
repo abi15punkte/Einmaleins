@@ -12,7 +12,7 @@
     <link rel="stylesheet" href="./src/responsive.css" />
     <link rel="stylesheet" href="./src/laptop.css" />
     <link rel="stylesheet" href="./space-theme.css?v=23" />
-    <link rel="stylesheet" href="./game-layout-tweaks.css?v=2" />
+    <link rel="stylesheet" href="./game-layout-tweaks.css?v=3" />
     <title>Einmaleins</title>
   </head>
 
@@ -23,7 +23,7 @@
       if ("serviceWorker" in navigator) {
         window.addEventListener("load", () => {
           navigator.serviceWorker
-            .register("./sw.js?v=24", { scope: "./", updateViaCache: "none" })
+            .register("./sw.js?v=25", { scope: "./", updateViaCache: "none" })
             .then((registration) => registration.update())
             .catch(() => {
               // The app remains fully usable when service workers are unavailable.
@@ -32,6 +32,55 @@
       }
     </script>
     <script type="module" src="./src/main.ts"></script>
-    <script type="module" src="./header-statuses.js"></script>
+    <script>
+      (() => {
+        const STATUS_CAPTION_IDS = ["round-caption", "task-number-caption"];
+        let lastGameScreen = null;
+
+        function moveStatusCaptions() {
+          const gameScreen = document.querySelector(".game-screen");
+          if (!gameScreen) {
+            lastGameScreen = null;
+            return;
+          }
+
+          const header = gameScreen.querySelector(".game-header");
+          if (!header) return;
+
+          let group = header.querySelector(".header-statuses");
+          if (!group) {
+            group = document.createElement("div");
+            group.className = "header-statuses";
+            group.setAttribute("aria-label", "Level und Aufgabe");
+            header.insertBefore(group, header.firstChild);
+          }
+
+          for (const id of STATUS_CAPTION_IDS) {
+            const element = document.getElementById(id);
+            if (element && element.parentElement !== group) {
+              group.appendChild(element);
+            }
+          }
+
+          const taskCaption = gameScreen.querySelector(".task-caption");
+          if (taskCaption && taskCaption.children.length === 0) taskCaption.remove();
+          lastGameScreen = gameScreen;
+        }
+
+        const app = document.getElementById("app");
+        if (!app) return;
+
+        const observer = new MutationObserver(() => {
+          if (lastGameScreen !== document.querySelector(".game-screen")) {
+            requestAnimationFrame(moveStatusCaptions);
+            return;
+          }
+          moveStatusCaptions();
+        });
+
+        observer.observe(app, { childList: true, subtree: true });
+        moveStatusCaptions();
+      })();
+    </script>
   </body>
 </html>
