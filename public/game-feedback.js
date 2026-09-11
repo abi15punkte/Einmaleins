@@ -54,8 +54,14 @@
     timeElement.classList.toggle("time-critical", seconds <= 59);
   }
 
-  function syncAnswerColor(answerElement) {
-    if (answerElement.classList.contains("answer-feedback-correct")) {
+  function isShowingExpectedSolution(answerElement, feedbackElement) {
+    if (!feedbackElement.classList.contains("feedback-wrong")) return false;
+    const match = (feedbackElement.textContent ?? "").match(/Die Antwort ist\s+(\d+)\.?/i);
+    return Boolean(match && answerElement.textContent?.trim() === match[1]);
+  }
+
+  function syncAnswerColor(answerElement, feedbackElement) {
+    if (answerElement.classList.contains("answer-feedback-correct") || isShowingExpectedSolution(answerElement, feedbackElement)) {
       answerElement.style.setProperty("color", "#69cb6c", "important");
       return;
     }
@@ -64,6 +70,24 @@
       return;
     }
     answerElement.style.setProperty("color", "#000000", "important");
+  }
+
+  function alignAnswerBoxWithKeypad() {
+    if (currentGameScreen === null) return;
+    const equation = currentGameScreen.querySelector(".task-equation");
+    const answerElement = currentGameScreen.querySelector("#answer");
+    const firstKey = currentGameScreen.querySelector(".keypad-key:first-child");
+    if (!(equation instanceof HTMLElement) || !(answerElement instanceof HTMLElement) || !(firstKey instanceof HTMLElement)) return;
+
+    equation.style.transform = "translateY(0)";
+    const delta = firstKey.getBoundingClientRect().top - answerElement.getBoundingClientRect().top;
+    equation.style.transform = `translateY(${delta}px)`;
+  }
+
+  function scheduleAnswerBoxAlignment() {
+    window.requestAnimationFrame(() => {
+      window.requestAnimationFrame(alignAnswerBoxWithKeypad);
+    });
   }
 
   function flyPoints(card, scoreElement, points, multiplier) {
@@ -108,7 +132,8 @@
 
     scoreElement.dataset.displayManaged = "true";
     updateCriticalTime(timeElement);
-    syncAnswerColor(answerElement);
+    syncAnswerColor(answerElement, feedback);
+    scheduleAnswerBoxAlignment();
 
     const signature = `${feedback.className}|${feedback.textContent ?? ""}`;
     if (signature === feedbackSignature) {
@@ -149,6 +174,7 @@
     window.setTimeout(() => taskCard.classList.remove("correct-pop"), 420);
   }
 
+  window.addEventListener("resize", scheduleAnswerBoxAlignment, { passive: true });
   window.setInterval(sync, 80);
   sync();
 })();
