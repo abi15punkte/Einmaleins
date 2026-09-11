@@ -95,5 +95,54 @@
         moveStatusCaptions();
       })();
     </script>
+    <script>
+      (() => {
+        let currentGameScreen = null;
+        let streak = 0;
+        let lastFeedbackSignature = "";
+
+        function syncStreakFill() {
+          const gameScreen = document.querySelector(".game-screen");
+          if (!gameScreen) {
+            currentGameScreen = null;
+            streak = 0;
+            lastFeedbackSignature = "";
+            return;
+          }
+
+          if (gameScreen !== currentGameScreen) {
+            currentGameScreen = gameScreen;
+            streak = 0;
+            lastFeedbackSignature = "";
+          }
+
+          const taskCard = gameScreen.querySelector("#task-card");
+          const feedback = gameScreen.querySelector("#feedback");
+          if (!taskCard || !feedback) return;
+
+          const signature = `${feedback.className}|${feedback.textContent ?? ""}`;
+          if (signature !== lastFeedbackSignature) {
+            lastFeedbackSignature = signature;
+            if (feedback.classList.contains("feedback-wrong")) {
+              streak = 0;
+            } else if (feedback.classList.contains("feedback-correct")) {
+              streak += 1;
+            }
+          }
+
+          taskCard.classList.remove("streak-2", "streak-3", "streak-5");
+          if (streak >= 5) {
+            taskCard.classList.add("streak-5");
+          } else if (streak >= 3) {
+            taskCard.classList.add("streak-3");
+          } else if (streak >= 2) {
+            taskCard.classList.add("streak-2");
+          }
+        }
+
+        window.setInterval(syncStreakFill, 100);
+        syncStreakFill();
+      })();
+    </script>
   </body>
 </html>
