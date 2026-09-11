@@ -187,7 +187,7 @@ function startGame(): void {
   resultEvaluation = null;
   renderGameScreen();
   gameTimer = window.setInterval(() => {
-    controller.tick(80);
+    controller.tick();
     renderGameState();
     if (controller.getState().game.phase !== "playing") {
       clearGameTimer();
