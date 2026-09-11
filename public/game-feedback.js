@@ -2,6 +2,11 @@
   let currentGameScreen = null;
   let feedbackSignature = "";
   let streak = 0;
+  let displayedScore = 0;
+
+  const POINTS_FLIGHT_MS = 1520;
+  const REDUCED_MOTION = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const SCORE_UPDATE_DELAY_MS = REDUCED_MOTION ? 0 : POINTS_FLIGHT_MS;
 
   const MULTIPLIER_BY_STREAK = (value) => {
     if (value >= 20) return 5;
@@ -15,17 +20,37 @@
       currentGameScreen = screen;
       feedbackSignature = "";
       streak = 0;
+      displayedScore = Number(screen.querySelector("#score")?.textContent ?? 0) || 0;
     }
-  }
-
-  function colorizeScore(scoreElement, multiplier) {
-    scoreElement.classList.remove("multiplier-x1", "multiplier-x2", "multiplier-x3", "multiplier-x5");
-    scoreElement.classList.add(`multiplier-x${multiplier}`);
   }
 
   function showStreak(streakElement, multiplier) {
     streakElement.hidden = false;
     streakElement.textContent = `Serie ×${multiplier}`;
+  }
+
+  function triggerScoreArrival(scoreElement) {
+    const scoreCard = scoreElement.closest(".stat-score");
+    if (!scoreCard) return;
+    scoreCard.classList.remove("score-arrival");
+    void scoreCard.offsetWidth;
+    scoreCard.classList.add("score-arrival");
+    window.setTimeout(() => scoreCard.classList.remove("score-arrival"), 420);
+  }
+
+  function applyPointsWhenArrived(screen, scoreElement, points) {
+    window.setTimeout(() => {
+      if (currentGameScreen !== screen) return;
+      displayedScore += points;
+      scoreElement.textContent = String(displayedScore);
+      triggerScoreArrival(scoreElement);
+    }, SCORE_UPDATE_DELAY_MS);
+  }
+
+  function updateCriticalTime(timeElement) {
+    const match = (timeElement.textContent ?? "").match(/^(\d+):(\d{2})$/);
+    const seconds = match ? Number(match[1]) * 60 + Number(match[2]) : Number.POSITIVE_INFINITY;
+    timeElement.classList.toggle("time-critical", seconds <= 59);
   }
 
   function flyPoints(card, scoreElement, points, multiplier) {
@@ -45,7 +70,7 @@
     particle.style.setProperty("--fly-y", `${targetY - startY}px`);
     document.body.appendChild(particle);
 
-    window.setTimeout(() => particle.remove(), 1610);
+    window.setTimeout(() => particle.remove(), POINTS_FLIGHT_MS + 90);
   }
 
   function sync() {
@@ -54,6 +79,7 @@
       currentGameScreen = null;
       feedbackSignature = "";
       streak = 0;
+      displayedScore = 0;
       return;
     }
 
@@ -62,14 +88,16 @@
     const feedback = screen.querySelector("#feedback");
     const streakElement = screen.querySelector("#streak");
     const scoreElement = screen.querySelector("#score");
+    const timeElement = screen.querySelector("#time");
     const taskCard = screen.querySelector("#task-card");
-    if (!feedback || !streakElement || !scoreElement || !taskCard) return;
+    if (!feedback || !streakElement || !scoreElement || !timeElement || !taskCard) return;
+
+    updateCriticalTime(timeElement);
 
     const signature = `${feedback.className}|${feedback.textContent ?? ""}`;
     if (signature === feedbackSignature) {
-      const multiplier = MULTIPLIER_BY_STREAK(streak);
-      showStreak(streakElement, multiplier);
-      colorizeScore(scoreElement, multiplier);
+      showStreak(streakElement, MULTIPLIER_BY_STREAK(streak));
+      scoreElement.textContent = String(displayedScore);
       return;
     }
 
@@ -77,24 +105,28 @@
 
     if (feedback.classList.contains("feedback-wrong")) {
       streak = 0;
-      const multiplier = 1;
-      showStreak(streakElement, multiplier);
-      colorizeScore(scoreElement, multiplier);
+      showStreak(streakElement, 1);
+      scoreElement.textContent = String(displayedScore);
       return;
     }
 
-    if (!feedback.classList.contains("feedback-correct")) return;
+    if (!feedback.classList.contains("feedback-correct")) {
+      scoreElement.textContent = String(displayedScore);
+      return;
+    }
 
     streak += 1;
     const multiplier = MULTIPLIER_BY_STREAK(streak);
     showStreak(streakElement, multiplier);
-    colorizeScore(scoreElement, multiplier);
 
     const match = (feedback.textContent ?? "").match(/\+(\d+) Punkte/);
     if (match) {
-      flyPoints(taskCard, scoreElement, Number(match[1]), multiplier);
+      const points = Number(match[1]);
+      flyPoints(taskCard, scoreElement, points, multiplier);
+      applyPointsWhenArrived(screen, scoreElement, points);
     }
 
+    scoreElement.textContent = String(displayedScore);
     taskCard.classList.remove("correct-pop");
     void taskCard.offsetWidth;
     taskCard.classList.add("correct-pop");
