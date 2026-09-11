@@ -1,15 +1,16 @@
 {
+  "id": "/Einmaleins/",
   "name": "Einmaleins",
   "short_name": "Einmaleins",
   "lang": "de",
-  "start_url": "./",
-  "scope": "./",
+  "start_url": "/Einmaleins/",
+  "scope": "/Einmaleins/",
   "display": "standalone",
-  "background_color": "#eef2f7",
-  "theme_color": "#ffffff",
+  "background_color": "#e9f7ff",
+  "theme_color": "#e9f7ff",
   "icons": [
     {
-      "src": "./einmaleins-icon.svg",
+      "src": "/Einmaleins/einmaleins-icon.svg",
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any maskable"
