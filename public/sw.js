@@ -82,16 +82,15 @@ self.addEventListener("fetch", (event) => {
 
   if (isHighscoreAsset) {
     event.respondWith(
-      caches.match(event.request).then((cached) => {
-        if (cached) return cached;
-        return fetch(event.request, { cache: "no-store" }).then((response) => {
+      fetch(event.request, { cache: "no-store" })
+        .then((response) => {
           if (response.ok) {
             const copy = response.clone();
             void caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
           }
           return response;
-        });
-      })
+        })
+        .catch(() => caches.match(event.request))
     );
     return;
   }
