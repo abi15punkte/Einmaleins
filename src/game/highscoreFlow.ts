@@ -19,6 +19,19 @@ function firstNameOnly(value: string): string {
   return value.trim().split(/\s+/)[0] || "Schüler";
 }
 
+function ensurePermanentClassMascot(): void {
+  const existing = document.querySelector<HTMLImageElement>(".start-class-overlay");
+  if (existing) return;
+
+  const student = loadStudentIdentity();
+  const mascot = document.createElement("img");
+  mascot.className = "start-class-overlay";
+  mascot.src = CLASS_MASCOT(student.className);
+  mascot.alt = `Klassentier ${student.className ?? "M1"}`;
+  mascot.setAttribute("aria-hidden", "true");
+  document.body.appendChild(mascot);
+}
+
 function renderOverlay(entries: LeaderboardEntry[], studentName: string): void {
   document.querySelector<HTMLElement>(".school-highscore-overlay")?.remove();
 
@@ -47,6 +60,7 @@ function renderOverlay(entries: LeaderboardEntry[], studentName: string): void {
   document.body.appendChild(overlay);
   overlay.querySelector<HTMLButtonElement>(".school-highscore-close")?.addEventListener("click", () => overlay.remove());
   overlay.querySelector<HTMLElement>(".school-highscore-me")?.scrollIntoView({ block: "nearest" });
+  ensurePermanentClassMascot();
 }
 
 async function submitPersonalHighscore(button: HTMLButtonElement, status: HTMLElement): Promise<void> {
@@ -127,14 +141,15 @@ export function initHighscoreFlow(): void {
   const app = document.getElementById("app");
   if (!app) return;
 
+  ensurePermanentClassMascot();
+
   const observer = new MutationObserver(() => {
     const result = app.querySelector<HTMLElement>(".result-screen");
     if (result) installOnResult(result);
     const start = app.querySelector<HTMLElement>(".start-screen");
     if (start) installOnStartScreen(start);
+    ensurePermanentClassMascot();
   });
-  // We only need to observe screens being replaced at the app root.
-  // Observing the complete subtree caused a callback on every game-state DOM update.
   observer.observe(app, { childList: true });
 
   const result = app.querySelector<HTMLElement>(".result-screen");
