@@ -9,6 +9,9 @@
     "build": "tsc && vite build",
     "dev": "vite"
   },
+  "dependencies": {
+    "firebase": "^12.18.0"
+  },
   "devDependencies": {
     "typescript": "^5.7.2",
     "vite": "^6.0.5",
