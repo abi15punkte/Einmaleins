@@ -1,14 +1,16 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const {
-  addDoc,
+  doc,
+  setDoc,
   collection,
   getDocs,
   orderBy,
   query,
   fromDate
 } = vi.hoisted(() => ({
-  addDoc: vi.fn(),
+  doc: vi.fn(),
+  setDoc: vi.fn(),
   collection: vi.fn(),
   getDocs: vi.fn(),
   orderBy: vi.fn(),
@@ -17,7 +19,8 @@ const {
 }));
 
 vi.mock("firebase/firestore", () => ({
-  addDoc,
+  doc,
+  setDoc,
   collection,
   getDocs,
   orderBy,
@@ -43,22 +46,24 @@ const record = {
 describe("school leaderboard client", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    doc.mockReturnValue("student-doc-ref");
     collection.mockReturnValue("highscores-ref");
     orderBy.mockReturnValue("order-by-ref");
     query.mockReturnValue("query-ref");
-    addDoc.mockResolvedValue({ id: "new-entry" });
+    setDoc.mockResolvedValue(undefined);
   });
 
-  it("creates a Firestore highscore entry with the expected fields", async () => {
+  it("writes a Firestore highscore to the student's document ID", async () => {
     const client = createLeaderboardClient();
 
     await client.submit(record);
 
-    expect(collection).toHaveBeenCalledWith({}, "highscores");
+    expect(doc).toHaveBeenCalledWith({}, "highscores", "student-1");
     expect(fromDate).toHaveBeenCalledWith(new Date(record.achievedAt));
-    expect(addDoc).toHaveBeenCalledWith(
-      "highscores-ref",
+    expect(setDoc).toHaveBeenCalledWith(
+      "student-doc-ref",
       {
+        studentId: "student-1",
         name: "Max",
         klasse: "4a",
         punkte: 500,
@@ -75,6 +80,7 @@ describe("school leaderboard client", () => {
       docs: [
         {
           data: () => ({
+            studentId: "student-2",
             name: "Sophie",
             klasse: "4a",
             punkte: 700,
@@ -85,6 +91,7 @@ describe("school leaderboard client", () => {
         },
         {
           data: () => ({
+            studentId: "student-1",
             name: "Max",
             klasse: "4b",
             punkte: 500,
@@ -105,6 +112,7 @@ describe("school leaderboard client", () => {
     expect(entries).toEqual([
       {
         rank: 1,
+        studentId: "student-2",
         name: "Sophie",
         className: "4a",
         score: 700,
@@ -114,6 +122,7 @@ describe("school leaderboard client", () => {
       },
       {
         rank: 2,
+        studentId: "student-1",
         name: "Max",
         className: "4b",
         score: 500,
@@ -129,6 +138,7 @@ describe("school leaderboard client", () => {
       docs: [
         {
           data: () => ({
+            studentId: "student-3",
             name: "Lea",
             klasse: "4c",
             punkte: 400
@@ -142,6 +152,7 @@ describe("school leaderboard client", () => {
     await expect(client.top()).resolves.toEqual([
       {
         rank: 1,
+        studentId: "student-3",
         name: "Lea",
         className: "4c",
         score: 400,
@@ -157,6 +168,7 @@ describe("school leaderboard client", () => {
       docs: [
         {
           data: () => ({
+            studentId: "student-1",
             name: "Max",
             klasse: "4a",
             punkte: -1
@@ -171,7 +183,7 @@ describe("school leaderboard client", () => {
   });
 
   it("propagates Firestore write failures", async () => {
-    addDoc.mockRejectedValue(new Error("permission-denied"));
+    setDoc.mockRejectedValue(new Error("permission-denied"));
 
     const client = createLeaderboardClient();
 
