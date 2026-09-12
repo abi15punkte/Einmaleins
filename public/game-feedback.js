@@ -220,10 +220,6 @@
     }
 
     scoreElement.textContent = String(displayedScore);
-    taskCard.classList.remove("correct-pop");
-    void taskCard.offsetWidth;
-    taskCard.classList.add("correct-pop");
-    window.setTimeout(() => taskCard.classList.remove("correct-pop"), 420);
   }
 
   window.addEventListener("resize", scheduleAnswerBoxAlignment, { passive: true });
