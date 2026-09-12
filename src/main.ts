@@ -107,7 +107,6 @@ function handleDigit(digit: number): void {
     }
     answerPresentation = { ...answerPresentation, status: "wrong-black" };
     renderGameState();
-    animateTaskCard("pop");
     answerFeedbackTimer = window.setTimeout(() => {
       answerFeedbackTimer = null;
       if (answerPresentation === null) return;
