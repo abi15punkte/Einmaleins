@@ -6,7 +6,7 @@ import { pointsForCorrectAnswer } from "./scoring";
 import { multiply, type Task } from "./tasks";
 import type { RandomSource } from "./shuffle";
 
-export const GAME_DURATION_MS = 1 * 60 * 1000;
+export const GAME_DURATION_MS = 20 * 1000;
 
 export type GamePhase =
   | "ready"
