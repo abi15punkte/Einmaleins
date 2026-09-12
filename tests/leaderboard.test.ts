@@ -1,11 +1,20 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const addDoc = vi.fn();
-const collection = vi.fn();
-const getDocs = vi.fn();
-const orderBy = vi.fn();
-const query = vi.fn();
-const fromDate = vi.fn((date: Date) => date);
+const {
+  addDoc,
+  collection,
+  getDocs,
+  orderBy,
+  query,
+  fromDate
+} = vi.hoisted(() => ({
+  addDoc: vi.fn(),
+  collection: vi.fn(),
+  getDocs: vi.fn(),
+  orderBy: vi.fn(),
+  query: vi.fn(),
+  fromDate: vi.fn((date: Date) => date)
+}));
 
 vi.mock("firebase/firestore", () => ({
   addDoc,
