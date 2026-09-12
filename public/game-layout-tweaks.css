@@ -179,13 +179,16 @@
   }
 }
 
-/* Permanent class mascot: mirror-positioned to the Alien overlay. */
+/* Permanent class mascot: centered on the left edge, half the previous size. */
 .start-class-overlay {
   position: fixed !important;
-  right: -4vw !important;
-  bottom: 3vh !important;
-  width: 37vw !important;
-  height: 37vw !important;
+  left: -2vw !important;
+  right: auto !important;
+  top: 50% !important;
+  bottom: auto !important;
+  width: 18.5vw !important;
+  height: 18.5vw !important;
+  transform: translateY(-50%) !important;
   object-fit: contain !important;
   pointer-events: none !important;
   z-index: 20001 !important;
