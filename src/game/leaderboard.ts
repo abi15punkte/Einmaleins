@@ -1,6 +1,3 @@
-import { addDoc, collection, getDocs, orderBy, query, Timestamp } from "firebase/firestore";
-
-import { db } from "../firebase";
 import type { HighscoreRecord } from "./highscore";
 
 type HighscoreRecordWithStars = HighscoreRecord & {
@@ -8,6 +5,26 @@ type HighscoreRecordWithStars = HighscoreRecord & {
   stern2?: boolean;
   stern3?: boolean;
 };
+
+type FirestoreSdk = typeof import("firebase/firestore") & {
+  db: typeof import("../firebase").db;
+};
+
+let firestoreSdkPromise: Promise<FirestoreSdk> | null = null;
+
+async function loadFirestoreSdk(): Promise<FirestoreSdk> {
+  if (!firestoreSdkPromise) {
+    firestoreSdkPromise = Promise.all([
+      import("firebase/firestore"),
+      import("../firebase")
+    ]).then(([firestore, firebase]) => ({
+      ...firestore,
+      db: firebase.db
+    }));
+  }
+
+  return firestoreSdkPromise;
+}
 
 export interface LeaderboardEntry {
   rank: number;
@@ -73,6 +90,8 @@ function createFirestoreClient(): LeaderboardClient {
         throw new Error("Leaderboard timestamp is invalid.");
       }
 
+      const { addDoc, collection, Timestamp, db } = await loadFirestoreSdk();
+
       await addDoc(collection(db, HIGHSCORE_COLLECTION), {
         name,
         klasse: record.className?.trim() || null,
@@ -85,6 +104,7 @@ function createFirestoreClient(): LeaderboardClient {
     },
 
     async top() {
+      const { getDocs, collection, orderBy, query, db } = await loadFirestoreSdk();
       const snapshot = await getDocs(
         query(
           collection(db, HIGHSCORE_COLLECTION),
