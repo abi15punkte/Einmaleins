@@ -39,7 +39,7 @@
   }
   .result-highscore-title { font-size: 2.7vh; line-height: 0.95; font-weight: 900; letter-spacing: -0.03em; }
   .result-highscore-subtitle { margin-top: 0.35vh; font-size: 1.8vh; line-height: 1; font-weight: 800; text-transform: lowercase; color: #ffffff; }
-  .result-highscore-status { position: absolute; top: calc(100% + 1.2vh); left: 0; width: 100%; margin: 0; color: #7a8495; font-size: 1.7vh; line-height: 1.25; text-align: left; pointer-events: none; }
+  .result-highscore-status { display: none !important; }
 
   .result-screen .result-stat:last-child {
     position: relative !important; min-height: 9.5vh; padding: 1.25vh 0.8vw 1.3vh !important;
@@ -73,15 +73,26 @@
   }
 
   .result-screen #close-app { display: none !important; }
-  .result-screen::after {
-    content: "Bitte schließe die App selbst.";
-    position: fixed !important; left: 50% !important; bottom: 2.5vh !important; transform: translateX(-50%) !important;
-    z-index: 130 !important; width: min(88vw, 760px) !important; margin: 0 !important;
-    color: #d6293f !important; font-weight: 800 !important; line-height: 1.35 !important; text-align: center !important;
-    display: block !important; visibility: visible !important; opacity: 1 !important; pointer-events: none !important;
-  }
   #close-app-status { display: none !important; }
   .school-highscore-choice { display: none !important; }
+}
+
+/* Keep the closing hint completely outside the result layout so it cannot move the Alien. */
+body::after {
+  content: "Bitte schließe die App selbst.";
+  position: fixed !important;
+  left: 50% !important;
+  bottom: 2.5vh !important;
+  transform: translateX(-50%) !important;
+  z-index: 130 !important;
+  width: min(88vw, 760px) !important;
+  margin: 0 !important;
+  color: #d6293f !important;
+  font-weight: 800 !important;
+  line-height: 1.35 !important;
+  text-align: center !important;
+  pointer-events: none !important;
+  display: block !important;
 }
 
 @keyframes highscore-submit-shake {
