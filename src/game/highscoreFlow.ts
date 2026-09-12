@@ -6,6 +6,8 @@ const CLASS_MASCOT = (className: string | null): string =>
     ? `./${String(className).toUpperCase()}.png`
     : "./M1.png";
 
+const STAR_ASSETS = ["./Stern1.png", "./Stern2.png", "./Stern3.png"];
+
 function escapeHtml(value: unknown): string {
   return String(value)
     .replaceAll("&", "&amp;")
@@ -17,6 +19,13 @@ function escapeHtml(value: unknown): string {
 
 function firstNameOnly(value: string): string {
   return value.trim().split(/\s+/)[0] || "Schüler";
+}
+
+function starHtml(entry: LeaderboardEntry): string {
+  const stars = [entry.stern1, entry.stern2, entry.stern3];
+  const count = stars.filter(Boolean).length;
+
+  return `<span class="achievement-stars" aria-label="${count} von 3 Errungenschaften">${STAR_ASSETS.map((asset, index) => `<img src="${asset}" class="${stars[index] ? "" : "is-muted"}" alt="">`).join("")}</span>`;
 }
 
 function ensurePermanentClassMascot(): void {
@@ -45,24 +54,19 @@ function renderOverlay(entries: LeaderboardEntry[], studentName: string): void {
     const isMe = entry.name === studentName || firstNameOnly(entry.name) === firstNameOnly(studentName);
     const firstName = firstNameOnly(entry.name);
     const className = entry.className ?? "–";
-    return `<div class="school-highscore-row ${isMe ? "school-highscore-me" : ""}"><div class="school-highscore-rank">${entry.rank}</div><span class="school-highscore-mascot"><img src="${CLASS_MASCOT(entry.className)}" alt="Klasse ${escapeHtml(className)}"></span><div><div class="school-highscore-name">${escapeHtml(firstName)}${isMe ? " · Du" : ""}</div><div class="school-highscore-class">Klasse ${escapeHtml(className)}</div></div><div class="school-highscore-score">${entry.score}</div></div>`;
+    const rankClass = entry.rank === 1
+      ? "rank-gold"
+      : entry.rank === 2
+        ? "rank-silver"
+        : entry.rank === 3
+          ? "rank-bronze"
+          : "";
+
+    return `<div class="school-highscore-row ${isMe ? "school-highscore-me" : ""} ${rankClass}"><div class="school-highscore-rank">${entry.rank}</div><div class="school-highscore-entry-meta"><span class="school-highscore-mascot"><img src="${CLASS_MASCOT(entry.className)}" alt="Klasse ${escapeHtml(className)}"></span><div class="school-highscore-name-wrap"><div class="school-highscore-name">${escapeHtml(firstName)}${isMe ? " · Du" : ""}</div><div class="school-highscore-class">Klasse ${escapeHtml(className)}</div></div></div>${starHtml(entry)}<div class="school-highscore-score">${entry.score}</div></div>`;
   }).join("");
 
   overlay.innerHTML = `
-    <style>
-      .school-highscore-name { font-size: 1.12rem; }
-      .school-highscore-class { font-size: 0.94rem; }
-      @media (max-width: 600px) {
-        .school-highscore-name { font-size: 1.05rem; }
-        .school-highscore-class { font-size: 0.88rem; }
-      }
-    </style>
-    <div class="school-highscore-top">
-      <button type="button" class="school-highscore-close" aria-label="Highscoreliste verlassen">×</button>
-      <p class="eyebrow">Einmaleins</p>
-      <h1>Schulweite Highscoreliste</h1>
-      <p>Dein persönlicher Rekord wurde eingetragen.</p>
-    </div>
+    <button type="button" class="school-highscore-close" aria-label="Highscoreliste verlassen">×</button>
     <div class="highscore-list-scroll" role="list" aria-label="Rangliste">${rows || "<p style=\"padding:24px;text-align:center\">Noch keine Einträge vorhanden.</p>"}</div>
     <p class="school-highscore-status">Zum Ergebnis zurück mit „×“.</p>
   `;
