@@ -1,7 +1,8 @@
 (() => {
   const POINTS_FLIGHT_MS = 1520;
+  const SCORE_ARRIVAL_MS = 850;
   const REDUCED_MOTION = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const SCORE_UPDATE_DELAY_MS = REDUCED_MOTION ? 0 : POINTS_FLIGHT_MS;
+  const SCORE_UPDATE_DELAY_MS = REDUCED_MOTION ? 0 : SCORE_ARRIVAL_MS;
 
   let currentGameScreen = null;
   let feedbackSignature = "";
