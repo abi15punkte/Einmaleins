@@ -67,7 +67,8 @@ self.addEventListener("activate", (event) => {
       )
     )
   );
-  self.clients.claim();
+  // Nicht sofort claimen: Dadurch wird beim Start kein controllerchange-Reload erzwungen.
+  // Die neue Version übernimmt die Seite beim nächsten normalen Navigieren ohne sichtbares Zucken.
 });
 
 self.addEventListener("fetch", (event) => {
