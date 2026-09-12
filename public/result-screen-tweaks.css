@@ -24,9 +24,9 @@
 }
 
 /* Der zweite Startbutton und der Highscore-Eintrag setzen ihren Impuls eine Sekunde später. */
-.mode-actions .mode-card:nth-child(2),
+.mode-actions .mode-card[data-mode="free"],
 .result-highscore-action {
-  animation-delay: 1s;
+  animation-delay: 1s !important;
 }
 
 /* Deutlich größere Hervorhebung der konkreten Punktzahl. */
