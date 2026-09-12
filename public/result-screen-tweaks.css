@@ -22,6 +22,9 @@
     flex: 0 0 calc((100% - 10px) / 3) !important; width: calc((100% - 10px) / 3) !important;
     min-width: 0 !important; height: auto !important; min-height: 9.5vh !important; z-index: 10 !important;
   }
+  .result-screen .result-action-row .result-highscore-action.highscore-submit-error {
+    animation: highscore-submit-shake 620ms cubic-bezier(.36,.07,.19,.97) both;
+  }
   .result-screen .result-action-row .result-highscore-action::after {
     content: ""; position: absolute; top: auto; right: -3.2vh; bottom: -1.35vh; width: 7.2vh; height: 7.2vh;
     transform: none; background: url("./Stern2.png") center / contain no-repeat; pointer-events: none; z-index: 3;
@@ -55,7 +58,7 @@
     position: absolute !important; left: 0 !important; bottom: 1.75vh !important; display: block !important; width: 100% !important;
     height: 4.9vh; margin: 0 !important; overflow: visible !important; font-size: 0 !important; line-height: 1 !important;
     background-image: url("./Stern1.png"), url("./Stern2.png"), url("./Stern3.png"); background-repeat: no-repeat;
-    background-position: 20% 48%, 50% 48%, 80% 52%; background-size: 20% auto, 20% auto, 20% auto;
+    background-position: 20% 48%, 50% 48%, 80% calc(52% - 2px); background-size: 20% auto, 20% auto, 20% auto;
     filter: grayscale(1); opacity: 0.35;
   }
 
@@ -76,4 +79,15 @@
     font-weight: 800 !important; line-height: 1.35 !important; text-align: center !important; display: block !important; visibility: visible !important; opacity: 1 !important;
   }
   .school-highscore-choice { display: none !important; }
+}
+
+@keyframes highscore-submit-shake {
+  0%, 100% { transform: translateX(0); }
+  12% { transform: translateX(-1.0vw); }
+  24% { transform: translateX(0.9vw); }
+  36% { transform: translateX(-0.75vw); }
+  48% { transform: translateX(0.6vw); }
+  60% { transform: translateX(-0.45vw); }
+  72% { transform: translateX(0.3vw); }
+  84% { transform: translateX(-0.16vw); }
 }
