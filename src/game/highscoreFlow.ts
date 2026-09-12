@@ -77,32 +77,28 @@ async function submitPersonalHighscore(button: HTMLButtonElement, status: HTMLEl
 
 function installOnResult(result: HTMLElement): void {
   const card = result.querySelector<HTMLElement>(".result-card");
-  if (!card || card.querySelector(".school-highscore-action")) return;
+  if (!card || card.querySelector(".result-highscore-action")) return;
 
   result.querySelector<HTMLElement>(".school-entry")?.remove();
 
-  const box = document.createElement("div");
-  box.className = "school-highscore-choice school-highscore-action";
-  box.innerHTML = `
-    <p><strong>Schulweite Highscoreliste</strong></p>
-    <p>Dein persönlicher Rekord kann hier eingetragen werden.</p>
-    <div class="choice-actions">
-      <button type="button" class="result-button" data-highscore-submit>Highscore eintragen</button>
-    </div>
-    <p class="school-highscore-choice-status" aria-live="polite"></p>
+  const action = document.createElement("div");
+  action.className = "result-highscore-action";
+  action.innerHTML = `
+    <button type="button" aria-label="Highscore eintragen">
+      <span class="result-highscore-title">Highscore</span>
+      <span class="result-highscore-subtitle">eintragen</span>
+    </button>
+    <p class="result-highscore-status" aria-live="polite"></p>
   `;
 
-  const again = card.querySelector<HTMLElement>("#again");
-  if (again) again.insertAdjacentElement("beforebegin", box);
-  else card.appendChild(box);
-
-  box.querySelector<HTMLButtonElement>("[data-highscore-submit]")?.addEventListener("click", (event) => {
-    const button = event.currentTarget;
-    if (!(button instanceof HTMLButtonElement)) return;
-    const status = box.querySelector<HTMLElement>(".school-highscore-choice-status");
-    if (!status) return;
-    void submitPersonalHighscore(button, status);
+  const button = action.querySelector<HTMLButtonElement>("button");
+  if (!button) return;
+  button.addEventListener("click", () => {
+    const status = action.querySelector<HTMLElement>(".result-highscore-status");
+    if (status) void submitPersonalHighscore(button, status);
   });
+
+  result.appendChild(action);
 }
 
 export function initHighscoreFlow(): void {
