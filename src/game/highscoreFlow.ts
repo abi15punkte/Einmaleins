@@ -109,7 +109,9 @@ export function initHighscoreFlow(): void {
     const result = app.querySelector<HTMLElement>(".result-screen");
     if (result) installOnResult(result);
   });
-  observer.observe(app, { childList: true, subtree: true });
+  // We only need to observe screens being replaced at the app root.
+  // Observing the complete subtree caused a callback on every game-state DOM update.
+  observer.observe(app, { childList: true });
 
   const result = app.querySelector<HTMLElement>(".result-screen");
   if (result) installOnResult(result);
