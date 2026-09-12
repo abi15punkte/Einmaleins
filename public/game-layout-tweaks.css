@@ -92,7 +92,7 @@
     position: relative !important;
     top: auto !important;
     margin-top: 0 !important;
-    transform: translateY(11vh) !important;
+    transform: translateY(10vh) !important;
     width: 52vw !important;
     max-width: 900px !important;
     height: 226px !important;
@@ -104,11 +104,16 @@
   }
 
   .game-screen .task-equation {
-    grid-row: 1 !important;
-    align-self: center !important;
-    justify-self: center !important;
+    position: absolute !important;
+    top: 50% !important;
+    left: 0 !important;
+    transform: translateY(-50%) !important;
+    grid-row: auto !important;
+    align-self: auto !important;
+    justify-self: auto !important;
     width: 100% !important;
     height: auto !important;
+    margin: 0 !important;
   }
 
   .game-screen .task-card:has(.answer-box.answer-feedback-wrong) {
@@ -181,23 +186,23 @@
 }
 
 @keyframes task-card-shake {
-  0%, 100% { transform: translateX(0) translateY(11vh) rotate(0deg); }
-  8% { transform: translateX(-1.2vw) translateY(11vh) rotate(-1deg); }
-  18% { transform: translateX(1.1vw) translateY(11vh) rotate(0.9deg); }
-  28% { transform: translateX(-0.9vw) translateY(11vh) rotate(-0.8deg); }
-  38% { transform: translateX(0.75vw) translateY(11vh) rotate(0.7deg); }
-  48% { transform: translateX(-0.6vw) translateY(11vh) rotate(-0.5deg); }
-  58% { transform: translateX(0.45vw) translateY(11vh) rotate(0.4deg); }
-  68% { transform: translateX(-0.3vw) translateY(11vh) rotate(-0.3deg); }
-  78% { transform: translateX(0.2vw) translateY(11vh) rotate(0.2deg); }
-  88% { transform: translateX(-0.1vw) translateY(11vh) rotate(-0.1deg); }
+  0%, 100% { transform: translateX(0) translateY(10vh) rotate(0deg); }
+  8% { transform: translateX(-1.2vw) translateY(10vh) rotate(-1deg); }
+  18% { transform: translateX(1.1vw) translateY(10vh) rotate(0.9deg); }
+  28% { transform: translateX(-0.9vw) translateY(10vh) rotate(-0.8deg); }
+  38% { transform: translateX(0.75vw) translateY(10vh) rotate(0.7deg); }
+  48% { transform: translateX(-0.6vw) translateY(10vh) rotate(-0.5deg); }
+  58% { transform: translateX(0.45vw) translateY(10vh) rotate(0.4deg); }
+  68% { transform: translateX(-0.3vw) translateY(10vh) rotate(-0.3deg); }
+  78% { transform: translateX(0.2vw) translateY(10vh) rotate(0.2deg); }
+  88% { transform: translateX(-0.1vw) translateY(10vh) rotate(-0.1deg); }
 }
 
 @keyframes task-card-pop {
-  0% { transform: translateY(11vh) scale(1); }
-  35% { transform: translateY(calc(11vh - 0.9vh)) scale(1.035); }
-  65% { transform: translateY(calc(11vh + 0.35vh)) scale(0.992); }
-  100% { transform: translateY(11vh) scale(1); }
+  0% { transform: translateY(10vh) scale(1); }
+  35% { transform: translateY(calc(10vh - 0.9vh)) scale(1.035); }
+  65% { transform: translateY(calc(10vh + 0.35vh)) scale(0.992); }
+  100% { transform: translateY(10vh) scale(1); }
 }
 
 @keyframes score-box-arrival {
