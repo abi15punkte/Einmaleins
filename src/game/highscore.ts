@@ -13,9 +13,9 @@ export interface HighscoreRecord {
   className: string | null;
   score: number;
   achievedAt: string;
-  stern1: boolean;
-  stern2: boolean;
-  stern3: boolean;
+  stern1?: boolean;
+  stern2?: boolean;
+  stern3?: boolean;
 }
 
 export interface PendingSyncRecord {
