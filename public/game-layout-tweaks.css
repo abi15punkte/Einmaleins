@@ -87,12 +87,12 @@
     display: none !important;
   }
 
-  /* Align the task box's top edge with the first keypad row in the rendered landscape layout. */
+  /* Exact geometry: 3 rows × 68px + 2 × 11px = 226px. */
   .game-screen .task-card {
     position: relative !important;
     top: auto !important;
     margin-top: 0 !important;
-    transform: translateY(12vh) !important;
+    transform: translateY(11vh) !important;
     width: 52vw !important;
     max-width: 900px !important;
     height: 226px !important;
@@ -101,6 +101,14 @@
     border: 1px solid rgb(23 32 51 / 7%) !important;
     box-shadow: 0 4px 14px rgb(23 32 51 / 5%) !important;
     grid-template-rows: 100% !important;
+  }
+
+  .game-screen .task-equation {
+    grid-row: 1 !important;
+    align-self: center !important;
+    justify-self: center !important;
+    width: 100% !important;
+    height: auto !important;
   }
 
   .game-screen .task-card:has(.answer-box.answer-feedback-wrong) {
@@ -155,10 +163,6 @@
     }
   }
 
-  .game-screen .task-equation {
-    grid-row: 1 !important;
-  }
-
   .game-screen .task-card .feedback-area,
   .game-screen .task-card #feedback,
   .game-screen .task-card #streak {
@@ -170,30 +174,30 @@
   }
 }
 
-/* Deliberately stronger than the original 24vw Alien size. */
+/* Rounded to a clean 37vw size. */
 .school-highscore-overlay::after {
-  width: 34vw !important;
-  height: 34vw !important;
+  width: 37vw !important;
+  height: 37vw !important;
 }
 
 @keyframes task-card-shake {
-  0%, 100% { transform: translateX(0) translateY(12vh) rotate(0deg); }
-  8% { transform: translateX(-1.2vw) translateY(12vh) rotate(-1deg); }
-  18% { transform: translateX(1.1vw) translateY(12vh) rotate(0.9deg); }
-  28% { transform: translateX(-0.9vw) translateY(12vh) rotate(-0.8deg); }
-  38% { transform: translateX(0.75vw) translateY(12vh) rotate(0.7deg); }
-  48% { transform: translateX(-0.6vw) translateY(12vh) rotate(-0.5deg); }
-  58% { transform: translateX(0.45vw) translateY(12vh) rotate(0.4deg); }
-  68% { transform: translateX(-0.3vw) translateY(12vh) rotate(-0.3deg); }
-  78% { transform: translateX(0.2vw) translateY(12vh) rotate(0.2deg); }
-  88% { transform: translateX(-0.1vw) translateY(12vh) rotate(-0.1deg); }
+  0%, 100% { transform: translateX(0) translateY(11vh) rotate(0deg); }
+  8% { transform: translateX(-1.2vw) translateY(11vh) rotate(-1deg); }
+  18% { transform: translateX(1.1vw) translateY(11vh) rotate(0.9deg); }
+  28% { transform: translateX(-0.9vw) translateY(11vh) rotate(-0.8deg); }
+  38% { transform: translateX(0.75vw) translateY(11vh) rotate(0.7deg); }
+  48% { transform: translateX(-0.6vw) translateY(11vh) rotate(-0.5deg); }
+  58% { transform: translateX(0.45vw) translateY(11vh) rotate(0.4deg); }
+  68% { transform: translateX(-0.3vw) translateY(11vh) rotate(-0.3deg); }
+  78% { transform: translateX(0.2vw) translateY(11vh) rotate(0.2deg); }
+  88% { transform: translateX(-0.1vw) translateY(11vh) rotate(-0.1deg); }
 }
 
 @keyframes task-card-pop {
-  0% { transform: translateY(12vh) scale(1); }
-  35% { transform: translateY(calc(12vh - 0.9vh)) scale(1.035); }
-  65% { transform: translateY(calc(12vh + 0.35vh)) scale(0.992); }
-  100% { transform: translateY(12vh) scale(1); }
+  0% { transform: translateY(11vh) scale(1); }
+  35% { transform: translateY(calc(11vh - 0.9vh)) scale(1.035); }
+  65% { transform: translateY(calc(11vh + 0.35vh)) scale(0.992); }
+  100% { transform: translateY(11vh) scale(1); }
 }
 
 @keyframes score-box-arrival {
