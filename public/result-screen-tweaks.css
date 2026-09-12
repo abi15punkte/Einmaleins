@@ -156,46 +156,23 @@
     box-shadow: 0 12px 26px rgb(82 175 231 / 28%), inset 0 1px 0 rgb(255 255 255 / 34%) !important;
   }
 
-  .result-screen #close-app {
-    position: absolute !important;
-    top: 0.7vh !important;
-    right: 0.7vw !important;
-    z-index: 121 !important;
-    width: 4vh !important;
-    min-width: 4vh !important;
-    height: 4vh !important;
-    min-height: 4vh !important;
+  .result-screen #close-app { display: none !important; }
+
+  #close-app-status {
+    position: fixed !important;
+    left: 50% !important;
+    bottom: 2.5vh !important;
+    transform: translateX(-50%) !important;
+    z-index: 130 !important;
+    width: min(88vw, 760px) !important;
     margin: 0 !important;
-    padding: 0 !important;
-    border-radius: 0.65vh !important;
-    background: linear-gradient(145deg, #68c9f4 0%, #52afe7 55%, #3799d6 100%) !important;
-    color: #ffffff !important;
-    border: 1px solid rgb(82 175 231 / 38%) !important;
-    box-shadow: 0 6px 14px rgb(82 175 231 / 22%), inset 0 1px 0 rgb(255 255 255 / 30%) !important;
-    font-size: 0 !important;
-    line-height: 1 !important;
-    display: grid !important;
-    place-items: center !important;
-    overflow: hidden !important;
+    color: #d6293f !important;
+    font-weight: 800 !important;
+    line-height: 1.35 !important;
+    text-align: center !important;
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
   }
-
-  .result-screen #close-app::before {
-    content: "×";
-    font-size: 3.2vh;
-    font-weight: 800;
-    line-height: 0.9;
-    color: #ffffff;
-    transform: translateY(-0.03vh);
-    text-shadow: 0 1px 2px rgb(0 0 0 / 12%);
-  }
-
-  .result-screen #close-app::after { display: none !important; }
-
-  .result-screen #close-app:hover {
-    background: linear-gradient(145deg, #79d0f7 0%, #52afe7 55%, #3799d6 100%) !important;
-    box-shadow: 0 8px 18px rgb(82 175 231 / 26%), inset 0 1px 0 rgb(255 255 255 / 34%) !important;
-  }
-
-  #close-app-status { position: fixed !important; left: 50% !important; bottom: 2.5vh !important; transform: translateX(-50%) !important; z-index: 130 !important; width: min(88vw, 760px) !important; margin: 0 !important; color: #d6293f !important; font-weight: 800 !important; line-height: 1.35 !important; text-align: center !important; }
   .school-highscore-choice { display: none !important; }
 }
