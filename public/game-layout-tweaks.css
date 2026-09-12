@@ -117,7 +117,7 @@
   }
 
   .game-screen .task-card:has(.answer-box.answer-feedback-wrong) {
-    animation: task-card-shake 620ms cubic-bezier(.36,.07,.19,.97) both;
+    animation: task-card-shake 820ms cubic-bezier(.36,.07,.19,.97) both !important;
   }
 
   .game-screen .task-card.correct-pop {
@@ -206,16 +206,20 @@
 }
 
 @keyframes task-card-shake {
-  0%, 100% { transform: translateX(0) translateY(10vh) rotate(0deg); }
-  8% { transform: translateX(-1.2vw) translateY(10vh) rotate(-1deg); }
-  18% { transform: translateX(1.1vw) translateY(10vh) rotate(0.9deg); }
-  28% { transform: translateX(-0.9vw) translateY(10vh) rotate(-0.8deg); }
-  38% { transform: translateX(0.75vw) translateY(10vh) rotate(0.7deg); }
-  48% { transform: translateX(-0.6vw) translateY(10vh) rotate(-0.5deg); }
-  58% { transform: translateX(0.45vw) translateY(10vh) rotate(0.4deg); }
-  68% { transform: translateX(-0.3vw) translateY(10vh) rotate(-0.3deg); }
-  78% { transform: translateX(0.2vw) translateY(10vh) rotate(0.2deg); }
-  88% { transform: translateX(-0.1vw) translateY(10vh) rotate(-0.1deg); }
+  0%, 100% { transform: translateX(0) translateY(10vh) rotate(0deg) scale(1); }
+  7% { transform: translateX(-1.8vw) translateY(10vh) rotate(-2.2deg) scale(1.02); }
+  14% { transform: translateX(1.65vw) translateY(10vh) rotate(2deg) scale(1.02); }
+  21% { transform: translateX(-1.5vw) translateY(10vh) rotate(-1.8deg) scale(1.018); }
+  28% { transform: translateX(1.35vw) translateY(10vh) rotate(1.6deg) scale(1.016); }
+  35% { transform: translateX(-1.2vw) translateY(10vh) rotate(-1.4deg) scale(1.014); }
+  42% { transform: translateX(1.05vw) translateY(10vh) rotate(1.25deg) scale(1.012); }
+  49% { transform: translateX(-0.9vw) translateY(10vh) rotate(-1.05deg) scale(1.01); }
+  56% { transform: translateX(0.76vw) translateY(10vh) rotate(0.9deg) scale(1.008); }
+  63% { transform: translateX(-0.62vw) translateY(10vh) rotate(-0.75deg) scale(1.006); }
+  70% { transform: translateX(0.48vw) translateY(10vh) rotate(0.6deg) scale(1.004); }
+  77% { transform: translateX(-0.35vw) translateY(10vh) rotate(-0.45deg) scale(1.002); }
+  84% { transform: translateX(0.23vw) translateY(10vh) rotate(0.3deg) scale(1.001); }
+  92% { transform: translateX(-0.1vw) translateY(10vh) rotate(-0.15deg) scale(1); }
 }
 
 @keyframes task-card-pop {
