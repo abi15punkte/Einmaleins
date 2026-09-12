@@ -23,7 +23,10 @@ const record = {
   name: student.name,
   className: student.className,
   score: 500,
-  achievedAt: "2026-09-10T10:00:00.000Z"
+  achievedAt: "2026-09-10T10:00:00.000Z",
+  stern1: true,
+  stern2: false,
+  stern3: true
 };
 
 describe("highscore sync", () => {
