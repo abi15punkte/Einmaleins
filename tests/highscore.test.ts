@@ -32,6 +32,14 @@ describe("highscore storage", () => {
     expect(loadPersonalHighscore(student.studentId)?.score).toBe(250);
   });
 
+  it("initializes all three star flags to false", () => {
+    const result = evaluateResult(student, 250, "2026-01-01T10:00:00.000Z");
+
+    expect(result.personalBest.stern1).toBe(false);
+    expect(result.personalBest.stern2).toBe(false);
+    expect(result.personalBest.stern3).toBe(false);
+  });
+
   it("does not queue a new personal best without explicit school-list opt-in", () => {
     evaluateResult(student, 400, "2026-01-01T10:00:00.000Z");
 
@@ -44,14 +52,20 @@ describe("highscore storage", () => {
       name: student.name,
       className: student.className,
       score: 400,
-      achievedAt: "2026-01-01T10:00:00.000Z"
+      achievedAt: "2026-01-01T10:00:00.000Z",
+      stern1: false,
+      stern2: false,
+      stern3: false
     }, "2026-01-01T10:00:00.000Z");
     queuePendingSyncRecord({
       studentId: student.studentId,
       name: student.name,
       className: student.className,
       score: 300,
-      achievedAt: "2026-01-01T10:05:00.000Z"
+      achievedAt: "2026-01-01T10:05:00.000Z",
+      stern1: false,
+      stern2: false,
+      stern3: false
     }, "2026-01-01T10:05:00.000Z");
 
     expect(loadPendingSyncRecords()).toHaveLength(1);
