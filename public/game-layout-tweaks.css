@@ -161,6 +161,11 @@
   }
 }
 
+.school-highscore-overlay::after {
+  width: 28.8vw !important;
+  height: 28.8vw !important;
+}
+
 @keyframes task-card-shake {
   0%, 100% { transform: translateX(0) rotate(0deg); }
   8% { transform: translateX(-1.2vw) rotate(-1deg); }
