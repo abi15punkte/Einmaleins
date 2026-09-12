@@ -9,21 +9,18 @@
   color: #248f5b !important;
 }
 
-/* Korrekturzustand: nur die Lösungszahl wird grün. Der Unterstrich bleibt schwarz. */
-.task-card.is-wrong #answer:not(.answer-feedback-wrong) {
-  color: #248f5b !important;
-}
-
 /* Regelmäßiger, kurzer Aufmerksamkeitshinweis für Start und Neustart. */
 .mode-actions .mode-card,
-.result-card > #again {
+.result-card > #again,
+.result-screen .result-action-row .result-highscore-action {
   animation: attention-cue 3s ease-in-out infinite;
   transform-origin: center;
   will-change: transform;
 }
 
-/* Der zweite Startbutton setzt seinen Impuls eine Sekunde später. */
-.mode-actions .mode-card:nth-child(2) {
+/* Der zweite Startbutton und der Highscore-Button setzen ihren Impuls eine Sekunde später. */
+.mode-actions .mode-card:nth-child(2),
+.result-screen .result-action-row .result-highscore-action {
   animation-delay: 1s;
 }
 
@@ -66,6 +63,7 @@
 @media (prefers-reduced-motion: reduce) {
   .mode-actions .mode-card,
   .result-card > #again,
+  .result-screen .result-action-row .result-highscore-action,
   .keypad-key:active {
     animation: none !important;
     transform: none !important;
