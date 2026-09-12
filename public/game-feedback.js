@@ -1,70 +1,8 @@
 (() => {
-  const nativeAnimate = Element.prototype.animate;
-  Element.prototype.animate = function(keyframes, options) {
-    const taskCard = this instanceof HTMLElement && this.id === "task-card";
-    const feedback = document.querySelector("#feedback");
-    const answer = document.querySelector("#answer");
-    const isCorrectedWrongAnswer = taskCard
-      && answer?.classList.contains("answer-feedback-correct")
-      && !feedback?.classList.contains("feedback-correct");
-    if (isCorrectedWrongAnswer) {
-      const animation = nativeAnimate.call(this, [], { duration: 0 });
-      animation.cancel();
-      return animation;
-    }
-    return nativeAnimate.call(this, keyframes, options);
-  };
+  const POINTS_FLIGHT_MS = 1520;
 
   let currentGameScreen = null;
   let feedbackSignature = "";
-  let streak = 0;
-  let displayedScore = 0;
-
-  const POINTS_FLIGHT_MS = 1520;
-  const SCORE_ARRIVAL_DELAY_MS = 850;
-  const REDUCED_MOTION = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const SCORE_UPDATE_DELAY_MS = REDUCED_MOTION ? 0 : SCORE_ARRIVAL_DELAY_MS;
-
-  const MULTIPLIER_BY_STREAK = (value) => {
-    if (value >= 20) return 5;
-    if (value >= 10) return 3;
-    if (value >= 3) return 2;
-    return 1;
-  };
-
-  function resetForGame(screen) {
-    if (screen !== currentGameScreen) {
-      currentGameScreen = screen;
-      feedbackSignature = "";
-      streak = 0;
-      displayedScore = Number(screen.querySelector("#score")?.textContent ?? 0) || 0;
-    }
-  }
-
-  function showStreak(streakElement, multiplier) {
-    streakElement.hidden = false;
-    streakElement.textContent = `Serie ×${multiplier}`;
-  }
-
-  function triggerScoreArrival(scoreElement, nextScore) {
-    const scoreCard = scoreElement.closest(".stat-score");
-    if (!scoreCard) return;
-    scoreCard.classList.remove("score-arrival", "score-arrival-medium", "score-arrival-strong");
-    if (nextScore > 199) scoreCard.classList.add("score-arrival-strong");
-    else if (nextScore > 99) scoreCard.classList.add("score-arrival-medium");
-    void scoreCard.offsetWidth;
-    scoreCard.classList.add("score-arrival");
-    window.setTimeout(() => scoreCard.classList.remove("score-arrival", "score-arrival-medium", "score-arrival-strong"), 420);
-  }
-
-  function applyPointsWhenArrived(screen, scoreElement, points) {
-    window.setTimeout(() => {
-      if (currentGameScreen !== screen) return;
-      displayedScore += points;
-      scoreElement.textContent = String(displayedScore);
-      triggerScoreArrival(scoreElement, displayedScore);
-    }, SCORE_UPDATE_DELAY_MS);
-  }
 
   function updateCriticalTime(timeElement) {
     const match = (timeElement.textContent ?? "").match(/^(\d+):(\d{2})$/);
@@ -73,29 +11,27 @@
   }
 
   function isShowingExpectedSolution(answerElement, feedbackElement) {
-    const enteredOrExpected = answerElement.textContent?.trim() ?? "";
-    if (!enteredOrExpected) return false;
+    const text = answerElement.textContent?.trim() ?? "";
+    if (!text) return false;
 
     const feedbackExpected = feedbackElement.classList.contains("feedback-wrong")
       ? (feedbackElement.textContent ?? "").match(/Die Antwort ist\s+(\d+)\.?/i)?.[1]
       : null;
-    if (feedbackExpected && enteredOrExpected === feedbackExpected) return true;
+    if (feedbackExpected && text === feedbackExpected) return true;
 
     const factorA = Number(currentGameScreen?.querySelector("#factor-a")?.textContent ?? "");
     const factorB = Number(currentGameScreen?.querySelector("#factor-b")?.textContent ?? "");
-    const expectedByTask = Number.isFinite(factorA) && Number.isFinite(factorB)
-      ? String(factorA * factorB)
-      : "";
-    return expectedByTask !== "" && enteredOrExpected === expectedByTask;
+    if (!Number.isFinite(factorA) || !Number.isFinite(factorB)) return false;
+    return text === String(factorA * factorB);
   }
 
   function syncAnswerColor(answerElement, feedbackElement) {
-    if (answerElement.classList.contains("answer-feedback-correct") || isShowingExpectedSolution(answerElement, feedbackElement)) {
-      answerElement.style.setProperty("color", "#69cb6c", "important");
-      return;
-    }
     if (answerElement.classList.contains("answer-feedback-wrong")) {
       answerElement.style.setProperty("color", "#ee737f", "important");
+      return;
+    }
+    if (answerElement.classList.contains("answer-feedback-correct") || isShowingExpectedSolution(answerElement, feedbackElement)) {
+      answerElement.style.setProperty("color", "#69cb6c", "important");
       return;
     }
     answerElement.style.setProperty("color", "#000000", "important");
@@ -119,23 +55,29 @@
     });
   }
 
+  function triggerScoreArrival(scoreElement) {
+    const scoreCard = scoreElement.closest(".stat-score");
+    if (!scoreCard) return;
+    scoreCard.classList.remove("score-arrival", "score-arrival-medium", "score-arrival-strong");
+    const score = Number(scoreElement.textContent ?? "0") || 0;
+    if (score > 199) scoreCard.classList.add("score-arrival-strong");
+    else if (score > 99) scoreCard.classList.add("score-arrival-medium");
+    void scoreCard.offsetWidth;
+    scoreCard.classList.add("score-arrival");
+    window.setTimeout(() => scoreCard.classList.remove("score-arrival", "score-arrival-medium", "score-arrival-strong"), 420);
+  }
+
   function flyPoints(card, scoreElement, points, multiplier) {
     const cardRect = card.getBoundingClientRect();
     const scoreRect = scoreElement.getBoundingClientRect();
-    const startX = cardRect.left + cardRect.width * 0.72;
-    const startY = cardRect.top + cardRect.height * 0.52;
-    const targetX = scoreRect.left + scoreRect.width * 0.5;
-    const targetY = scoreRect.top + scoreRect.height * 0.5;
-
     const particle = document.createElement("span");
     particle.className = `points-fly multiplier-x${multiplier}`;
     particle.textContent = `+${points}`;
-    particle.style.left = `${startX}px`;
-    particle.style.top = `${startY}px`;
-    particle.style.setProperty("--fly-x", `${targetX - startX}px`);
-    particle.style.setProperty("--fly-y", `${targetY - startY}px`);
+    particle.style.left = `${cardRect.left + cardRect.width * 0.72}px`;
+    particle.style.top = `${cardRect.top + cardRect.height * 0.52}px`;
+    particle.style.setProperty("--fly-x", `${scoreRect.left + scoreRect.width * 0.5 - (cardRect.left + cardRect.width * 0.72)}px`);
+    particle.style.setProperty("--fly-y", `${scoreRect.top + scoreRect.height * 0.5 - (cardRect.top + cardRect.height * 0.52)}px`);
     document.body.appendChild(particle);
-
     window.setTimeout(() => particle.remove(), POINTS_FLIGHT_MS + 90);
   }
 
@@ -183,59 +125,41 @@
     if (!screen) {
       currentGameScreen = null;
       feedbackSignature = "";
-      streak = 0;
-      displayedScore = 0;
       return;
     }
 
-    resetForGame(screen);
+    if (screen !== currentGameScreen) {
+      currentGameScreen = screen;
+      feedbackSignature = "";
+    }
 
     const feedback = screen.querySelector("#feedback");
-    const streakElement = screen.querySelector("#streak");
     const scoreElement = screen.querySelector("#score");
     const timeElement = screen.querySelector("#time");
     const taskCard = screen.querySelector("#task-card");
     const answerElement = screen.querySelector("#answer");
-    if (!feedback || !streakElement || !scoreElement || !timeElement || !taskCard || !answerElement) return;
+    if (!(feedback instanceof HTMLElement) || !(scoreElement instanceof HTMLElement) || !(timeElement instanceof HTMLElement) || !(taskCard instanceof HTMLElement) || !(answerElement instanceof HTMLElement)) return;
 
-    scoreElement.dataset.displayManaged = "true";
     updateCriticalTime(timeElement);
     syncAnswerColor(answerElement, feedback);
     scheduleAnswerBoxAlignment();
 
     const signature = `${feedback.className}|${feedback.textContent ?? ""}`;
-    if (signature === feedbackSignature) {
-      showStreak(streakElement, MULTIPLIER_BY_STREAK(streak));
-      scoreElement.textContent = String(displayedScore);
-      return;
-    }
-
+    if (signature === feedbackSignature) return;
     feedbackSignature = signature;
 
-    if (feedback.classList.contains("feedback-wrong")) {
-      streak = 0;
-      showStreak(streakElement, 1);
-      scoreElement.textContent = String(displayedScore);
-      return;
-    }
-
-    if (!feedback.classList.contains("feedback-correct")) {
-      scoreElement.textContent = String(displayedScore);
-      return;
-    }
-
-    streak += 1;
-    const multiplier = MULTIPLIER_BY_STREAK(streak);
-    showStreak(streakElement, multiplier);
+    if (!feedback.classList.contains("feedback-correct")) return;
 
     const match = (feedback.textContent ?? "").match(/\+(\d+) Punkte/);
-    if (match) {
-      const points = Number(match[1]);
-      flyPoints(taskCard, scoreElement, points, multiplier);
-      applyPointsWhenArrived(screen, scoreElement, points);
-    }
+    if (!match) return;
 
-    scoreElement.textContent = String(displayedScore);
+    const points = Number(match[1]);
+    const streak = Number.parseInt((screen.querySelector("#streak")?.textContent ?? "").replace(/\D/g, ""), 10) || 1;
+    const multiplier = streak >= 20 ? 5 : streak >= 10 ? 3 : streak >= 3 ? 2 : 1;
+    flyPoints(taskCard, scoreElement, points, multiplier);
+    window.setTimeout(() => {
+      if (currentGameScreen === screen) triggerScoreArrival(scoreElement);
+    }, 850);
   }
 
   window.addEventListener("resize", scheduleAnswerBoxAlignment, { passive: true });
