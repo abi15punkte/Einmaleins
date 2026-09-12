@@ -19,6 +19,21 @@
   will-change: transform;
 }
 
+/* Deutlich größere Hervorhebung der konkreten Punktzahl. */
+.personal-best strong {
+  margin-top: 5px !important;
+  font-size: clamp(1.35rem, 2.8vw, 2rem) !important;
+  line-height: 1.05 !important;
+  font-weight: 900 !important;
+  letter-spacing: -0.035em !important;
+}
+
+.result-highscore {
+  font-size: clamp(1.15rem, 2.5vh, 1.65rem) !important;
+  line-height: 1.15 !important;
+  font-weight: 850 !important;
+}
+
 @keyframes attention-cue {
   0%, 68%, 100% { transform: translateY(0) scale(1); }
   72% { transform: translateY(-4px) scale(1.018); }
