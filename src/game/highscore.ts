@@ -13,6 +13,9 @@ export interface HighscoreRecord {
   className: string | null;
   score: number;
   achievedAt: string;
+  stern1: boolean;
+  stern2: boolean;
+  stern3: boolean;
 }
 
 export interface PendingSyncRecord {
@@ -115,7 +118,12 @@ export function loadPersonalHighscore(studentId = loadStudentIdentity().studentI
     return null;
   }
 
-  return record;
+  return {
+    ...record,
+    stern1: record.stern1 === true,
+    stern2: record.stern2 === true,
+    stern3: record.stern3 === true
+  };
 }
 
 export function evaluateResult(
@@ -136,7 +144,10 @@ export function evaluateResult(
         name: student.name.trim(),
         className: student.className?.trim() || null,
         score,
-        achievedAt
+        achievedAt,
+        stern1: previousBest?.stern1 ?? false,
+        stern2: previousBest?.stern2 ?? false,
+        stern3: previousBest?.stern3 ?? false
       }
     : previousBest;
 
