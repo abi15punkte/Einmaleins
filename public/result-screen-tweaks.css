@@ -45,16 +45,29 @@
   font-weight: 850 !important;
 }
 
+/* Früherer Impuls: schon nach rund 0,75 s statt erst spät im Intervall. */
 @keyframes attention-cue {
-  0%, 68%, 100% { transform: translateY(0) scale(1); }
-  72% { transform: translateY(-4px) scale(1.018); }
-  76% { transform: translateY(1px) scale(0.996); }
-  80% { transform: translateY(0) scale(1); }
+  0%, 25%, 100% { transform: translateY(0) scale(1); }
+  29% { transform: translateY(-4px) scale(1.018); }
+  33% { transform: translateY(1px) scale(0.996); }
+  37% { transform: translateY(0) scale(1); }
+}
+
+/* Kurzes, direktes Feedback beim Berühren der Zahlentasten. */
+.keypad-key:active {
+  animation: keypad-tap 180ms ease-out;
+}
+
+@keyframes keypad-tap {
+  0% { transform: translateY(2px) scale(0.985); }
+  45% { transform: translateY(0) scale(0.955); }
+  100% { transform: translateY(2px) scale(0.985); }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .mode-actions .mode-card,
-  .result-card > #again {
+  .result-card > #again,
+  .keypad-key:active {
     animation: none !important;
     transform: none !important;
   }
