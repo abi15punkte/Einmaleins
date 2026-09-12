@@ -66,10 +66,31 @@ function renderOverlay(entries: LeaderboardEntry[], studentName: string): void {
 }
 
 function triggerHighscoreSubmitErrorShake(action: HTMLDivElement): void {
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
   action.classList.remove("highscore-submit-error");
+  action.style.animation = "none";
   void action.offsetWidth;
   action.classList.add("highscore-submit-error");
-  window.setTimeout(() => action.classList.remove("highscore-submit-error"), 700);
+
+  const animation = action.animate(
+    [
+      { transform: "translateX(0)" },
+      { transform: "translateX(-1vw)" },
+      { transform: "translateX(0.9vw)" },
+      { transform: "translateX(-0.75vw)" },
+      { transform: "translateX(0.6vw)" },
+      { transform: "translateX(-0.45vw)" },
+      { transform: "translateX(0.3vw)" },
+      { transform: "translateX(0)" }
+    ],
+    { duration: 620, easing: "cubic-bezier(.36,.07,.19,.97)", fill: "none" }
+  );
+
+  animation.finished.finally(() => {
+    action.classList.remove("highscore-submit-error");
+    action.style.animation = "";
+  });
 }
 
 async function submitPersonalHighscore(button: HTMLButtonElement, status: HTMLElement, action: HTMLDivElement): Promise<void> {
