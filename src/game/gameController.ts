@@ -80,6 +80,7 @@ export class GameController {
     this.engine.skipCurrentTask();
     this.input = createAnswerInput();
     this.lastDigitOutcome = null;
+    this.lastAnswer = null;
     return this.getState();
   }
 
