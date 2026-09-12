@@ -79,9 +79,19 @@ function createFirestoreClient(): LeaderboardClient {
       const timestamp = new Date(record.achievedAt);
       if (Number.isNaN(timestamp.getTime())) throw new Error("Leaderboard timestamp is invalid.");
 
-      const { doc, setDoc, Timestamp, db } = await loadFirestoreSdk();
+      const { doc, getDoc, setDoc, Timestamp, db } = await loadFirestoreSdk();
+      const studentDoc = doc(db, HIGHSCORE_COLLECTION, studentId);
+      const existing = await getDoc(studentDoc);
 
-      await setDoc(doc(db, HIGHSCORE_COLLECTION, studentId), {
+      if (existing.exists()) {
+        const existingData = existing.data();
+        const existingScore = existingData.punkte;
+        if (typeof existingScore === "number" && Number.isInteger(existingScore) && existingScore >= record.score) {
+          return;
+        }
+      }
+
+      await setDoc(studentDoc, {
         studentId,
         name,
         klasse: record.className?.trim() || null,
