@@ -79,28 +79,32 @@ function createFirestoreClient(): LeaderboardClient {
       const timestamp = new Date(record.achievedAt);
       if (Number.isNaN(timestamp.getTime())) throw new Error("Leaderboard timestamp is invalid.");
 
-      const { doc, getDoc, setDoc, Timestamp, db } = await loadFirestoreSdk();
+      const { doc, setDoc, Timestamp, db } = await loadFirestoreSdk();
       const studentDoc = doc(db, HIGHSCORE_COLLECTION, studentId);
-      const existing = await getDoc(studentDoc);
 
-      if (existing.exists()) {
-        const existingData = existing.data();
-        const existingScore = existingData.punkte;
-        if (typeof existingScore === "number" && Number.isInteger(existingScore) && existingScore >= record.score) {
-          return;
-        }
+      try {
+        // Firestore security rules enforce the important condition here:
+        // an existing score may only be replaced by a strictly higher score.
+        // This removes the extra read that previously happened before every write.
+        await setDoc(studentDoc, {
+          studentId,
+          name,
+          klasse: record.className?.trim() || null,
+          punkte: record.score,
+          stern1: recordWithStars.stern1 === true,
+          stern2: recordWithStars.stern2 === true,
+          stern3: recordWithStars.stern3 === true,
+          timestamp: Timestamp.fromDate(timestamp)
+        });
+      } catch (error) {
+        // A rejected update for an equal/lower score simply means that the
+        // personal record is already at least as good as the submitted one.
+        const code = error && typeof error === "object" && "code" in error
+          ? String((error as { code?: unknown }).code)
+          : "";
+        if (code === "permission-denied") return;
+        throw error;
       }
-
-      await setDoc(studentDoc, {
-        studentId,
-        name,
-        klasse: record.className?.trim() || null,
-        punkte: record.score,
-        stern1: recordWithStars.stern1 === true,
-        stern2: recordWithStars.stern2 === true,
-        stern3: recordWithStars.stern3 === true,
-        timestamp: Timestamp.fromDate(timestamp)
-      });
     },
 
     async top() {
