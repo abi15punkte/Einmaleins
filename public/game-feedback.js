@@ -1,4 +1,20 @@
 (() => {
+  const nativeAnimate = Element.prototype.animate;
+  Element.prototype.animate = function(keyframes, options) {
+    const taskCard = this instanceof HTMLElement && this.id === "task-card";
+    const feedback = document.querySelector("#feedback");
+    const answer = document.querySelector("#answer");
+    const isCorrectedWrongAnswer = taskCard
+      && answer?.classList.contains("answer-feedback-correct")
+      && !feedback?.classList.contains("feedback-correct");
+    if (isCorrectedWrongAnswer) {
+      const animation = nativeAnimate.call(this, [], { duration: 0 });
+      animation.cancel();
+      return animation;
+    }
+    return nativeAnimate.call(this, keyframes, options);
+  };
+
   let currentGameScreen = null;
   let feedbackSignature = "";
   let streak = 0;
