@@ -14,15 +14,11 @@ let firestoreSdkPromise: Promise<FirestoreSdk> | null = null;
 
 async function loadFirestoreSdk(): Promise<FirestoreSdk> {
   if (!firestoreSdkPromise) {
-    firestoreSdkPromise = Promise.all([
-      import("firebase/firestore"),
-      import("../firebase")
-    ]).then(([firestore, firebase]) => ({
+    firestoreSdkPromise = Promise.all([import("firebase/firestore"), import("../firebase")]).then(([firestore, firebase]) => ({
       ...firestore,
       db: firebase.db
     }));
   }
-
   return firestoreSdkPromise;
 }
 
@@ -48,15 +44,10 @@ export interface LeaderboardConfig {
 const HIGHSCORE_COLLECTION = "highscores";
 
 export function loadLeaderboardConfig(): LeaderboardConfig {
-  const endpoint =
-    typeof import.meta !== "undefined" &&
-    typeof import.meta.env?.VITE_LEADERBOARD_URL === "string"
-      ? import.meta.env.VITE_LEADERBOARD_URL.trim()
-      : "";
-
-  return {
-    endpoint: endpoint || null
-  };
+  const endpoint = typeof import.meta !== "undefined" && typeof import.meta.env?.VITE_LEADERBOARD_URL === "string"
+    ? import.meta.env.VITE_LEADERBOARD_URL.trim()
+    : "";
+  return { endpoint: endpoint || null };
 }
 
 export function createLeaderboardClient(
@@ -64,12 +55,7 @@ export function createLeaderboardClient(
   fetcher: typeof fetch = fetch
 ): LeaderboardClient {
   const endpoint = config.endpoint?.trim().replace(/\/$/, "") ?? "";
-
-  if (endpoint) {
-    return createLegacyHttpClient(endpoint, fetcher);
-  }
-
-  return createFirestoreClient();
+  return endpoint ? createLegacyHttpClient(endpoint, fetcher) : createFirestoreClient();
 }
 
 function createFirestoreClient(): LeaderboardClient {
@@ -78,21 +64,16 @@ function createFirestoreClient(): LeaderboardClient {
       if (!Number.isInteger(record.score) || record.score < 0) {
         throw new Error("Leaderboard score must be a non-negative integer.");
       }
-
       const name = record.name.trim();
-      if (!name) {
-        throw new Error("Leaderboard name is required.");
-      }
+      if (!name) throw new Error("Leaderboard name is required.");
 
       const recordWithStars = record as HighscoreRecordWithStars;
       const timestamp = new Date(record.achievedAt);
-      if (Number.isNaN(timestamp.getTime())) {
-        throw new Error("Leaderboard timestamp is invalid.");
-      }
+      if (Number.isNaN(timestamp.getTime())) throw new Error("Leaderboard timestamp is invalid.");
 
       const { addDoc, collection, Timestamp, db } = await loadFirestoreSdk();
-
       await addDoc(collection(db, HIGHSCORE_COLLECTION), {
+        studentId: record.studentId,
         name,
         klasse: record.className?.trim() || null,
         punkte: record.score,
@@ -105,17 +86,9 @@ function createFirestoreClient(): LeaderboardClient {
 
     async top() {
       const { getDocs, collection, orderBy, query, db } = await loadFirestoreSdk();
-      const snapshot = await getDocs(
-        query(
-          collection(db, HIGHSCORE_COLLECTION),
-          orderBy("punkte", "desc")
-        )
-      );
-
-      return snapshot.docs.map((document, index) => {
-        const data = document.data() as Record<string, unknown>;
-        return validateFirestoreEntry(data, index + 1);
-      });
+      const snapshot = await getDocs(query(collection(db, HIGHSCORE_COLLECTION), orderBy("punkte", "desc")));
+      const candidates = snapshot.docs.map((document) => validateFirestoreEntry(document.data() as Record<string, unknown>));
+      return dedupeLeaderboardEntries(candidates);
     }
   };
 }
@@ -125,43 +98,48 @@ function createLegacyHttpClient(endpoint: string, fetcher: typeof fetch): Leader
     async submit(record) {
       const response = await fetcher(`${endpoint}/scores`, {
         method: "POST",
-        headers: {
-          "content-type": "application/json"
-        },
+        headers: { "content-type": "application/json" },
         body: JSON.stringify(record)
       });
-
-      if (!response.ok) {
-        throw new Error(`Leaderboard submit failed: ${response.status}`);
-      }
+      if (!response.ok) throw new Error(`Leaderboard submit failed: ${response.status}`);
     },
 
     async top() {
       const response = await fetcher(`${endpoint}/scores`, {
         method: "GET",
-        headers: {
-          accept: "application/json"
-        }
+        headers: { accept: "application/json" }
       });
-
-      if (!response.ok) {
-        throw new Error(`Leaderboard fetch failed: ${response.status}`);
-      }
-
+      if (!response.ok) throw new Error(`Leaderboard fetch failed: ${response.status}`);
       const payload: unknown = await response.json();
-      if (!Array.isArray(payload)) {
-        throw new Error("Leaderboard response must be an array.");
-      }
-
-      return payload.map(validateLegacyEntry);
+      if (!Array.isArray(payload)) throw new Error("Leaderboard response must be an array.");
+      return dedupeLeaderboardEntries(payload.map(validateLegacyEntry));
     }
   };
 }
 
-function validateFirestoreEntry(
-  value: Record<string, unknown>,
-  rank: number
-): LeaderboardEntry {
+function dedupeLeaderboardEntries(entries: LeaderboardEntry[]): LeaderboardEntry[] {
+  const bestByStudent = new Map<string, LeaderboardEntry>();
+
+  for (const entry of entries) {
+    const key = getLeaderboardIdentityKey(entry);
+    const previous = bestByStudent.get(key);
+    if (!previous || entry.score > previous.score) bestByStudent.set(key, entry);
+  }
+
+  return [...bestByStudent.values()]
+    .sort((a, b) => b.score - a.score)
+    .map((entry, index) => ({ ...entry, rank: index + 1 }));
+}
+
+function getLeaderboardIdentityKey(entry: LeaderboardEntry): string {
+  const studentId = (entry as LeaderboardEntry & { studentId?: unknown }).studentId;
+  if (typeof studentId === "string" && studentId.trim()) return `id:${studentId.trim()}`;
+  const normalizedName = entry.name.trim().toLocaleLowerCase();
+  const normalizedClass = (entry.className ?? "").trim().toLocaleLowerCase();
+  return `legacy:${normalizedName}|${normalizedClass}`;
+}
+
+function validateFirestoreEntry(value: Record<string, unknown>): LeaderboardEntry {
   const nameValue = value.name;
   const classNameValue = value.klasse;
   const scoreValue = value.punkte;
@@ -170,21 +148,16 @@ function validateFirestoreEntry(
   const stern3Value = value.stern3;
 
   if (
-    typeof nameValue !== "string" ||
-    !nameValue.trim() ||
-    typeof scoreValue !== "number" ||
-    !Number.isInteger(scoreValue) ||
-    scoreValue < 0 ||
+    typeof nameValue !== "string" || !nameValue.trim() ||
+    typeof scoreValue !== "number" || !Number.isInteger(scoreValue) || scoreValue < 0 ||
     (classNameValue !== null && classNameValue !== undefined && typeof classNameValue !== "string") ||
     (stern1Value !== undefined && typeof stern1Value !== "boolean") ||
     (stern2Value !== undefined && typeof stern2Value !== "boolean") ||
     (stern3Value !== undefined && typeof stern3Value !== "boolean")
-  ) {
-    throw new Error("Invalid leaderboard entry.");
-  }
+  ) throw new Error("Invalid leaderboard entry.");
 
-  return {
-    rank,
+  const entry: LeaderboardEntry & { studentId?: string } = {
+    rank: 0,
     name: nameValue,
     className: typeof classNameValue === "string" ? classNameValue : null,
     score: scoreValue,
@@ -192,30 +165,23 @@ function validateFirestoreEntry(
     stern2: stern2Value === true,
     stern3: stern3Value === true
   };
+
+  if (typeof value.studentId === "string" && value.studentId.trim()) entry.studentId = value.studentId.trim();
+  return entry;
 }
 
 function validateLegacyEntry(value: unknown): LeaderboardEntry {
-  if (!value || typeof value !== "object") {
-    throw new Error("Invalid leaderboard entry.");
-  }
-
+  if (!value || typeof value !== "object") throw new Error("Invalid leaderboard entry.");
   const entry = value as Record<string, unknown>;
   const rankValue = entry.rank;
   const nameValue = entry.name;
   const scoreValue = entry.score;
   const classNameValue = entry.className;
-
   if (
-    typeof rankValue !== "number" ||
-    !Number.isInteger(rankValue) ||
-    rankValue < 1 ||
-    typeof nameValue !== "string" ||
-    typeof scoreValue !== "number" ||
-    !Number.isInteger(scoreValue) ||
-    scoreValue < 0
-  ) {
-    throw new Error("Invalid leaderboard entry.");
-  }
+    typeof rankValue !== "number" || !Number.isInteger(rankValue) || rankValue < 1 ||
+    typeof nameValue !== "string" || typeof scoreValue !== "number" ||
+    !Number.isInteger(scoreValue) || scoreValue < 0
+  ) throw new Error("Invalid leaderboard entry.");
 
   return {
     rank: rankValue,
