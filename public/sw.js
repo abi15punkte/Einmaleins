@@ -31,17 +31,10 @@ async function enhanceNavigationResponse(response) {
   if (!contentType.includes("text/html")) return response;
 
   const html = await response.text();
-  if (html.includes("start-class-mascot.js")) return new Response(html, response);
-
-  const enhanced = html
-    .replace(
-      "</head>",
-      "  <link rel=\"stylesheet\" href=\"./start-class-mascot.css\">\n  </head>"
-    )
-    .replace(
-      "</body>",
-      "  <script src=\"./start-class-mascot.js\"></script>\n</body>"
-    );
+  const enhanced = html.replace(
+    "</head>",
+    "  <style id=\"startup-visibility\">#app:empty{visibility:hidden}</style>\n  </head>"
+  );
 
   return new Response(enhanced, {
     status: response.status,
