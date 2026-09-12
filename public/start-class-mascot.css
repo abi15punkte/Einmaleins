@@ -1,0 +1,40 @@
+.start-class-mascot {
+  position: absolute;
+  right: -3.5vw;
+  bottom: -3.5vh;
+  width: clamp(140px, 18vw, 280px);
+  max-width: 30%;
+  height: auto;
+  object-fit: contain;
+  pointer-events: none;
+  user-select: none;
+  z-index: 0;
+  filter: drop-shadow(0 14px 22px rgb(23 32 51 / 14%));
+}
+
+.start-screen .welcome-card {
+  position: relative;
+  overflow: visible;
+}
+
+.start-screen .welcome-card > *:not(.start-class-mascot) {
+  position: relative;
+  z-index: 1;
+}
+
+@media (max-width: 900px) {
+  .start-class-mascot {
+    right: -2vw;
+    bottom: -2vh;
+    width: 22vw;
+    max-width: 32%;
+  }
+}
+
+@media (orientation: portrait) {
+  .start-class-mascot {
+    width: min(38vw, 230px);
+    right: -2vw;
+    bottom: -1vh;
+  }
+}
