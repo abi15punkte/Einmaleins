@@ -1,3 +1,5 @@
+import "../startup";
+
 export function basePoints(seconds: number): number {
   if (!Number.isFinite(seconds) || seconds < 0) {
     throw new Error("seconds must be a finite non-negative number");
@@ -11,27 +13,13 @@ export function multiplierForStreak(streak: number): number {
     throw new Error("streak must be a non-negative integer");
   }
 
-  if (streak >= 20) {
-    return 5;
-  }
-
-  if (streak >= 10) {
-    return 3;
-  }
-
-  if (streak >= 3) {
-    return 2;
-  }
-
+  if (streak >= 20) return 5;
+  if (streak >= 10) return 3;
+  if (streak >= 3) return 2;
   return 1;
 }
 
-export function pointsForCorrectAnswer(
-  seconds: number,
-  streak: number
-): number {
+export function pointsForCorrectAnswer(seconds: number, streak: number): number {
   const base = Math.floor(basePoints(seconds));
-  const multiplier = multiplierForStreak(streak);
-
-  return base * multiplier;
+  return base * multiplierForStreak(streak);
 }
