@@ -5,7 +5,7 @@
   let displayedScore = 0;
 
   const POINTS_FLIGHT_MS = 1520;
-  const SCORE_ARRIVAL_DELAY_MS = 1050;
+  const SCORE_ARRIVAL_DELAY_MS = 950;
   const REDUCED_MOTION = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const SCORE_UPDATE_DELAY_MS = REDUCED_MOTION ? 0 : SCORE_ARRIVAL_DELAY_MS;
 
@@ -30,13 +30,17 @@
     streakElement.textContent = `Serie ×${multiplier}`;
   }
 
-  function triggerScoreArrival(scoreElement) {
+  function triggerScoreArrival(scoreElement, scoreValue) {
     const scoreCard = scoreElement.closest(".stat-score");
     if (!scoreCard) return;
-    scoreCard.classList.remove("score-arrival");
+    scoreCard.classList.remove("score-arrival", "score-arrival-strong", "score-arrival-intense");
     void scoreCard.offsetWidth;
     scoreCard.classList.add("score-arrival");
-    window.setTimeout(() => scoreCard.classList.remove("score-arrival"), 420);
+    if (scoreValue > 199) scoreCard.classList.add("score-arrival-intense");
+    else if (scoreValue > 99) scoreCard.classList.add("score-arrival-strong");
+    window.setTimeout(() => {
+      scoreCard.classList.remove("score-arrival", "score-arrival-strong", "score-arrival-intense");
+    }, 500);
   }
 
   function applyPointsWhenArrived(screen, scoreElement, points) {
@@ -44,7 +48,7 @@
       if (currentGameScreen !== screen) return;
       displayedScore += points;
       scoreElement.textContent = String(displayedScore);
-      triggerScoreArrival(scoreElement);
+      triggerScoreArrival(scoreElement, displayedScore);
     }, SCORE_UPDATE_DELAY_MS);
   }
 
