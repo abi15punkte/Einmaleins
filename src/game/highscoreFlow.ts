@@ -107,6 +107,22 @@ function installOnResult(result: HTMLElement): void {
   row.appendChild(action);
 }
 
+function installOnStartScreen(start: HTMLElement): void {
+  const card = start.querySelector<HTMLElement>(".welcome-card");
+  if (!card || card.querySelector(".start-class-debug")) return;
+
+  const student = loadStudentIdentity();
+  const className = student.className?.trim() || "nicht erkannt";
+  const debug = document.createElement("div");
+  debug.className = "start-class-debug";
+  debug.style.cssText = "display:flex;align-items:center;justify-content:center;gap:14px;margin:14px auto 4px;padding:10px 14px;max-width:520px;border:1px dashed rgba(82,175,231,.55);border-radius:16px;background:rgba(233,247,255,.72);color:#172033;font-size:15px;font-weight:800;text-align:left;";
+  debug.innerHTML = `<img src="${CLASS_MASCOT(student.className)}" alt="Klassentier ${escapeHtml(className)}" style="width:76px;height:76px;object-fit:contain;flex:0 0 auto;"><div><div style="color:#52afe7;font-size:12px;letter-spacing:.08em;text-transform:uppercase;">Testausgabe</div><div>Ausgelesene Klasse: ${escapeHtml(className)}</div></div>`;
+
+  const greeting = card.querySelector<HTMLElement>(".student-greeting");
+  if (greeting) greeting.insertAdjacentElement("afterend", debug);
+  else card.insertBefore(debug, card.firstChild);
+}
+
 export function initHighscoreFlow(): void {
   const app = document.getElementById("app");
   if (!app) return;
@@ -114,6 +130,8 @@ export function initHighscoreFlow(): void {
   const observer = new MutationObserver(() => {
     const result = app.querySelector<HTMLElement>(".result-screen");
     if (result) installOnResult(result);
+    const start = app.querySelector<HTMLElement>(".start-screen");
+    if (start) installOnStartScreen(start);
   });
   // We only need to observe screens being replaced at the app root.
   // Observing the complete subtree caused a callback on every game-state DOM update.
@@ -121,4 +139,6 @@ export function initHighscoreFlow(): void {
 
   const result = app.querySelector<HTMLElement>(".result-screen");
   if (result) installOnResult(result);
+  const start = app.querySelector<HTMLElement>(".start-screen");
+  if (start) installOnStartScreen(start);
 }
