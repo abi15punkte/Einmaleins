@@ -57,9 +57,20 @@
   }
 
   function isShowingExpectedSolution(answerElement, feedbackElement) {
-    if (!feedbackElement.classList.contains("feedback-wrong")) return false;
-    const match = (feedbackElement.textContent ?? "").match(/Die Antwort ist\s+(\d+)\.?/i);
-    return Boolean(match && answerElement.textContent?.trim() === match[1]);
+    const enteredOrExpected = answerElement.textContent?.trim() ?? "";
+    if (!enteredOrExpected) return false;
+
+    const feedbackExpected = feedbackElement.classList.contains("feedback-wrong")
+      ? (feedbackElement.textContent ?? "").match(/Die Antwort ist\s+(\d+)\.?/i)?.[1]
+      : null;
+    if (feedbackExpected && enteredOrExpected === feedbackExpected) return true;
+
+    const factorA = Number(currentGameScreen?.querySelector("#factor-a")?.textContent ?? "");
+    const factorB = Number(currentGameScreen?.querySelector("#factor-b")?.textContent ?? "");
+    const expectedByTask = Number.isFinite(factorA) && Number.isFinite(factorB)
+      ? String(factorA * factorB)
+      : "";
+    return expectedByTask !== "" && enteredOrExpected === expectedByTask;
   }
 
   function syncAnswerColor(answerElement, feedbackElement) {
