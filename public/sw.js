@@ -26,30 +26,6 @@ const HIGHSCORE_ASSETS = [
   "./Stern3.png",
 ];
 
-function sameOriginUrl(value) {
-  const url = new URL(value, self.location.href);
-  return url.origin === self.location.origin ? url.href : null;
-}
-
-function extractBuiltAssets(html) {
-  const urls = new Set(APP_SHELL);
-  const patterns = [
-    /<script[^>]+src=["']([^"']+)["']/gi,
-    /<link[^>]+href=["']([^"']+)["']/gi,
-    /<img[^>]+src=["']([^"']+)["']/gi,
-  ];
-
-  for (const pattern of patterns) {
-    let match;
-    while ((match = pattern.exec(html)) !== null) {
-      const url = sameOriginUrl(match[1]);
-      if (url) urls.add(url);
-    }
-  }
-
-  return [...urls];
-}
-
 async function enhanceNavigationResponse(response) {
   const contentType = response.headers.get("content-type") || "";
   if (!contentType.includes("text/html")) return response;
@@ -74,36 +50,9 @@ async function enhanceNavigationResponse(response) {
   });
 }
 
-async function preCacheAppShell(cache) {
-  const indexResponse = await fetch("./index.html", { cache: "no-store" });
-  if (!indexResponse.ok) throw new Error(`index.html could not be cached: ${indexResponse.status}`);
-
-  const indexCopy = indexResponse.clone();
-  await cache.put("./index.html", indexCopy);
-  await cache.put("./", indexResponse.clone());
-
-  const html = await indexResponse.text();
-  const assetUrls = extractBuiltAssets(html);
-
-  await Promise.all(assetUrls.map(async (assetUrl) => {
-    try {
-      const response = await fetch(assetUrl, { cache: "no-store" });
-      if (response.ok) {
-        await cache.put(assetUrl, response.clone());
-      }
-    } catch {
-      // One optional asset must not prevent the service worker from installing.
-    }
-  }));
-}
-
 self.addEventListener("install", (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then((cache) => preCacheAppShell(cache))
-      .catch(() => {
-        // Keep installation alive even if a non-critical shell asset is unavailable.
-      })
+    caches.open(CACHE_NAME).then((cache) => cache.addAll(APP_SHELL))
   );
   self.skipWaiting();
 });
