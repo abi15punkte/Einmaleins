@@ -48,13 +48,15 @@ function animateTaskCard(kind: TaskCardAnimation): void {
   taskCard.style.animation = "none";
   const keyframes = kind === "shake"
     ? [
-        { rotate: "0deg", scale: "1" },
-        { rotate: "-1.1deg", scale: "1.012" },
-        { rotate: "0.9deg", scale: "1.012" },
-        { rotate: "-0.7deg", scale: "1.008" },
-        { rotate: "0.55deg", scale: "1.005" },
-        { rotate: "-0.35deg", scale: "1.003" },
-        { rotate: "0deg", scale: "1" }
+        { transform: "translateX(0) translateY(10vh) rotate(0deg) scale(1)" },
+        { transform: "translateX(-1.8vw) translateY(10vh) rotate(-2.2deg) scale(1.02)" },
+        { transform: "translateX(1.6vw) translateY(10vh) rotate(1.9deg) scale(1.02)" },
+        { transform: "translateX(-1.35vw) translateY(10vh) rotate(-1.6deg) scale(1.015)" },
+        { transform: "translateX(1.15vw) translateY(10vh) rotate(1.35deg) scale(1.012)" },
+        { transform: "translateX(-0.95vw) translateY(10vh) rotate(-1.05deg) scale(1.008)" },
+        { transform: "translateX(0.7vw) translateY(10vh) rotate(0.8deg) scale(1.005)" },
+        { transform: "translateX(-0.45vw) translateY(10vh) rotate(-0.55deg) scale(1.002)" },
+        { transform: "translateX(0) translateY(10vh) rotate(0deg) scale(1)" }
       ]
     : [
         { rotate: "0deg", scale: "1" },
@@ -63,7 +65,7 @@ function animateTaskCard(kind: TaskCardAnimation): void {
         { rotate: "-0.15deg", scale: "1.008" },
         { rotate: "0deg", scale: "1" }
       ];
-  taskCard.animate(keyframes, { duration: kind === "shake" ? 620 : 420, easing: "cubic-bezier(.36,.07,.19,.97)", fill: "none" });
+  taskCard.animate(keyframes, { duration: kind === "shake" ? 760 : 420, easing: "cubic-bezier(.36,.07,.19,.97)", fill: "none" });
 }
 
 function renderStartScreen(profileMessage = ""): void {
