@@ -98,7 +98,13 @@ function installOnResult(result: HTMLElement): void {
     if (status) void submitPersonalHighscore(button, status);
   });
 
-  card.appendChild(action);
+  const personalBest = card.querySelector<HTMLElement>(".result-highscore");
+  const row = document.createElement("div");
+  row.className = "result-action-row";
+  if (personalBest) personalBest.replaceWith(row);
+  else card.appendChild(row);
+  if (personalBest) row.appendChild(personalBest);
+  row.appendChild(action);
 }
 
 export function initHighscoreFlow(): void {
