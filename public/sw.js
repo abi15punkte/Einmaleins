@@ -1,5 +1,5 @@
 const BUILD_ID = new URL(self.location.href).searchParams.get("v") || "dev";
-const CACHE_NAME = `einmaleins-${BUILD_ID}`;
+const CACHE_NAME = `einmaleins-reset-${BUILD_ID}`;
 const APP_SHELL = [
   "./",
   "./index.html",
