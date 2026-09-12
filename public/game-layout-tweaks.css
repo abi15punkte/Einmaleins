@@ -108,6 +108,11 @@
     box-shadow: 0 8px 28px rgb(105 203 108 / 26%), 0 0 0 3px rgb(105 203 108 / 18%);
   }
 
+  .game-screen .task-card.is-wrong .answer-box:not(.answer-feedback-wrong) {
+    color: #248f5b !important;
+    border-bottom-color: #248f5b !important;
+  }
+
   .game-screen #score {
     color: #000000 !important;
   }
