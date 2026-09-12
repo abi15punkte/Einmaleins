@@ -5,7 +5,7 @@
   let displayedScore = 0;
 
   const POINTS_FLIGHT_MS = 1520;
-  const SCORE_ARRIVAL_DELAY_MS = 950;
+  const SCORE_ARRIVAL_DELAY_MS = 850;
   const REDUCED_MOTION = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const SCORE_UPDATE_DELAY_MS = REDUCED_MOTION ? 0 : SCORE_ARRIVAL_DELAY_MS;
 
