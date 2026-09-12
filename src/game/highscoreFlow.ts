@@ -63,7 +63,14 @@ function renderOverlay(entries: LeaderboardEntry[], studentName: string): void {
   ensurePermanentClassMascot();
 }
 
-async function submitPersonalHighscore(button: HTMLButtonElement, status: HTMLElement): Promise<void> {
+function triggerHighscoreSubmitErrorShake(action: HTMLDivElement): void {
+  action.classList.remove("highscore-submit-error");
+  void action.offsetWidth;
+  action.classList.add("highscore-submit-error");
+  window.setTimeout(() => action.classList.remove("highscore-submit-error"), 700);
+}
+
+async function submitPersonalHighscore(button: HTMLButtonElement, status: HTMLElement, action: HTMLDivElement): Promise<void> {
   button.disabled = true;
   status.textContent = "Dein persönlicher Rekord wird eingetragen …";
 
@@ -72,6 +79,7 @@ async function submitPersonalHighscore(button: HTMLButtonElement, status: HTMLEl
   const client = createLeaderboardClient();
   if (!personalBest || !client) {
     status.textContent = "Die schulweite Highscoreliste ist momentan nicht erreichbar.";
+    triggerHighscoreSubmitErrorShake(action);
     button.disabled = false;
     return;
   }
@@ -85,6 +93,7 @@ async function submitPersonalHighscore(button: HTMLButtonElement, status: HTMLEl
     status.textContent = error instanceof Error
       ? error.message
       : "Der Highscore konnte nicht übertragen werden.";
+    triggerHighscoreSubmitErrorShake(action);
     button.disabled = false;
   }
 }
@@ -109,7 +118,7 @@ function installOnResult(result: HTMLElement): void {
   if (!button) return;
   button.addEventListener("click", () => {
     const status = action.querySelector<HTMLElement>(".result-highscore-status");
-    if (status) void submitPersonalHighscore(button, status);
+    if (status) void submitPersonalHighscore(button, status, action);
   });
 
   const personalBest = card.querySelector<HTMLElement>(".result-highscore");
