@@ -49,6 +49,14 @@ function renderOverlay(entries: LeaderboardEntry[], studentName: string): void {
   }).join("");
 
   overlay.innerHTML = `
+    <style>
+      .school-highscore-name { font-size: 1.12rem; }
+      .school-highscore-class { font-size: 0.94rem; }
+      @media (max-width: 600px) {
+        .school-highscore-name { font-size: 1.05rem; }
+        .school-highscore-class { font-size: 0.88rem; }
+      }
+    </style>
     <div class="school-highscore-top">
       <button type="button" class="school-highscore-close" aria-label="Highscoreliste verlassen">×</button>
       <p class="eyebrow">Einmaleins</p>
