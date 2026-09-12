@@ -44,7 +44,7 @@ describe("school leaderboard client", () => {
     );
   });
 
-  it("normalizes the requested top-list size", async () => {
+  it("loads the complete school list without a client-side limit", async () => {
     const fetcher = vi.fn<typeof fetch>().mockResolvedValue(
       new Response(
         JSON.stringify([{ rank: 1, name: "Max", className: "4a", score: 500 }]),
@@ -53,10 +53,10 @@ describe("school leaderboard client", () => {
     );
     const client = createLeaderboardClient(config("https://example.test"), fetcher);
 
-    await client?.top(1000);
+    await client?.top();
 
     expect(fetcher).toHaveBeenCalledWith(
-      "https://example.test/scores?limit=100",
+      "https://example.test/scores",
       expect.objectContaining({ method: "GET" })
     );
   });
