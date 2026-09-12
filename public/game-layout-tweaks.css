@@ -87,12 +87,12 @@
     display: none !important;
   }
 
-  /* The task box has exactly the height of the three keypad rows + two 11px gaps. */
+  /* Exact geometry: 3 rows × 68px + 2 × 11px = 226px. */
   .game-screen .task-card {
     position: relative !important;
-    top: auto !important;
+    top: 1.4vh !important;
     margin-top: 0 !important;
-    transform: translateY(5vh) !important;
+    transform: none !important;
     width: 52vw !important;
     max-width: 900px !important;
     height: 226px !important;
@@ -177,23 +177,23 @@
 }
 
 @keyframes task-card-shake {
-  0%, 100% { transform: translateX(0) translateY(5vh) rotate(0deg); }
-  8% { transform: translateX(-1.2vw) translateY(5vh) rotate(-1deg); }
-  18% { transform: translateX(1.1vw) translateY(5vh) rotate(0.9deg); }
-  28% { transform: translateX(-0.9vw) translateY(5vh) rotate(-0.8deg); }
-  38% { transform: translateX(0.75vw) translateY(5vh) rotate(0.7deg); }
-  48% { transform: translateX(-0.6vw) translateY(5vh) rotate(-0.5deg); }
-  58% { transform: translateX(0.45vw) translateY(5vh) rotate(0.4deg); }
-  68% { transform: translateX(-0.3vw) translateY(5vh) rotate(-0.3deg); }
-  78% { transform: translateX(0.2vw) translateY(5vh) rotate(0.2deg); }
-  88% { transform: translateX(-0.1vw) translateY(5vh) rotate(-0.1deg); }
+  0%, 100% { transform: translateX(0) translateY(0) rotate(0deg); }
+  8% { transform: translateX(-1.2vw) translateY(0) rotate(-1deg); }
+  18% { transform: translateX(1.1vw) translateY(0) rotate(0.9deg); }
+  28% { transform: translateX(-0.9vw) translateY(0) rotate(-0.8deg); }
+  38% { transform: translateX(0.75vw) translateY(0) rotate(0.7deg); }
+  48% { transform: translateX(-0.6vw) translateY(0) rotate(-0.5deg); }
+  58% { transform: translateX(0.45vw) translateY(0) rotate(0.4deg); }
+  68% { transform: translateX(-0.3vw) translateY(0) rotate(-0.3deg); }
+  78% { transform: translateX(0.2vw) translateY(0) rotate(0.2deg); }
+  88% { transform: translateX(-0.1vw) translateY(0) rotate(-0.1deg); }
 }
 
 @keyframes task-card-pop {
-  0% { transform: translateY(5vh) scale(1); }
-  35% { transform: translateY(calc(5vh - 0.9vh)) scale(1.035); }
-  65% { transform: translateY(calc(5vh + 0.35vh)) scale(0.992); }
-  100% { transform: translateY(5vh) scale(1); }
+  0% { transform: translateY(0) scale(1); }
+  35% { transform: translateY(-0.9vh) scale(1.035); }
+  65% { transform: translateY(0.35vh) scale(0.992); }
+  100% { transform: translateY(0) scale(1); }
 }
 
 @keyframes score-box-arrival {
