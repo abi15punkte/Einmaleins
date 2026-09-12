@@ -3,6 +3,12 @@ import { addDoc, collection, getDocs, orderBy, query, Timestamp } from "firebase
 import { db } from "../firebase";
 import type { HighscoreRecord } from "./highscore";
 
+type HighscoreRecordWithStars = HighscoreRecord & {
+  stern1?: boolean;
+  stern2?: boolean;
+  stern3?: boolean;
+};
+
 export interface LeaderboardEntry {
   rank: number;
   name: string;
@@ -32,14 +38,20 @@ export function createLeaderboardClient(): LeaderboardClient {
         throw new Error("Leaderboard name is required.");
       }
 
+      const recordWithStars = record as HighscoreRecordWithStars;
+      const timestamp = new Date(record.achievedAt);
+      if (Number.isNaN(timestamp.getTime())) {
+        throw new Error("Leaderboard timestamp is invalid.");
+      }
+
       await addDoc(collection(db, HIGHSCORE_COLLECTION), {
         name,
         klasse: record.className?.trim() || null,
         punkte: record.score,
-        stern1: record.stern1 === true,
-        stern2: record.stern2 === true,
-        stern3: record.stern3 === true,
-        timestamp: Timestamp.fromDate(new Date(record.achievedAt))
+        stern1: recordWithStars.stern1 === true,
+        stern2: recordWithStars.stern2 === true,
+        stern3: recordWithStars.stern3 === true,
+        timestamp: Timestamp.fromDate(timestamp)
       });
     },
 
