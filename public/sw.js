@@ -8,6 +8,8 @@ const APP_SHELL = [
   "./space-theme.css?v=23",
   "./game-layout-tweaks.css?build=__BUILD_ID__",
   "./orientation-lock.css?build=__BUILD_ID__",
+  "./start-class-mascot.css",
+  "./start-class-mascot.js",
   "./Querformathinweis.png",
   "./Background.png",
   "./Alien.png",
@@ -23,6 +25,30 @@ const HIGHSCORE_ASSETS = [
   "./Stern2.png",
   "./Stern3.png",
 ];
+
+async function enhanceNavigationResponse(response) {
+  const contentType = response.headers.get("content-type") || "";
+  if (!contentType.includes("text/html")) return response;
+
+  const html = await response.text();
+  if (html.includes("start-class-mascot.js")) return new Response(html, response);
+
+  const enhanced = html
+    .replace(
+      "</head>",
+      "  <link rel=\"stylesheet\" href=\"./start-class-mascot.css\">\n  </head>"
+    )
+    .replace(
+      "</body>",
+      "  <script src=\"./start-class-mascot.js\"></script>\n</body>"
+    );
+
+  return new Response(enhanced, {
+    status: response.status,
+    statusText: response.statusText,
+    headers: response.headers
+  });
+}
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
@@ -72,17 +98,18 @@ self.addEventListener("fetch", (event) => {
 
   event.respondWith(
     fetch(event.request, { cache: "no-store" })
-      .then((response) => {
-        if (response.ok && requestUrl.origin === self.location.origin) {
-          const copy = response.clone();
+      .then(async (response) => {
+        const finalResponse = isNavigation ? await enhanceNavigationResponse(response.clone()) : response;
+        if (finalResponse.ok && requestUrl.origin === self.location.origin) {
+          const copy = finalResponse.clone();
           void caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
 
           if (isNavigation) {
-            const indexCopy = response.clone();
+            const indexCopy = finalResponse.clone();
             void caches.open(CACHE_NAME).then((cache) => cache.put("./index.html", indexCopy));
           }
         }
-        return response;
+        return finalResponse;
       })
       .catch(() =>
         caches.match(event.request).then((cached) =>
