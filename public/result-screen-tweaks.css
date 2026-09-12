@@ -14,7 +14,7 @@
 /* Regelmäßiger, kurzer Aufmerksamkeitshinweis für Start und Neustart. */
 .mode-actions .mode-card,
 .result-card > #again {
-  animation: attention-cue 5.6s ease-in-out infinite;
+  animation: attention-cue 3s ease-in-out infinite;
   transform-origin: center;
   will-change: transform;
 }
