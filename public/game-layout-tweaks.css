@@ -92,7 +92,7 @@
     position: relative !important;
     top: auto !important;
     margin-top: 0 !important;
-    transform: translateY(10vh) !important;
+    transform: translateY(10vh);
     width: 52vw !important;
     max-width: 900px !important;
     height: 226px !important;
@@ -117,7 +117,7 @@
   }
 
   .game-screen .task-card:has(.answer-box.answer-feedback-wrong) {
-    animation: task-card-shake 820ms cubic-bezier(.36,.07,.19,.97) both !important;
+    animation: none !important;
   }
 
   .game-screen .task-card.correct-pop {
