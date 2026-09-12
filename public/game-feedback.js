@@ -160,8 +160,6 @@
     const timeElement = screen.querySelector("#time");
     const taskCard = screen.querySelector("#task-card");
     const answerElement = screen.querySelector("#answer");
-    const factorA = screen.querySelector("#factor-a")?.textContent ?? "";
-    const factorB = screen.querySelector("#factor-b")?.textContent ?? "";
     if (!(feedback instanceof HTMLElement) || !(scoreElement instanceof HTMLElement) || !(timeElement instanceof HTMLElement) || !(taskCard instanceof HTMLElement) || !(answerElement instanceof HTMLElement)) return;
 
     scoreElement.dataset.displayManaged = "true";
@@ -170,7 +168,7 @@
     syncAnswerColor(answerElement, feedback);
     scheduleAnswerBoxAlignment();
 
-    const signature = `${factorA}|${factorB}|${feedback.className}|${feedback.textContent ?? ""}`;
+    const signature = `${feedback.className}|${feedback.textContent ?? ""}`;
     if (signature === feedbackSignature) return;
     feedbackSignature = signature;
 
