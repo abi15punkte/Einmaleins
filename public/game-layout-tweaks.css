@@ -89,7 +89,8 @@
 
   .game-screen .task-card {
     position: relative !important;
-    top: 5vh !important;
+    top: 0 !important;
+    margin-top: 5vh !important;
     width: 45vw !important;
     height: 40vh !important;
     min-height: 40vh !important;
@@ -166,6 +167,7 @@
   }
 }
 
+/* The highscore Alien is intentionally 20% larger than the original 24vw size. */
 .school-highscore-overlay::after {
   width: 28.8vw !important;
   height: 28.8vw !important;
