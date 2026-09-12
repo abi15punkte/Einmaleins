@@ -9,13 +9,13 @@ function locationStub(search = "", hash = "") {
 describe("Jamf identity adapter", () => {
   it("reads student identity from the URL fragment", () => {
     const identity = loadManagedStudentIdentity(
-      locationStub("", "#studentId=jamf-42&studentName=Max%20Mustermann&className=4a")
+      locationStub("", "#studentId=jamf-42&studentName=Max%20Mustermann&className=M1")
     );
 
     expect(identity).toEqual({
       studentId: "jamf-42",
       name: "Max Mustermann",
-      className: "4a"
+      className: "M1"
     });
   });
 
@@ -48,7 +48,7 @@ describe("Jamf identity adapter", () => {
     let saved: StudentIdentity | null = null;
 
     applyManagedStudentIdentity(
-      { studentId: "jamf-42", name: "Max", className: "4a" },
+      { studentId: "jamf-42", name: "Max", className: "M1" },
       (identity) => {
         saved = identity;
       }
@@ -57,7 +57,7 @@ describe("Jamf identity adapter", () => {
     expect(saved).toEqual({
       studentId: "jamf-42",
       name: "Max",
-      className: "4a",
+      className: "M1",
       source: "jamf"
     });
   });
