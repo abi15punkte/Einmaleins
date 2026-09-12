@@ -45,7 +45,7 @@ export function loadLeaderboardConfig(): LeaderboardConfig {
 export function createLeaderboardClient(
   config: LeaderboardConfig = loadLeaderboardConfig(),
   fetcher: typeof fetch = fetch
-): LeaderboardClient | null {
+): LeaderboardClient {
   const endpoint = config.endpoint?.trim().replace(/\/$/, "") ?? "";
 
   if (endpoint) {
