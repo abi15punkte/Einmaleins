@@ -87,7 +87,7 @@
     display: none !important;
   }
 
-  /* Deliberately stronger sizing/positioning so the change is unmistakable on landscape screens. */
+  /* The task box has exactly the height of the three keypad rows + two 11px gaps. */
   .game-screen .task-card {
     position: relative !important;
     top: auto !important;
@@ -95,8 +95,8 @@
     transform: translateY(5vh) !important;
     width: 52vw !important;
     max-width: 900px !important;
-    height: 48vh !important;
-    min-height: 48vh !important;
+    height: 226px !important;
+    min-height: 226px !important;
     background: rgb(255 255 255 / 60%) !important;
     border: 1px solid rgb(23 32 51 / 7%) !important;
     box-shadow: 0 4px 14px rgb(23 32 51 / 5%) !important;
