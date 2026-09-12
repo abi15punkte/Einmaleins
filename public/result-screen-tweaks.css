@@ -45,11 +45,12 @@
   .result-screen .result-action-row .result-highscore-action::after {
     content: "";
     position: absolute;
-    top: 50%;
-    right: -4.2vh;
-    width: 4.2vh;
-    height: 4.2vh;
-    transform: translateY(-50%);
+    top: auto;
+    right: -2.8vh;
+    bottom: -1vh;
+    width: 5.2vh;
+    height: 5.2vh;
+    transform: none;
     background: url("./Stern2.png") center / contain no-repeat;
     pointer-events: none;
     z-index: 3;
@@ -95,6 +96,7 @@
     font-size: inherit !important;
     color: transparent !important;
     line-height: 1 !important;
+    height: 1em !important;
   }
 
   .result-screen .result-stat:last-child .stat-label::after {
@@ -107,43 +109,55 @@
     text-transform: uppercase;
     letter-spacing: 0.08em;
     text-align: center !important;
+    line-height: 1 !important;
   }
 
   .result-screen .result-stat:last-child strong {
     display: block !important;
     width: 100% !important;
     height: 4.8vh;
-    margin-top: 0.7vh !important;
+    margin-top: 0.25vh !important;
     overflow: visible !important;
     font-size: 0 !important;
     line-height: 1 !important;
     background-image: url("./Stern1.png"), url("./Stern2.png"), url("./Stern3.png");
     background-repeat: no-repeat;
-    background-position: 20% center, 50% center, 80% calc(50% + 0.45vh);
+    background-position: 20% center, 50% center, 80% center;
     background-size: 22% auto, 22% auto, 22% auto;
     filter: grayscale(1);
     opacity: 0.35;
   }
 
-  .result-card > #again { width: 100% !important; margin-top: 1.6vh !important; background: #ffffff !important; color: #172033 !important; border: 1px solid rgb(23 32 51 / 10%) !important; box-shadow: 0 8px 18px rgb(23 32 51 / 7%) !important; }
-  .result-card > #again:hover { background: #fbfcfe !important; border-color: rgb(23 32 51 / 18%) !important; box-shadow: 0 12px 26px rgb(23 32 51 / 10%) !important; }
+  .result-card > #again {
+    width: 100% !important;
+    margin-top: 1.6vh !important;
+    background: linear-gradient(145deg, #68c9f4 0%, #52afe7 55%, #3799d6 100%) !important;
+    color: #ffffff !important;
+    border: 1px solid rgb(82 175 231 / 34%) !important;
+    box-shadow: 0 9px 22px rgb(82 175 231 / 24%), inset 0 1px 0 rgb(255 255 255 / 30%) !important;
+  }
+  .result-card > #again:hover {
+    background: linear-gradient(145deg, #79d0f7 0%, #52afe7 55%, #3799d6 100%) !important;
+    border-color: rgb(82 175 231 / 46%) !important;
+    box-shadow: 0 12px 26px rgb(82 175 231 / 28%), inset 0 1px 0 rgb(255 255 255 / 34%) !important;
+  }
 
   .result-screen #close-app {
-    position: fixed !important;
-    top: calc(2.2vh + env(safe-area-inset-top)) !important;
-    right: 2.2vw !important;
+    position: absolute !important;
+    top: 0.7vh !important;
+    right: 0.7vw !important;
     z-index: 121 !important;
-    width: 5.8vh !important;
-    min-width: 5.8vh !important;
-    height: 5.8vh !important;
-    min-height: 5.8vh !important;
+    width: 5vh !important;
+    min-width: 5vh !important;
+    height: 5vh !important;
+    min-height: 5vh !important;
     margin: 0 !important;
     padding: 0 !important;
-    border-radius: 1vh !important;
+    border-radius: 0.8vh !important;
     background: linear-gradient(145deg, #68c9f4 0%, #52afe7 55%, #3799d6 100%) !important;
     color: #ffffff !important;
     border: 1px solid rgb(82 175 231 / 38%) !important;
-    box-shadow: 0 7px 16px rgb(82 175 231 / 24%), inset 0 1px 0 rgb(255 255 255 / 30%) !important;
+    box-shadow: 0 6px 14px rgb(82 175 231 / 22%), inset 0 1px 0 rgb(255 255 255 / 30%) !important;
     font-size: 0 !important;
     line-height: 1 !important;
     display: grid !important;
@@ -153,11 +167,11 @@
 
   .result-screen #close-app::before {
     content: "×";
-    font-size: 3.8vh;
+    font-size: 3.2vh;
     font-weight: 800;
     line-height: 0.9;
     color: #ffffff;
-    transform: translateY(-0.05vh);
+    transform: translateY(-0.03vh);
     text-shadow: 0 1px 2px rgb(0 0 0 / 12%);
   }
 
@@ -165,7 +179,7 @@
 
   .result-screen #close-app:hover {
     background: linear-gradient(145deg, #79d0f7 0%, #52afe7 55%, #3799d6 100%) !important;
-    box-shadow: 0 9px 20px rgb(82 175 231 / 28%), inset 0 1px 0 rgb(255 255 255 / 34%) !important;
+    box-shadow: 0 8px 18px rgb(82 175 231 / 26%), inset 0 1px 0 rgb(255 255 255 / 34%) !important;
   }
 
   #close-app-status { position: fixed !important; left: 50% !important; bottom: 2.5vh !important; transform: translateX(-50%) !important; z-index: 130 !important; width: min(88vw, 760px) !important; margin: 0 !important; color: #d6293f !important; font-weight: 800 !important; line-height: 1.35 !important; text-align: center !important; }
