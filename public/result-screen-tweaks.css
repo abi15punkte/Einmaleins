@@ -26,15 +26,50 @@
   .result-card > #again {
     width: 100% !important;
     margin-top: 1.6vh !important;
-    background: linear-gradient(145deg, #68c9f4, #52afe7) !important;
-    color: #ffffff !important;
-    border: 1px solid rgb(82 175 231 / 42%) !important;
-    box-shadow: 0 9px 18px rgb(51 93 145 / 14%) !important;
+    background: #ffffff !important;
+    color: #172033 !important;
+    border: 1px solid rgb(23 32 51 / 10%) !important;
+    box-shadow: 0 8px 18px rgb(23 32 51 / 7%) !important;
   }
 
   .result-card > #again:hover {
-    border-color: rgb(82 175 231 / 48%) !important;
-    box-shadow: 0 12px 26px rgb(51 93 145 / 13%) !important;
+    background: #fbfcfe !important;
+    border-color: rgb(23 32 51 / 18%) !important;
+    box-shadow: 0 12px 26px rgb(23 32 51 / 10%) !important;
+  }
+
+  .result-screen .result-stat:last-child {
+    text-align: center !important;
+    min-height: 9.5vh;
+    padding: 1.25vh 0.8vw 1.3vh !important;
+  }
+
+  .result-screen .result-stat:last-child .stat-label {
+    font-size: 0 !important;
+    margin-bottom: 0 !important;
+    color: #52afe7 !important;
+  }
+
+  .result-screen .result-stat:last-child .stat-label::after {
+    content: "Sterne";
+    font-size: 1.5vh;
+    color: #52afe7;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .result-screen .result-stat:last-child strong {
+    display: block !important;
+    height: 4.8vh;
+    margin-top: 0.9vh !important;
+    overflow: hidden !important;
+    font-size: 0 !important;
+    line-height: 1 !important;
+    background-image: url("./Stern1.png"), url("./Stern2.png"), url("./Stern3.png");
+    background-repeat: no-repeat;
+    background-position: 20% center, 50% center, 80% center;
+    background-size: 22% auto, 22% auto, 22% auto;
   }
 
   .result-screen .result-highscore-action {
