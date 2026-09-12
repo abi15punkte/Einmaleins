@@ -19,17 +19,35 @@ function firstNameOnly(value: string): string {
   return value.trim().split(/\s+/)[0] || "Schüler";
 }
 
-function ensurePermanentClassMascot(): void {
-  const existing = document.querySelector<HTMLImageElement>(".start-class-overlay");
-  if (existing) return;
+let mascotTestTimer: number | null = null;
+let mascotTestIndex = 0;
 
-  const student = loadStudentIdentity();
-  const mascot = document.createElement("img");
-  mascot.className = "start-class-overlay";
-  mascot.src = CLASS_MASCOT(student.className);
-  mascot.alt = `Klassentier ${student.className ?? "M1"}`;
-  mascot.setAttribute("aria-hidden", "true");
-  document.body.appendChild(mascot);
+function ensurePermanentClassMascot(): void {
+  let mascot = document.querySelector<HTMLImageElement>(".start-class-overlay");
+  if (!mascot) {
+    const student = loadStudentIdentity();
+    mascot = document.createElement("img");
+    mascot.className = "start-class-overlay";
+    mascot.alt = `Klassentier ${student.className ?? "M1"}`;
+    mascot.setAttribute("aria-hidden", "true");
+    document.body.appendChild(mascot);
+  }
+
+  if (!mascotTestTimer) {
+    mascotTestTimer = window.setInterval(() => {
+      const target = document.querySelector<HTMLImageElement>(".start-class-overlay");
+      if (!target) return;
+      const className = `M${(mascotTestIndex % 16) + 1}`;
+      mascotTestIndex += 1;
+      target.src = `./${className}.png`;
+      target.alt = `Klassentier ${className}`;
+    }, 5000);
+
+    const initialClassName = `M${(mascotTestIndex % 16) + 1}`;
+    mascotTestIndex += 1;
+    mascot.src = `./${initialClassName}.png`;
+    mascot.alt = `Klassentier ${initialClassName}`;
+  }
 }
 
 function renderOverlay(entries: LeaderboardEntry[], studentName: string): void {
