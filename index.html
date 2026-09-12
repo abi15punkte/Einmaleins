@@ -16,6 +16,33 @@
     <link rel="stylesheet" href="./orientation-lock.css?build=__BUILD_ID__" />
     <link rel="stylesheet" href="./result-screen-tweaks.css?build=__BUILD_ID__" />
     <title>Einmaleins</title>
+    <style>
+      .school-highscore-choice{margin-top:18px;padding:18px;border-radius:18px;background:rgba(255,255,255,.72);text-align:center}
+      .school-highscore-choice p{margin:0 0 10px}
+      .school-highscore-choice .choice-actions{display:flex;justify-content:center;gap:10px;flex-wrap:wrap}
+      .school-highscore-choice button{min-width:150px}
+      .school-highscore-choice .choice-no{background:#fff;color:#172033;border:1px solid rgba(23,32,51,.12)}
+      .school-highscore-choice-status{margin-top:10px!important;color:#7a8495;font-size:.92rem}
+      .school-highscore-overlay{position:fixed;inset:0;z-index:20000;background:#e9f7ff url("./Background.png") center/cover no-repeat;color:#172033;display:flex;flex-direction:column;padding:20px 24px 30px;overscroll-behavior:none}
+      .school-highscore-overlay::after{content:"";position:fixed;left:-4vw;bottom:3vh;width:24vw;height:24vw;background:url("./Alien.png") center/contain no-repeat;pointer-events:none;z-index:20001}
+      .school-highscore-top{width:min(100%,980px);margin:0 auto;position:relative;z-index:20002;text-align:center}
+      .school-highscore-top .eyebrow{margin:0;color:#52afe7;font-size:clamp(2rem,5vw,3.7rem);font-weight:900;letter-spacing:.08em;text-transform:uppercase}
+      .school-highscore-top h1{margin:10px 0;color:#000;font-size:clamp(1.8rem,4vw,3rem)}
+      .school-highscore-top p{margin:0 0 18px;color:#172033aa}
+      .school-highscore-close{position:fixed;top:calc(14px + env(safe-area-inset-top));right:calc(14px + env(safe-area-inset-right));z-index:20003;width:48px;height:48px;border:1px solid rgba(23,32,51,.1);border-radius:50%;background:rgba(255,255,255,.94);color:#172033;font-size:1.35rem;line-height:1}
+      .highscore-list-scroll{width:min(100%,980px);margin:0 auto;overflow-y:auto;overflow-x:hidden;flex:1;min-height:0;border-radius:22px;background:rgba(255,255,255,.94);box-shadow:0 18px 50px rgba(23,32,51,.08);position:relative;z-index:20002;touch-action:pan-y;-webkit-overflow-scrolling:touch}
+      .school-highscore-row{display:grid;grid-template-columns:78px 88px minmax(0,1fr) 180px;border-top:1px solid rgba(23,32,51,.08);gap:12px;align-items:center;min-height:118px;padding:18px 24px}
+      .school-highscore-row:first-child{border-top:0}
+      .school-highscore-rank{font-size:2rem;font-weight:900;color:#6f798a}
+      .school-highscore-mascot{width:76px;height:76px;border-radius:16px;background:#f3f5f8;overflow:hidden;display:grid;place-items:center}
+      .school-highscore-mascot img{width:100%;height:100%;object-fit:contain}
+      .school-highscore-name{font-size:1.45rem;font-weight:850;color:#000;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+      .school-highscore-class{margin-top:4px;color:#52afe7;font-size:1rem;font-weight:850}
+      .school-highscore-score{text-align:right;font-size:2rem;font-weight:900;color:#000;font-variant-numeric:tabular-nums}
+      .school-highscore-me{background:#edf8f1}
+      .school-highscore-status{margin:12px auto 0;width:min(100%,980px);text-align:center;color:#7a8495;position:relative;z-index:20002}
+      @media(max-width:700px){.school-highscore-overlay{padding:12px}.school-highscore-top h1{font-size:1.8rem}.school-highscore-row{grid-template-columns:52px 62px minmax(0,1fr) 104px;gap:8px;min-height:96px;padding:14px}.school-highscore-rank{font-size:1.4rem}.school-highscore-mascot{width:56px;height:56px;border-radius:12px}.school-highscore-name{font-size:1.05rem}.school-highscore-class{font-size:.84rem}.school-highscore-score{font-size:1.45rem}}
+    </style>
   </head>
 
   <body>
@@ -72,6 +99,135 @@
       }
     </script>
     <script type="module" src="./src/main.ts"></script>
+    <script type="module">
+      import { loadPersonalHighscore, loadStudentIdentity } from "./src/game/highscore";
+      import { createLeaderboardClient } from "./src/game/leaderboard";
+
+      const app = document.getElementById("app");
+      if (!app) throw new Error("App root not found");
+
+      const escapeHtml = (value) => String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+
+      const firstNameOnly = (value) => String(value || "Schüler").trim().split(/\s+/)[0] || "Schüler";
+      const classMascot = (className) => /^(M(?:[1-9]|1[0-6]))$/i.test(className || "") ? `./${String(className).toUpperCase()}.png` : "./M1.png";
+
+      let overlay = null;
+      let activeObserver = false;
+
+      function findHighscoreMode() {
+        const result = document.querySelector(".result-screen");
+        if (!(result instanceof HTMLElement)) return false;
+        return /Mit Highscore/i.test(result.textContent || "");
+      }
+
+      function removeExistingSchoolEntry(result) {
+        result.querySelector(".school-entry")?.setAttribute("hidden", "");
+      }
+
+      function installChoice(result) {
+        if (!result || !findHighscoreMode() || !result.querySelector(".result-highscore.is-new")) return;
+        const card = result.querySelector(".result-card");
+        if (!(card instanceof HTMLElement) || card.querySelector(".school-highscore-choice")) return;
+        removeExistingSchoolEntry(result);
+
+        const box = document.createElement("div");
+        box.className = "school-highscore-choice";
+        box.innerHTML = `
+          <p><strong>Neuer persönlicher Highscore!</strong></p>
+          <p>Möchtest du deinen persönlichen Rekord in die schulweite Highscoreliste eintragen?</p>
+          <div class="choice-actions">
+            <button type="button" class="result-button" data-highscore-yes>Ja, eintragen</button>
+            <button type="button" class="result-button choice-no" data-highscore-no>Nein</button>
+          </div>
+          <p class="school-highscore-choice-status" aria-live="polite"></p>
+        `;
+        const again = card.querySelector("#again");
+        if (again) again.insertAdjacentElement("beforebegin", box); else card.appendChild(box);
+
+        box.querySelector("[data-highscore-no]")?.addEventListener("click", () => box.remove());
+        box.querySelector("[data-highscore-yes]")?.addEventListener("click", () => openHighscore(box));
+      }
+
+      async function openHighscore(choiceBox) {
+        const status = choiceBox.querySelector(".school-highscore-choice-status");
+        const yes = choiceBox.querySelector("[data-highscore-yes]");
+        const no = choiceBox.querySelector("[data-highscore-no]");
+        if (!(status instanceof HTMLElement) || !(yes instanceof HTMLButtonElement) || !no) return;
+
+        yes.disabled = true;
+        no.disabled = true;
+        status.textContent = "Dein persönlicher Rekord wird eingetragen …";
+
+        const student = loadStudentIdentity();
+        const personalBest = loadPersonalHighscore(student.studentId);
+        const client = createLeaderboardClient();
+        if (!personalBest || !client) {
+          status.textContent = "Die schulweite Highscoreliste ist momentan nicht erreichbar.";
+          yes.disabled = false;
+          no.disabled = false;
+          return;
+        }
+
+        try {
+          await client.submit(personalBest);
+          status.textContent = "Eingetragen – Highscoreliste wird geöffnet …";
+          const entries = await client.top(100);
+          showOverlay(entries);
+        } catch (error) {
+          status.textContent = error instanceof Error ? error.message : "Der Highscore konnte nicht übertragen werden.";
+          yes.disabled = false;
+          no.disabled = false;
+        }
+      }
+
+      function showOverlay(entries) {
+        overlay?.remove();
+        overlay = document.createElement("section");
+        overlay.className = "school-highscore-overlay";
+        overlay.setAttribute("aria-label", "Schulweite Highscoreliste");
+        const student = loadStudentIdentity();
+        const rows = entries.map((entry) => {
+          const isMe = entry.name === student.name || firstNameOnly(entry.name) === firstNameOnly(student.name);
+          const firstName = firstNameOnly(entry.name);
+          const className = entry.className || "–";
+          return `<div class="school-highscore-row ${isMe ? "school-highscore-me" : ""}"><div class="school-highscore-rank">${entry.rank}</div><span class="school-highscore-mascot"><img src="${classMascot(className)}" alt="Klasse ${escapeHtml(className)}"></span><div><div class="school-highscore-name">${escapeHtml(firstName)}${isMe ? " · Du" : ""}</div><div class="school-highscore-class">Klasse ${escapeHtml(className)}</div></div><div class="school-highscore-score">${entry.score}</div></div>`;
+        }).join("");
+        overlay.innerHTML = `
+          <div class="school-highscore-top">
+            <button type="button" class="school-highscore-close" aria-label="Highscoreliste verlassen">×</button>
+            <p class="eyebrow">Einmaleins</p>
+            <h1>Schulweite Highscoreliste</h1>
+            <p>Dein persönlicher Rekord wurde eingetragen.</p>
+          </div>
+          <div class="highscore-list-scroll" role="list" aria-label="Rangliste">${rows || "<p style=\"padding:24px;text-align:center\">Noch keine Einträge vorhanden.</p>"}</div>
+          <p class="school-highscore-status">Zum Ergebnis zurück mit „×“.</p>
+        `;
+        document.body.appendChild(overlay);
+        overlay.querySelector(".school-highscore-close")?.addEventListener("click", () => overlay?.remove());
+        const list = overlay.querySelector(".highscore-list-scroll");
+        list?.querySelector(".school-highscore-me")?.scrollIntoView({ block: "nearest" });
+      }
+
+      const observer = new MutationObserver(() => {
+        const result = document.querySelector(".result-screen");
+        if (result instanceof HTMLElement) installChoice(result);
+        if (!result && overlay) overlay.remove();
+      });
+      observer.observe(app, { childList: true, subtree: true });
+
+      setInterval(() => {
+        if (activeObserver) return;
+        activeObserver = true;
+        const result = document.querySelector(".result-screen");
+        if (result instanceof HTMLElement) installChoice(result);
+        activeObserver = false;
+      }, 250);
+    </script>
     <script>
       (() => {
         const STATUS_CAPTION_IDS = ["round-caption", "task-number-caption"];
