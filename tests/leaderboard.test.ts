@@ -2,7 +2,6 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const {
   doc,
-  getDoc,
   setDoc,
   collection,
   getDocs,
@@ -11,7 +10,6 @@ const {
   fromDate
 } = vi.hoisted(() => ({
   doc: vi.fn(),
-  getDoc: vi.fn(),
   setDoc: vi.fn(),
   collection: vi.fn(),
   getDocs: vi.fn(),
@@ -22,7 +20,6 @@ const {
 
 vi.mock("firebase/firestore", () => ({
   doc,
-  getDoc,
   setDoc,
   collection,
   getDocs,
@@ -50,7 +47,6 @@ describe("school leaderboard client", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     doc.mockReturnValue("student-doc-ref");
-    getDoc.mockResolvedValue({ exists: () => false });
     collection.mockReturnValue("highscores-ref");
     orderBy.mockReturnValue("order-by-ref");
     query.mockReturnValue("query-ref");
@@ -79,30 +75,20 @@ describe("school leaderboard client", () => {
     );
   });
 
-  it("does not rewrite the student's document when the stored score is already better or equal", async () => {
-    getDoc.mockResolvedValue({
-      exists: () => true,
-      data: () => ({ punkte: 500 })
-    });
+  it("treats permission-denied as an already better-or-equal stored score", async () => {
+    setDoc.mockRejectedValue({ code: "permission-denied" });
 
     const client = createLeaderboardClient();
 
-    await client.submit(record);
-
-    expect(setDoc).not.toHaveBeenCalled();
+    await expect(client.submit(record)).resolves.toBeUndefined();
   });
 
-  it("updates the student's document when the new personal best is higher", async () => {
-    getDoc.mockResolvedValue({
-      exists: () => true,
-      data: () => ({ punkte: 450 })
-    });
+  it("propagates other Firestore write failures", async () => {
+    setDoc.mockRejectedValue(new Error("network-error"));
 
     const client = createLeaderboardClient();
 
-    await client.submit(record);
-
-    expect(setDoc).toHaveBeenCalledTimes(1);
+    await expect(client.submit(record)).rejects.toThrow("network-error");
   });
 
   it("loads the complete school list ordered by points without a client-side limit", async () => {
@@ -210,13 +196,5 @@ describe("school leaderboard client", () => {
     const client = createLeaderboardClient();
 
     await expect(client.top()).rejects.toThrow("Invalid leaderboard entry.");
-  });
-
-  it("propagates Firestore read failures", async () => {
-    getDoc.mockRejectedValue(new Error("permission-denied"));
-
-    const client = createLeaderboardClient();
-
-    await expect(client.submit(record)).rejects.toThrow("permission-denied");
   });
 });
