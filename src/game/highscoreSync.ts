@@ -1,10 +1,10 @@
-import { createLeaderboardClient, type LeaderboardClient } from "./leaderboard";
 import {
   loadPendingSyncRecords,
   removePendingSyncRecord,
   queuePendingSyncRecord,
   type PendingSyncRecord
 } from "./highscore";
+import type { LeaderboardClient } from "./leaderboard";
 
 export interface SyncResult {
   attempted: number;
@@ -55,20 +55,3 @@ async function runSyncPendingHighscores(
 export function queueHighscoreForSync(record: PendingSyncRecord["record"]): void {
   queuePendingSyncRecord(record, new Date().toISOString());
 }
-
-export function registerAutomaticHighscoreSync(
-  client: LeaderboardClient | null = createLeaderboardClient()
-): void {
-  if (client === null || typeof window === "undefined") {
-    return;
-  }
-
-  const trySync = (): void => {
-    void syncPendingHighscores(client);
-  };
-
-  trySync();
-  window.addEventListener("online", trySync);
-}
-
-registerAutomaticHighscoreSync();
