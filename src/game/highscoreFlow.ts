@@ -98,7 +98,7 @@ function installOnResult(result: HTMLElement): void {
     if (status) void submitPersonalHighscore(button, status);
   });
 
-  result.appendChild(action);
+  card.appendChild(action);
 }
 
 export function initHighscoreFlow(): void {
