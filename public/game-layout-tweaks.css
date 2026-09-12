@@ -179,12 +179,12 @@
   }
 }
 
-/* Permanent class mascot: 20vh higher and shifted 5vw right from the right-edge anchor. */
+/* Permanent class mascot: 25vh higher and shifted 5vw right from the right-edge anchor. */
 .start-class-overlay {
   position: fixed !important;
   left: auto !important;
   right: -5vw !important;
-  top: calc(50% - 20vh) !important;
+  top: calc(50% - 25vh) !important;
   bottom: auto !important;
   width: 18.5vw !important;
   height: 18.5vw !important;
