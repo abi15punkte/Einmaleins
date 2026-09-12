@@ -11,6 +11,29 @@
   border-bottom-color: #c84a4a !important;
 }
 
+/* Regelmäßiger, kurzer Aufmerksamkeitshinweis für Start und Neustart. */
+.mode-actions .mode-card,
+.result-card > #again {
+  animation: attention-cue 5.6s ease-in-out infinite;
+  transform-origin: center;
+  will-change: transform;
+}
+
+@keyframes attention-cue {
+  0%, 68%, 100% { transform: translateY(0) scale(1); }
+  72% { transform: translateY(-4px) scale(1.018); }
+  76% { transform: translateY(1px) scale(0.996); }
+  80% { transform: translateY(0) scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mode-actions .mode-card,
+  .result-card > #again {
+    animation: none !important;
+    transform: none !important;
+  }
+}
+
 @media (orientation: landscape) {
   .result-screen.result-screen::after {
     display: block !important;
