@@ -9,7 +9,7 @@ export interface LeaderboardEntry {
 
 export interface LeaderboardClient {
   submit(record: HighscoreRecord): Promise<void>;
-  top(limit?: number): Promise<LeaderboardEntry[]>;
+  top(): Promise<LeaderboardEntry[]>;
 }
 
 export interface LeaderboardConfig {
@@ -59,9 +59,8 @@ export function createLeaderboardClient(
       }
     },
 
-    async top(limit = 10) {
-      const safeLimit = Math.max(1, Math.min(Math.floor(limit), 100));
-      const response = await fetcher(`${endpoint}/scores?limit=${safeLimit}`, {
+    async top() {
+      const response = await fetcher(`${endpoint}/scores`, {
         method: "GET",
         headers: {
           accept: "application/json"
