@@ -71,8 +71,6 @@
   try { stored = JSON.parse(localStorage.getItem("einmaleins.student.profile.v1") || "null"); } catch {}
   const get = (key, fallback = "") => params.get(key) || hash.get(key) || (stored && typeof stored[key] === "string" ? stored[key] : "") || fallback;
   const firstName = get("firstName", "Schüler");
-  const lastName = get("lastName", "");
-  const name = get("fullName", `${firstName}${lastName ? ` ${lastName}` : ""}`).trim();
   const studentId = get("studentId", "demo-student");
   const deviceGroups = get("deviceGroups", "");
   const classMatch = deviceGroups.split(/[,;|]/).map((x) => x.trim()).find((x) => /^(M(?:[1-9]|1[0-6])|Lehrer)$/i.test(x));
@@ -83,23 +81,23 @@
   CLASS_MASCOTS.Lehrer = "./M1.png";
   const STAR_ASSETS = ["./Stern1.png", "./Stern2.png", "./Stern3.png"];
   const demoRows = [
-    {name:"Sophie Weber",className:"M3",score:1288,stars:3},
-    {name:"Lukas Hoffmann",className:"M6",score:1196,stars:2},
-    {name:"Emma Schneider",className:"M1",score:1034,stars:3},
-    {name:"Noah Fischer",className:"M8",score:987,stars:2},
-    {name:"Mia Wagner",className:"M4",score:931,stars:1},
-    {name:"Ben Müller",className:"M2",score:884,stars:2},
-    {name:"Lea Becker",className:"M5",score:816,stars:1},
-    {name:name,className:className,score:myScore,studentId,stars:3},
-    {name:"Paul Krüger",className:"M7",score:731,stars:1}
+    {name:"Sophie",className:"M3",score:1288,stars:3},
+    {name:"Lukas",className:"M6",score:1196,stars:2},
+    {name:"Emma",className:"M1",score:1034,stars:3},
+    {name:"Noah",className:"M8",score:987,stars:2},
+    {name:"Mia",className:"M4",score:931,stars:1},
+    {name:"Ben",className:"M2",score:884,stars:2},
+    {name:"Lea",className:"M5",score:816,stars:1},
+    {name:firstName,className:className,score:myScore,studentId,stars:3},
+    {name:"Paul",className:"M7",score:731,stars:1}
   ];
   const timeEl=document.getElementById("time"),bar=document.getElementById("bar"),status=document.getElementById("status"),list=document.getElementById("leaderboard"),intro=document.getElementById("intro"),restart=document.getElementById("restart"),exitButton=document.getElementById("highscore-exit");
-  intro.textContent=`Zehn Sekunden Spielzeit werden simuliert. Danach wird ${name} testweise mit ${myScore} Punkten übertragen.`;
+  intro.textContent=`Zehn Sekunden Spielzeit werden simuliert. Danach wird ${firstName} testweise mit ${myScore} Punkten übertragen.`;
   function mascotMarkup(entry){ const mascot=CLASS_MASCOTS[entry.className]; return `<span class="mascot-slot" aria-label="Klassenlogo ${escapeAttr(entry.className || "")}">${mascot ? `<img src="${escapeAttr(mascot)}" alt="Klasse ${escapeAttr(entry.className || "")}" decoding="async">` : ""}</span>`; }
   function starsMarkup(count){ return `<span class="achievement-stars" aria-label="${Math.min(count,3)} von 3 Errungenschaften">${STAR_ASSETS.map((asset,index)=>`<img src="${asset}" class="${index<count?"":"is-muted"}" alt="" decoding="async">`).join("")}</span>`; }
   let startedAt=0, timer=0;
   function start(){ window.scrollTo(0,0); startedAt=Date.now();clearInterval(timer);status.textContent="Testspiel läuft …";status.className="status";list.hidden=true;timeEl.textContent="0:10";bar.style.width="0%";exitButton.classList.remove("visible");timer=window.setInterval(()=>{const elapsed=Date.now()-startedAt;const remaining=Math.max(0,10000-elapsed);const seconds=Math.ceil(remaining/1000);timeEl.textContent=`0:${String(seconds).padStart(2,"0")}`;bar.style.width=`${Math.min(100,elapsed/10000*100)}%`;if(remaining<=0){clearInterval(timer);finish();}},50); }
-  function finish(){ const sorted=[...demoRows].sort((a,b)=>b.score-a.score).map((entry,index)=>({...entry,rank:index+1}));const me=sorted.find(entry=>entry.studentId===studentId&&entry.name===name&&entry.score===myScore);status.textContent=`Übertragung simuliert · ${me?`Platz ${me.rank}`:"Eintrag übernommen"}`;status.className="status ok";list.innerHTML=sorted.map(entry=>`<div class="row ${entry.studentId===studentId?"me":""} ${entry.rank===1?"rank-gold":entry.rank===2?"rank-silver":entry.rank===3?"rank-bronze":""}"><div class="rank">${entry.rank}</div><div class="entry-meta">${mascotMarkup(entry)}<div style="min-width:0"><div class="name">${escapeHtml(entry.name)}${entry.studentId===studentId?" · Du":""}</div><span class="class">Klasse ${escapeHtml(entry.className||"–")}</span></div></div>${starsMarkup(entry.stars)}<div class="score">${entry.score}</div></div>`).join("");list.hidden=false;updateExitVisibility(); }
+  function finish(){ const sorted=[...demoRows].sort((a,b)=>b.score-a.score).map((entry,index)=>({...entry,rank:index+1}));const me=sorted.find(entry=>entry.studentId===studentId&&entry.name===firstName&&entry.score===myScore);status.textContent=`Übertragung simuliert · ${me?`Platz ${me.rank}`:"Eintrag übernommen"}`;status.className="status ok";list.innerHTML=sorted.map(entry=>`<div class="row ${entry.studentId===studentId?"me":""} ${entry.rank===1?"rank-gold":entry.rank===2?"rank-silver":entry.rank===3?"rank-bronze":""}"><div class="rank">${entry.rank}</div><div class="entry-meta">${mascotMarkup(entry)}<div style="min-width:0"><div class="name">${escapeHtml(entry.name)}${entry.studentId===studentId?" · Du":""}</div><span class="class">Klasse ${escapeHtml(entry.className||"–")}</span></div></div>${starsMarkup(entry.stars)}<div class="score">${entry.score}</div></div>`).join("");list.hidden=false;updateExitVisibility(); }
   function escapeHtml(value){return value.replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;");}
   function escapeAttr(value){return escapeHtml(value);}
   function updateExitVisibility(){ exitButton.classList.toggle("visible",window.scrollY > Math.max(220,window.innerHeight * .35)); }
