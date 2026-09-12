@@ -50,14 +50,16 @@
   37% { transform: translateY(0) scale(1); }
 }
 
-/* Kurzes, direktes Feedback beim Berühren der Zahlentasten. */
+/* Kurzes, deutlich wahrnehmbares Feedback beim Berühren der Zahlentasten. */
 .keypad-key:active {
-  animation: keypad-tap 180ms ease-out;
+  animation: keypad-tap 260ms cubic-bezier(.2,.8,.25,1);
+  box-shadow: 0 2px 5px rgb(23 32 51 / 10%) !important;
 }
 
 @keyframes keypad-tap {
   0% { transform: translateY(2px) scale(0.985); }
-  45% { transform: translateY(0) scale(0.955); }
+  35% { transform: translateY(2px) scale(0.90); }
+  60% { transform: translateY(0) scale(0.965); }
   100% { transform: translateY(2px) scale(0.985); }
 }
 
