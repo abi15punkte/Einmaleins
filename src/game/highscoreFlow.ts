@@ -222,7 +222,10 @@ function renderOverlay(entries: LeaderboardEntry[], studentName: string): void {
   `;
 
   document.body.appendChild(overlay);
-  overlay.querySelector<HTMLButtonElement>(".school-highscore-close")?.addEventListener("click", () => overlay.remove());
+  overlay.querySelector<HTMLButtonElement>(".school-highscore-close")?.addEventListener("click", () => {
+    overlay.remove();
+    document.querySelector<HTMLButtonElement>(".result-highscore-action button")?.removeAttribute("disabled");
+  });
   overlay.querySelector<HTMLElement>(".school-highscore-me")?.scrollIntoView({ block: "nearest" });
   ensurePermanentClassMascot();
 }
