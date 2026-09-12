@@ -73,10 +73,11 @@
   }
 
   .result-screen #close-app { display: none !important; }
-  .result-screen::after {
+  .result-screen::after { display: none !important; }
+  .result-card::after {
     content: "Bitte schließe die App selbst.";
-    position: fixed !important; left: 50% !important; bottom: 2.5vh !important; transform: translateX(-50%) !important;
-    z-index: 130 !important; width: min(88vw, 760px) !important; margin: 0 !important;
+    position: absolute !important; left: 50% !important; bottom: 1.2vh !important; transform: translateX(-50%) !important;
+    z-index: 130 !important; width: min(88%, 760px) !important; margin: 0 !important;
     color: #d6293f !important; font-weight: 800 !important; line-height: 1.35 !important; text-align: center !important;
     display: block !important; visibility: visible !important; opacity: 1 !important; pointer-events: none !important;
   }
