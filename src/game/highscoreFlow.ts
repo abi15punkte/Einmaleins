@@ -76,19 +76,19 @@ function renderOverlay(entries: LeaderboardEntry[], studentName: string): void {
       .school-highscore-overlay::after {
         content: "" !important;
         position: fixed !important;
-        left: -4vw !important;
-        bottom: 3vh !important;
-        width: 28.8vw !important;
-        height: 28.8vw !important;
+        left: -2vw !important;
+        bottom: 4vh !important;
+        width: clamp(150px, 18vw, 220px) !important;
+        height: clamp(150px, 18vw, 220px) !important;
         background: url("./Alien.png") center/contain no-repeat !important;
         pointer-events: none !important;
-        z-index: 20001 !important;
+        z-index: 20002 !important;
       }
       .school-highscore-close {
         position: fixed !important;
         top: calc(14px + env(safe-area-inset-top)) !important;
         right: calc(14px + env(safe-area-inset-right)) !important;
-        z-index: 20003 !important;
+        z-index: 20004 !important;
         width: 48px !important;
         height: 48px !important;
         border: 1px solid rgba(23,32,51,.1) !important;
@@ -99,7 +99,7 @@ function renderOverlay(entries: LeaderboardEntry[], studentName: string): void {
         line-height: 1 !important;
       }
       .highscore-list-scroll {
-        width: min(100%,980px) !important;
+        width: min(100%,860px) !important;
         margin: 0 auto !important;
         overflow-y: auto !important;
         overflow-x: hidden !important;
@@ -109,7 +109,7 @@ function renderOverlay(entries: LeaderboardEntry[], studentName: string): void {
         background: rgba(255,255,255,.94) !important;
         box-shadow: 0 18px 50px rgba(23,32,51,.08) !important;
         position: relative !important;
-        z-index: 20002 !important;
+        z-index: 20001 !important;
         touch-action: pan-y !important;
         -webkit-overflow-scrolling: touch !important;
       }
@@ -186,14 +186,20 @@ function renderOverlay(entries: LeaderboardEntry[], studentName: string): void {
       .school-highscore-me .school-highscore-score { color: #248f5b !important; }
       .school-highscore-status {
         margin: 16px auto 0 !important;
-        width: min(100%,980px) !important;
+        width: min(100%,860px) !important;
         text-align: center !important;
         color: #7a8495 !important;
         position: relative !important;
-        z-index: 20002 !important;
+        z-index: 20001 !important;
       }
       @media (max-width: 700px) {
         .school-highscore-overlay { padding: 12px !important; }
+        .school-highscore-overlay::after {
+          left: -4vw !important;
+          bottom: 2vh !important;
+          width: 22vw !important;
+          height: 22vw !important;
+        }
         .school-highscore-row {
           grid-template-columns: 58px minmax(0,1fr) 96px 108px !important;
           gap: 6px !important;
