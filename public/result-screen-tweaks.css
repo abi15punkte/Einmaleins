@@ -1,5 +1,16 @@
 @import url("./result-screen-tweaks-base.css");
 
+/* Falsche Eingabe: nach der roten Phase wird die richtige Lösung grün angezeigt. */
+.task-card.is-wrong #answer:not(.answer-feedback-wrong) {
+  color: #248f5b !important;
+  border-bottom-color: #248f5b !important;
+}
+
+.task-card.is-wrong #answer.answer-feedback-wrong {
+  color: #c84a4a !important;
+  border-bottom-color: #c84a4a !important;
+}
+
 @media (orientation: landscape) {
   .result-screen.result-screen::after {
     display: block !important;
