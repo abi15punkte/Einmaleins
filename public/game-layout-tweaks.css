@@ -105,7 +105,7 @@
 
   .game-screen .task-equation {
     position: absolute !important;
-    top: 50% !important;
+    top: calc(50% - 5vh) !important;
     left: 0 !important;
     transform: translateY(-50%) !important;
     grid-row: auto !important;
