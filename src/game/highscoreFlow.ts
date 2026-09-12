@@ -19,35 +19,19 @@ function firstNameOnly(value: string): string {
   return value.trim().split(/\s+/)[0] || "Schüler";
 }
 
-let mascotTestTimer: number | null = null;
-let mascotTestIndex = 0;
-
 function ensurePermanentClassMascot(): void {
+  const student = loadStudentIdentity();
   let mascot = document.querySelector<HTMLImageElement>(".start-class-overlay");
+
   if (!mascot) {
-    const student = loadStudentIdentity();
     mascot = document.createElement("img");
     mascot.className = "start-class-overlay";
-    mascot.alt = `Klassentier ${student.className ?? "M1"}`;
     mascot.setAttribute("aria-hidden", "true");
     document.body.appendChild(mascot);
   }
 
-  if (!mascotTestTimer) {
-    mascotTestTimer = window.setInterval(() => {
-      const target = document.querySelector<HTMLImageElement>(".start-class-overlay");
-      if (!target) return;
-      const className = `M${(mascotTestIndex % 16) + 1}`;
-      mascotTestIndex += 1;
-      target.src = `./${className}.png`;
-      target.alt = `Klassentier ${className}`;
-    }, 5000);
-
-    const initialClassName = `M${(mascotTestIndex % 16) + 1}`;
-    mascotTestIndex += 1;
-    mascot.src = `./${initialClassName}.png`;
-    mascot.alt = `Klassentier ${initialClassName}`;
-  }
+  mascot.src = CLASS_MASCOT(student.className);
+  mascot.alt = `Klassentier ${student.className ?? "M1"}`;
 }
 
 function renderOverlay(entries: LeaderboardEntry[], studentName: string): void {
@@ -148,22 +132,6 @@ function installOnResult(result: HTMLElement): void {
   row.appendChild(action);
 }
 
-function installOnStartScreen(start: HTMLElement): void {
-  const card = start.querySelector<HTMLElement>(".welcome-card");
-  if (!card || card.querySelector(".start-class-debug")) return;
-
-  const student = loadStudentIdentity();
-  const className = student.className?.trim() || "nicht erkannt";
-  const debug = document.createElement("div");
-  debug.className = "start-class-debug";
-  debug.style.cssText = "display:flex;align-items:center;justify-content:center;gap:14px;margin:14px auto 4px;padding:10px 14px;max-width:520px;border:1px dashed rgba(82,175,231,.55);border-radius:16px;background:rgba(233,247,255,.72);color:#172033;font-size:15px;font-weight:800;text-align:left;";
-  debug.innerHTML = `<img src="${CLASS_MASCOT(student.className)}" alt="Klassentier ${escapeHtml(className)}" style="width:76px;height:76px;object-fit:contain;flex:0 0 auto;"><div><div style="color:#52afe7;font-size:12px;letter-spacing:.08em;text-transform:uppercase;">Testausgabe</div><div>Ausgelesene Klasse: ${escapeHtml(className)}</div></div>`;
-
-  const greeting = card.querySelector<HTMLElement>(".student-greeting");
-  if (greeting) greeting.insertAdjacentElement("afterend", debug);
-  else card.insertBefore(debug, card.firstChild);
-}
-
 export function initHighscoreFlow(): void {
   const app = document.getElementById("app");
   if (!app) return;
@@ -173,14 +141,10 @@ export function initHighscoreFlow(): void {
   const observer = new MutationObserver(() => {
     const result = app.querySelector<HTMLElement>(".result-screen");
     if (result) installOnResult(result);
-    const start = app.querySelector<HTMLElement>(".start-screen");
-    if (start) installOnStartScreen(start);
     ensurePermanentClassMascot();
   });
-  observer.observe(app, { childList: true });
+  observer.observe(app, { childList: true, subtree: true });
 
   const result = app.querySelector<HTMLElement>(".result-screen");
   if (result) installOnResult(result);
-  const start = app.querySelector<HTMLElement>(".start-screen");
-  if (start) installOnStartScreen(start);
 }
