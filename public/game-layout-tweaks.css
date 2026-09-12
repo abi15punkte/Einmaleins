@@ -88,6 +88,8 @@
   }
 
   .game-screen .task-card {
+    position: relative !important;
+    top: 5vh !important;
     width: 45vw !important;
     height: 40vh !important;
     min-height: 40vh !important;
