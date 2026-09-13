@@ -144,69 +144,9 @@
     }
   }
 
-  function ensureResultAwards(resultScreen) {
-    const awards = resultScreen.querySelector(".result-stars");
-    if (!(awards instanceof HTMLElement)) return;
-
-    const existingSources = new Set(
-      Array.from(awards.querySelectorAll("img"))
-        .map((image) => image.getAttribute("src") ?? "")
-        .map((src) => src.split("/").pop() ?? "")
-    );
-    const starStates = [
-      existingSources.has("Stern1.png"),
-      existingSources.has("Stern2.png"),
-      existingSources.has("Stern3.png")
-    ];
-
-    awards.setAttribute("aria-label", "Sterne");
-    awards.style.margin = "22px auto 0";
-    awards.style.padding = "12px 16px";
-    awards.style.display = "inline-flex";
-    awards.style.flexDirection = "column";
-    awards.style.alignItems = "center";
-    awards.style.gap = "8px";
-    awards.style.border = "1px solid rgba(23,32,51,.08)";
-    awards.style.borderRadius = "16px";
-    awards.style.background = "#f6f8fb";
-    awards.style.maxWidth = "100%";
-
-    const title = document.createElement("span");
-    title.textContent = "Sterne";
-    title.style.fontSize = ".78rem";
-    title.style.fontWeight = "800";
-    title.style.letterSpacing = ".08em";
-    title.style.textTransform = "uppercase";
-    title.style.color = "#7a8495";
-
-    const row = document.createElement("span");
-    row.style.display = "inline-flex";
-    row.style.alignItems = "center";
-    row.style.justifyContent = "center";
-    row.style.gap = "12px";
-
-    ["Stern1.png", "Stern2.png", "Stern3.png"].forEach((asset, index) => {
-      const image = document.createElement("img");
-      image.src = `./${asset}`;
-      image.alt = starStates[index] ? `Stern ${index + 1} freigeschaltet` : `Stern ${index + 1} noch nicht freigeschaltet`;
-      image.style.width = "56px";
-      image.style.height = "56px";
-      image.style.objectFit = "contain";
-      image.style.display = "block";
-      if (!starStates[index]) {
-        image.style.opacity = ".22";
-        image.style.filter = "grayscale(1)";
-      }
-      row.appendChild(image);
-    });
-
-    awards.replaceChildren(title, row);
-  }
-
   function sync() {
     const resultScreen = document.querySelector(".result-screen");
     if (resultScreen) {
-      ensureResultAwards(resultScreen);
       ensureResultCloseAction();
     }
 
