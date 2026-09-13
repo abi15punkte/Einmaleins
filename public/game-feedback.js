@@ -235,6 +235,9 @@
     flyPoints(taskCard, scoreElement, points, multiplier);
     applyPointsWhenArrived(screen, scoreElement, points);
   }
+
+  const appObserver = new MutationObserver(() => sync());
+  appObserver.observe(document.body, { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: ["class", "hidden"] });
   window.setInterval(sync, 80);
   sync();
 })();
