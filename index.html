@@ -115,7 +115,7 @@
         .replaceAll("'", "&#039;");
 
       const firstNameOnly = (value) => String(value || "Schüler").trim().split(/\s+/)[0] || "Schüler";
-      const classMascot = (className) => /^(M(?:[1-9]|1[0-6]))$/i.test(className || "") ? `./${String(className).toUpperCase()}.png` : "./M1.png";
+      const classMascot = (className) => /^(M(?:[1-9]|1[0-6]))$/i.test(className || "") ? `./P${String(className).toUpperCase().slice(1)}.png` : "./P1.png";
 
       let overlay = null;
       let activeObserver = false;
