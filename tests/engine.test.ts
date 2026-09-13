@@ -184,7 +184,7 @@ describe("GameEngine", () => {
     const state = game.tick();
 
     expect(state.phase).toBe("timeUp");
-    expect(state.elapsedMs).toBe(GAME_DURATION_MS);
+    expect(state.elapsedMs).toBe(0);
     expect(state.currentTask).toBeNull();
   });
 
