@@ -27,6 +27,14 @@
       snapshotMask = document.createElement("div");
       snapshotMask.id = "standalone-snapshot-mask";
       snapshotMask.setAttribute("aria-hidden", "true");
+      Object.assign(snapshotMask.style, {
+        position: "fixed",
+        inset: "0",
+        zIndex: "2147483647",
+        background: "#e9f7ff",
+        pointerEvents: "none",
+        opacity: "1"
+      });
       document.documentElement.appendChild(snapshotMask);
     };
 
