@@ -1,21 +1,24 @@
 .start-class-overlay {
-  animation: class-mascot-float 5.8s ease-in-out infinite;
+  animation: class-mascot-slide 5.8s linear infinite;
   transform-origin: 50% 100%;
   will-change: transform;
 }
 
-@keyframes class-mascot-float {
-  0%, 100% {
-    transform: translateY(-50%) translate3d(0, 0, 0) rotate(1deg) scale(1);
+@keyframes class-mascot-slide {
+  0% {
+    transform: translateY(-50%) translateX(0) rotate(0deg) scale(1);
   }
-  25% {
-    transform: translateY(-50%) translate3d(-0.7vw, 1.4vh, 0) rotate(-0.5deg) scale(1.012);
+  18% {
+    transform: translateY(-50%) translateX(-32vw) rotate(0deg) scale(1);
   }
-  50% {
-    transform: translateY(-50%) translate3d(0, 2.2vh, 0) rotate(-1deg) scale(1.02);
+  42% {
+    transform: translateY(-50%) translateX(-72vw) rotate(0deg) scale(1);
   }
-  75% {
-    transform: translateY(-50%) translate3d(0.7vw, 1.1vh, 0) rotate(-0.25deg) scale(1.01);
+  62% {
+    transform: translateY(-50%) translateX(-108vw) rotate(0deg) scale(1);
+  }
+  100% {
+    transform: translateY(-50%) translateX(-132vw) rotate(0deg) scale(1);
   }
 }
 
