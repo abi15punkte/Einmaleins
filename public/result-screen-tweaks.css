@@ -14,6 +14,85 @@
   color: #248f5b !important;
 }
 
+/* Fliegende Punktezahl vom Aufgabenfeld zur Punktebox. */
+.points-fly {
+  position: fixed !important;
+  z-index: 40000 !important;
+  margin: 0 !important;
+  pointer-events: none !important;
+  font-size: clamp(2rem, 5vh, 4rem) !important;
+  line-height: 1 !important;
+  font-weight: 950 !important;
+  letter-spacing: -0.04em !important;
+  text-shadow: 0 4px 14px rgb(23 32 51 / 18%) !important;
+  transform: translate3d(0, 0, 0) scale(1.05) !important;
+  animation: points-fly-to-score 1520ms cubic-bezier(.22,.75,.22,1) forwards !important;
+  will-change: transform, opacity !important;
+}
+
+@keyframes points-fly-to-score {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 8px, 0) scale(0.78);
+  }
+  10% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1.08);
+  }
+  68% {
+    opacity: 1;
+    transform: translate3d(var(--fly-x), var(--fly-y), 0) scale(1.02);
+  }
+  88% {
+    opacity: 1;
+    transform: translate3d(var(--fly-x), var(--fly-y), 0) scale(0.9);
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(var(--fly-x), var(--fly-y), 0) scale(0.72);
+  }
+}
+
+/* Deutlicher kurzer Impuls genau beim Eintreffen der Punkte. */
+.game-screen .stat-score.score-arrival {
+  animation: score-box-arrival 420ms cubic-bezier(.36,.07,.19,.97) both !important;
+  transform-origin: center !important;
+  will-change: transform !important;
+}
+
+.game-screen .stat-score.score-arrival-medium {
+  animation-name: score-box-arrival-medium !important;
+}
+
+.game-screen .stat-score.score-arrival-strong {
+  animation-name: score-box-arrival-strong !important;
+}
+
+@keyframes score-box-arrival {
+  0%, 100% { transform: translateX(0) scale(1); }
+  18% { transform: translateX(-0.35vw) scale(1.025); }
+  34% { transform: translateX(0.32vw) scale(1.018); }
+  50% { transform: translateX(-0.22vw) scale(1.01); }
+  66% { transform: translateX(0.12vw) scale(1.004); }
+}
+
+@keyframes score-box-arrival-medium {
+  0%, 100% { transform: translateX(0) scale(1); }
+  18% { transform: translateX(-0.55vw) scale(1.04); }
+  34% { transform: translateX(0.5vw) scale(1.03); }
+  50% { transform: translateX(-0.34vw) scale(1.018); }
+  66% { transform: translateX(0.18vw) scale(1.008); }
+}
+
+@keyframes score-box-arrival-strong {
+  0%, 100% { transform: translateX(0) scale(1); }
+  16% { transform: translateX(-0.8vw) scale(1.06); }
+  30% { transform: translateX(0.72vw) scale(1.045); }
+  44% { transform: translateX(-0.52vw) scale(1.03); }
+  58% { transform: translateX(0.32vw) scale(1.015); }
+  72% { transform: translateX(-0.14vw) scale(1.006); }
+}
+
 /* Regelmäßiger, kurzer Aufmerksamkeitshinweis für Start und Neustart. */
 .mode-actions .mode-card,
 .result-card > #again,
@@ -23,13 +102,11 @@
   will-change: transform;
 }
 
-/* Der zweite Startbutton und der Highscore-Eintrag setzen ihren Impuls eine Sekunde später. */
 .mode-actions .mode-card[data-mode="free"],
 .result-highscore-action {
   animation-delay: 1s !important;
 }
 
-/* Deutlich größere Hervorhebung der konkreten Punktzahl. */
 .personal-best strong {
   margin-top: 5px !important;
   font-size: clamp(1.35rem, 2.8vw, 2rem) !important;
@@ -44,7 +121,6 @@
   font-weight: 850 !important;
 }
 
-/* Früherer Impuls: schon nach rund 0,75 s statt erst spät im Intervall. */
 @keyframes attention-cue {
   0%, 25%, 100% { transform: translateY(0) scale(1); }
   29% { transform: translateY(-4px) scale(1.018); }
@@ -52,7 +128,6 @@
   37% { transform: translateY(0) scale(1); }
 }
 
-/* Kurzes, deutlich wahrnehmbares Feedback beim Berühren der Zahlentasten. */
 .keypad-key:active {
   animation: keypad-tap 260ms cubic-bezier(.2,.8,.25,1);
   box-shadow: 0 2px 5px rgb(23 32 51 / 10%) !important;
@@ -65,7 +140,6 @@
   100% { transform: translateY(2px) scale(0.985); }
 }
 
-/* Den gleichen Alien-Impuls auf Start-, Spiel-, Ergebnis- und Highscorebildschirm anwenden. */
 @keyframes highscore-alien-float {
   0%, 100% { transform: translate3d(0, 0, 0) rotate(-1deg) scale(1); }
   25% { transform: translate3d(0.35vw, -0.7vh, 0) rotate(0.5deg) scale(1.012); }
@@ -73,7 +147,6 @@
   75% { transform: translate3d(-0.35vw, -0.55vh, 0) rotate(0.25deg) scale(1.01); }
 }
 
-/* Test: doppelte Auslenkung des gemeinsamen Alien. */
 @keyframes highscore-alien-float-wide {
   0%, 100% { transform: translate3d(0, 0, 0) rotate(-1deg) scale(1); }
   25% { transform: translate3d(0.7vw, -1.4vh, 0) rotate(0.5deg) scale(1.012); }
@@ -91,23 +164,19 @@
     will-change: transform, opacity;
   }
 
-  /* Testweise doppelte Auslenkung für den gemeinsamen Alien. */
   body::after {
     animation-name: highscore-alien-float-wide !important;
   }
 
-  /* Die Portrait-Klassentiere P1-P16 der Highscoreliste bleiben vollständig statisch. */
   .school-highscore-overlay .school-highscore-mascot,
   .school-highscore-overlay .school-highscore-mascot img {
     animation: none !important;
   }
 
-  /* Auf der Highscoreliste bleibt der Alien hinter der Liste. */
   .school-highscore-overlay::after {
     z-index: 19999 !important;
   }
 
-  /* Der Ergebnisbildschirm nutzt jetzt ausschließlich den gemeinsamen body-Alien. */
   .result-screen::after {
     content: none !important;
     display: none !important;
@@ -142,6 +211,10 @@
   .result-card > #again,
   .result-highscore-action,
   .keypad-key:active,
+  .points-fly,
+  .game-screen .stat-score.score-arrival,
+  .game-screen .stat-score.score-arrival-medium,
+  .game-screen .stat-score.score-arrival-strong,
   .game-screen::after,
   .start-screen::after,
   .result-screen::after,
