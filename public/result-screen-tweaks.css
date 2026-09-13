@@ -147,8 +147,6 @@
   .school-highscore-overlay .school-highscore-mascot img { animation: none !important; }
 
   .school-highscore-overlay::after { z-index: 19999 !important; }
-  .result-screen::after { content: none !important; display: none !important; }
-  .result-card .result-card::after { content: none !important; display: none !important; }
 
   .result-card #close-app-status {
     display: block !important;
