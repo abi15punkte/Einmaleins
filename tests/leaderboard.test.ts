@@ -80,16 +80,18 @@ describe("school leaderboard client", () => {
     setDoc.mockRejectedValue({ code: "permission-denied" });
 
     const client = createLeaderboardClient();
+    const failingRecord = { ...record, score: 501 };
 
-    await expect(client.submit(record)).rejects.toMatchObject({ code: "permission-denied" });
+    await expect(client.submit(failingRecord)).rejects.toMatchObject({ code: "permission-denied" });
   });
 
   it("propagates other Firestore write failures", async () => {
     setDoc.mockRejectedValue(new Error("network-error"));
 
     const client = createLeaderboardClient();
+    const failingRecord = { ...record, score: 502 };
 
-    await expect(client.submit(record)).rejects.toThrow("network-error");
+    await expect(client.submit(failingRecord)).rejects.toThrow("network-error");
   });
 
   it("loads the complete school list ordered by points without a client-side limit", async () => {
