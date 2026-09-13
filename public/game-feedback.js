@@ -14,6 +14,7 @@
   let feedbackSignature = "";
   let displayedScore = 0;
   let earnedStar1ThisGame = false;
+  let highscoreOverlayWasVisible = false;
 
   function updateCriticalTime(timeElement) {
     const match = (timeElement.textContent ?? "").match(/^(\d+):(\d{2})$/);
@@ -144,7 +145,21 @@
     }
   }
 
+  function syncHighscoreReturnState() {
+    const overlay = document.querySelector(".school-highscore-overlay");
+    if (overlay) {
+      highscoreOverlayWasVisible = true;
+      return;
+    }
+
+    if (!highscoreOverlayWasVisible) return;
+    highscoreOverlayWasVisible = false;
+    document.querySelector<HTMLButtonElement>(".result-highscore-action button")?.removeAttribute("disabled");
+  }
+
   function sync() {
+    syncHighscoreReturnState();
+
     const resultScreen = document.querySelector(".result-screen");
     if (resultScreen) {
       ensureResultCloseAction();
