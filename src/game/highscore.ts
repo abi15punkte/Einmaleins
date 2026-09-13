@@ -95,33 +95,6 @@ function createStudentId(): string {
   return `local-${Date.now()}-${Math.random().toString(36).slice(2)}`;
 }
 
-function applyPersonalBackground(completedGames: number): void {
-  if (typeof document === "undefined") return;
-
-  const background = getPersonalBackgroundAsset(completedGames);
-  const elements = [document.documentElement, document.body];
-
-  for (const element of elements) {
-    if (!element) continue;
-
-    if (background) {
-      element.style.setProperty("background-image", `url("./${background}")`, "important");
-      element.style.setProperty("background-position", "center", "important");
-      element.style.setProperty("background-size", "cover", "important");
-      element.style.setProperty("background-repeat", "no-repeat", "important");
-      element.style.setProperty("background-attachment", "fixed", "important");
-      element.style.setProperty("background-color", "#e9f7ff", "important");
-    } else {
-      element.style.setProperty("background-image", "none", "important");
-      element.style.setProperty("background-color", "#ffffff", "important");
-      element.style.setProperty("background-position", "initial", "important");
-      element.style.setProperty("background-size", "auto", "important");
-      element.style.setProperty("background-repeat", "repeat", "important");
-      element.style.setProperty("background-attachment", "scroll", "important");
-    }
-  }
-}
-
 export function getPersonalBackgroundAsset(completedGames: number): string | null {
   const threshold = PERSONAL_BACKGROUND_THRESHOLDS.find((entry) => completedGames >= entry.games);
   return threshold?.asset ?? null;
@@ -131,7 +104,6 @@ export function loadCompletedGames(studentId = loadStudentIdentity().studentId):
   const record = readJson<CompletedGamesRecord>(COMPLETED_GAMES_KEY);
 
   if (!record || record.studentId !== studentId) {
-    applyPersonalBackground(0);
     return 0;
   }
 
@@ -143,7 +115,6 @@ export function loadCompletedGames(studentId = loadStudentIdentity().studentId):
     writeJson(COMPLETED_GAMES_KEY, { studentId, completedGames });
   }
 
-  applyPersonalBackground(completedGames);
   return completedGames;
 }
 
@@ -158,7 +129,6 @@ export function recordCompletedGame(studentId: string, score: number): number {
     completedGames
   });
 
-  applyPersonalBackground(completedGames);
   return completedGames;
 }
 
@@ -166,12 +136,10 @@ export function loadStudentIdentity(): StudentIdentity {
   const stored = readJson<StudentIdentity>(PROFILE_KEY);
 
   if (stored?.studentId && stored.name) {
-    const identity = {
+    return {
       ...stored,
       source: stored.source ?? "local"
     };
-    loadCompletedGames(identity.studentId);
-    return identity;
   }
 
   const identity: StudentIdentity = {
@@ -182,7 +150,6 @@ export function loadStudentIdentity(): StudentIdentity {
   };
 
   writeJson(PROFILE_KEY, identity);
-  loadCompletedGames(identity.studentId);
   return identity;
 }
 
@@ -196,8 +163,6 @@ export function saveStudentIdentity(identity: StudentIdentity): void {
     name: identity.name.trim(),
     className: identity.className?.trim() || null
   });
-
-  loadCompletedGames(identity.studentId);
 }
 
 export function loadPersonalHighscore(studentId = loadStudentIdentity().studentId): HighscoreRecord | null {
