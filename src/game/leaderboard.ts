@@ -74,13 +74,14 @@ function applyLeaderboardPortraits(): void {
     const image = row.querySelector<HTMLImageElement>(".school-highscore-mascot img");
     if (!mascot) return;
 
-    mascot.style.setProperty(
-      "--school-highscore-mascot-background",
-      backgroundForCompletedGames(entry.completedGames) ?? "#ffffff"
-    );
+    const backgroundValue = backgroundForCompletedGames(entry.completedGames) ?? "#ffffff";
+    if (mascot.style.getPropertyValue("--school-highscore-mascot-background") !== backgroundValue) {
+      mascot.style.setProperty("--school-highscore-mascot-background", backgroundValue);
+    }
 
-    if (image) {
-      image.src = `./${entry.portrait}`;
+    const portraitSrc = `./${entry.portrait}`;
+    if (image && image.getAttribute("src") !== portraitSrc) {
+      image.src = portraitSrc;
     }
   });
 }
