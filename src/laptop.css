@@ -98,6 +98,60 @@
     text-align: center !important;
   }
 
+  .game-screen .header-statuses {
+    position: absolute !important;
+    top: 2.5vh !important;
+    left: 2.5vw !important;
+    height: 10vh !important;
+    display: flex !important;
+    align-items: stretch !important;
+    gap: 1.2vw !important;
+    z-index: 20 !important;
+  }
+
+  .game-screen .header-statuses > #round-caption,
+  .game-screen .header-statuses > #task-number-caption {
+    position: static !important;
+    left: auto !important;
+    right: auto !important;
+    width: 10vw !important;
+    min-width: 10vw !important;
+    height: 10vh !important;
+    margin: 0 !important;
+    padding: 0.8vh 0.6vw !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 0.5vh !important;
+    border: 1px solid rgb(82 175 231 / 30%) !important;
+    border-radius: 0.8vw !important;
+    background: rgb(255 255 255 / 72%) !important;
+    box-shadow: 0 4px 14px rgb(51 93 145 / 8%) !important;
+    color: var(--space-text) !important;
+    text-align: center !important;
+    font-size: 2vh !important;
+    line-height: 1 !important;
+    letter-spacing: 0 !important;
+    text-transform: none !important;
+    white-space: nowrap !important;
+  }
+
+  .game-screen .header-statuses .status-caption-label {
+    color: var(--space-text) !important;
+    font-size: 1.7vh !important;
+    font-weight: 800 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.05em !important;
+  }
+
+  .game-screen .header-statuses .status-caption-value {
+    color: #000000 !important;
+    font-size: 4vh !important;
+    line-height: 0.9 !important;
+    font-weight: 900 !important;
+  }
+
   .game-screen .progress-track {
     display: none !important;
   }
@@ -228,9 +282,9 @@
   }
 }
 
-/* Undo the separate 12vh relative offset introduced by commit 7f639c6. */
+/* Restore the original vertical placement of the task card. */
 @media (min-width: 1000px) and (orientation: landscape) {
   .game-screen .task-card {
-    top: 0 !important;
+    top: 12vh !important;
   }
 }
