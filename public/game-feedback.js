@@ -173,6 +173,20 @@
     }
   }
 
+  function syncResultStars() {
+    const resultStars = document.querySelector(".result-stars");
+    const statsStars = document.querySelector(".result-screen .result-stat:last-child strong");
+    if (!(resultStars instanceof HTMLElement) || !(statsStars instanceof HTMLElement)) return;
+    if (statsStars.querySelector("img")) {
+      resultStars.remove();
+      return;
+    }
+    const stars = resultStars.querySelectorAll("img");
+    if (stars.length !== 3) return;
+    stars.forEach((star) => statsStars.appendChild(star));
+    resultStars.remove();
+  }
+
   function syncHighscoreReturnState() {
     const overlay = document.querySelector(".school-highscore-overlay");
     if (overlay) {
@@ -182,11 +196,12 @@
 
     if (!highscoreOverlayWasVisible) return;
     highscoreOverlayWasVisible = false;
-    document.querySelector<HTMLButtonElement>(".result-highscore-action button")?.removeAttribute("disabled");
+    document.querySelector(".result-highscore-action button")?.removeAttribute("disabled");
   }
 
   function sync() {
     syncHighscoreReturnState();
+    syncResultStars();
 
     const resultScreen = document.querySelector(".result-screen");
     if (resultScreen) {
