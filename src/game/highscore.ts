@@ -121,12 +121,18 @@ export function loadPersonalHighscore(studentId = loadStudentIdentity().studentI
     return null;
   }
 
-  return {
+  const sanitizedRecord: HighscoreRecord = {
     ...record,
     stern1: record.stern1 === true,
-    stern2: record.stern2 === true,
+    stern2: false,
     stern3: record.stern3 === true
   };
+
+  if (record.stern2 === true) {
+    writeJson(HIGHSCORE_KEY, sanitizedRecord);
+  }
+
+  return sanitizedRecord;
 }
 
 export function evaluateResult(
@@ -151,13 +157,13 @@ export function evaluateResult(
 
   const mergedStars: EarnedStars = {
     stern1: previousBest?.stern1 === true || earnedStars.stern1 === true,
-    stern2: previousBest?.stern2 === true || earnedStars.stern2 === true,
+    stern2: false,
     stern3: previousBest?.stern3 === true || earnedStars.stern3 === true
   };
 
   const starsChanged = previousBest === null
     || mergedStars.stern1 !== (previousBest.stern1 === true)
-    || mergedStars.stern2 !== (previousBest.stern2 === true)
+    || mergedStars.stern2 !== false
     || mergedStars.stern3 !== (previousBest.stern3 === true);
 
   const personalBest: HighscoreRecord = isNewPersonalBest
@@ -200,7 +206,7 @@ export function queuePendingSyncRecord(record: HighscoreRecord, queuedAt = new D
       existing.record = {
         ...existing.record,
         stern1: existing.record.stern1 === true || record.stern1 === true,
-        stern2: existing.record.stern2 === true || record.stern2 === true,
+        stern2: false,
         stern3: existing.record.stern3 === true || record.stern3 === true
       };
       existing.queuedAt = queuedAt;
@@ -208,13 +214,13 @@ export function queuePendingSyncRecord(record: HighscoreRecord, queuedAt = new D
       existing.record = {
         ...record,
         stern1: existing.record.stern1 === true || record.stern1 === true,
-        stern2: existing.record.stern2 === true || record.stern2 === true,
+        stern2: false,
         stern3: existing.record.stern3 === true || record.stern3 === true
       };
       existing.queuedAt = queuedAt;
     }
   } else {
-    queue.push({ record: { ...record }, queuedAt });
+    queue.push({ record: { ...record, stern2: false }, queuedAt });
   }
 
   writeJson(SYNC_QUEUE_KEY, queue);
