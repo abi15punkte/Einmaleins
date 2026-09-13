@@ -25,7 +25,6 @@
   font-weight: 950 !important;
   letter-spacing: -0.04em !important;
   text-shadow: 0 4px 14px rgb(23 32 51 / 18%) !important;
-  transform: translate3d(0, 0, 0) scale(1.05) !important;
   animation: points-fly-to-score 1520ms cubic-bezier(.22,.75,.22,1) forwards !important;
   will-change: transform, opacity !important;
 }
