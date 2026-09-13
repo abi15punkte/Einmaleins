@@ -76,10 +76,10 @@ function renderOverlay(entries: LeaderboardEntry[], studentName: string): void {
       .school-highscore-overlay::after {
         content: "" !important;
         position: fixed !important;
-        left: -2vw !important;
-        bottom: 4vh !important;
-        width: clamp(150px, 18vw, 220px) !important;
-        height: clamp(150px, 18vw, 220px) !important;
+        left: -4vw !important;
+        bottom: 3vh !important;
+        width: 24vw !important;
+        height: 24vw !important;
         background: url("./Alien.png") center/contain no-repeat !important;
         pointer-events: none !important;
         z-index: 20002 !important;
@@ -194,12 +194,6 @@ function renderOverlay(entries: LeaderboardEntry[], studentName: string): void {
       }
       @media (max-width: 700px) {
         .school-highscore-overlay { padding: 12px !important; }
-        .school-highscore-overlay::after {
-          left: -4vw !important;
-          bottom: 2vh !important;
-          width: 22vw !important;
-          height: 22vw !important;
-        }
         .school-highscore-row {
           grid-template-columns: 58px minmax(0,1fr) 96px 108px !important;
           gap: 6px !important;
