@@ -13,6 +13,7 @@
   let currentGameScreen = null;
   let feedbackSignature = "";
   let displayedScore = 0;
+  let earnedStar1ThisGame = false;
 
   function updateCriticalTime(timeElement) {
     const match = (timeElement.textContent ?? "").match(/^(\d+):(\d{2})$/);
@@ -102,6 +103,7 @@
     currentGameScreen = screen;
     feedbackSignature = "";
     displayedScore = Number(screen.querySelector("#score")?.textContent ?? "0") || 0;
+    earnedStar1ThisGame = false;
   }
 
   function applyPointsWhenArrived(screen, scoreElement, points) {
@@ -149,13 +151,62 @@
     }
   }
 
+  function ensureResultAwards(resultScreen) {
+    const resultCard = resultScreen.querySelector(".result-card");
+    if (!(resultCard instanceof HTMLElement)) return;
+
+    const won = (resultScreen.querySelector("#result-title")?.textContent ?? "").trim() === "Geschafft!";
+    const earnedStar3 = won;
+    const existing = resultCard.querySelector("#result-stars");
+
+    if (!earnedStar1ThisGame && !earnedStar3) {
+      existing?.remove();
+      return;
+    }
+
+    const awards = existing instanceof HTMLElement ? existing : document.createElement("section");
+    awards.id = "result-stars";
+    awards.setAttribute("aria-label", "Verdiente Sterne");
+    awards.style.margin = "26px 0 0";
+    awards.style.display = "grid";
+    awards.style.gap = "14px";
+
+    const stars = [];
+    if (earnedStar1ThisGame) {
+      stars.push(`
+        <div class="earned-star" style="display:flex;align-items:center;justify-content:center;gap:12px;">
+          <img src="./Stern1.png" alt="Stern 1 verdient" style="width:72px;height:auto;display:block;" />
+          <strong>Stern 1</strong>
+        </div>
+      `);
+    }
+    if (earnedStar3) {
+      stars.push(`
+        <div class="earned-star" style="display:flex;align-items:center;justify-content:center;gap:12px;">
+          <img src="./Stern3.png" alt="Stern 3 verdient" style="width:72px;height:auto;display:block;" />
+          <strong>Stern 3</strong>
+        </div>
+      `);
+    }
+
+    awards.innerHTML = `<p style="margin:0;color:#7a8495;font-size:.78rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;">Deine Sterne</p>${stars.join("")}`;
+
+    if (!existing) {
+      const stats = resultCard.querySelector(".result-stats");
+      if (stats) stats.insertAdjacentElement("afterend", awards);
+      else resultCard.prepend(awards);
+    }
+  }
+
   function sync() {
     const resultScreen = document.querySelector(".result-screen");
-    if (resultScreen) ensureResultCloseAction();
+    if (resultScreen) {
+      ensureResultAwards(resultScreen);
+      ensureResultCloseAction();
+    }
 
     const screen = document.querySelector(".game-screen");
     if (!screen) {
-      currentGameScreen = null;
       feedbackSignature = "";
       displayedScore = 0;
       return;
@@ -168,6 +219,7 @@
     const timeElement = screen.querySelector("#time");
     const taskCard = screen.querySelector("#task-card");
     const answerElement = screen.querySelector("#answer");
+    const streakElement = screen.querySelector("#streak");
     if (!(feedback instanceof HTMLElement) || !(scoreElement instanceof HTMLElement) || !(timeElement instanceof HTMLElement) || !(taskCard instanceof HTMLElement) || !(answerElement instanceof HTMLElement)) return;
 
     scoreElement.dataset.displayManaged = "true";
@@ -175,6 +227,9 @@
     updateCriticalTime(timeElement);
     syncAnswerColor(answerElement, feedback);
     scheduleAnswerBoxAlignment();
+
+    const multiplierText = streakElement?.textContent ?? "";
+    if (multiplierText.includes("×5")) earnedStar1ThisGame = true;
 
     const signature = `${feedback.className}|${feedback.textContent ?? ""}`;
     if (signature === feedbackSignature) return;
@@ -186,7 +241,6 @@
     if (!match) return;
 
     const points = Number(match[1]);
-    const multiplierText = screen.querySelector("#streak")?.textContent ?? "";
     const multiplierMatch = multiplierText.match(/×(1|2|3|5)\b/);
     const multiplier = multiplierMatch ? Number(multiplierMatch[1]) : 1;
     flyPoints(taskCard, scoreElement, points, multiplier);
