@@ -39,10 +39,8 @@ function ensurePermanentClassMascot(): void {
     document.body.appendChild(mascot);
   }
 
-  if (mascot.dataset.mascotCycleInstalled !== "true") {
-    mascot.src = CLASS_MASCOT(student.className);
-    mascot.alt = `Klassentier ${student.className ?? "M1"}`;
-  }
+  mascot.src = CLASS_MASCOT(student.className);
+  mascot.alt = `Klassentier ${student.className ?? "M1"}`;
 }
 
 function renderOverlay(entries: LeaderboardEntry[], studentName: string): void {
@@ -326,7 +324,5 @@ export function initHighscoreFlow(): void {
     ensurePermanentClassMascot();
   });
   observer.observe(app, { childList: true, subtree: true });
-
-  const result = app.querySelector<HTMLElement>(".result-screen");
-  if (result) installOnResult(result);
+  installOnResult(app.querySelector<HTMLElement>(".result-screen") ?? document.createElement("div"));
 }
