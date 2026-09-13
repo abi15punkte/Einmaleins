@@ -35,7 +35,6 @@ export interface LeaderboardEntry {
   studentId: string;
   name: string;
   className: string | null;
-  portrait: string;
   score: number;
   stern1: boolean;
   stern2: boolean;
@@ -60,13 +59,6 @@ function portraitForClassName(className: string | null): string {
   return match ? `P${match[1]}.png` : "P1.png";
 }
 
-function normalizePortrait(value: unknown, className: string | null): string {
-  if (typeof value === "string" && /^P([1-9]|1[0-6])\.png$/i.test(value.trim())) {
-    return value.trim().toUpperCase();
-  }
-  return portraitForClassName(className);
-}
-
 function backgroundForCompletedGames(completedGames: number): string | null {
   const asset = getPersonalBackgroundAsset(completedGames);
   return asset ? `url("./${asset}")` : null;
@@ -89,7 +81,7 @@ function applyLeaderboardPortraits(): void {
       mascot.style.setProperty("--school-highscore-mascot-background", backgroundValue);
     }
 
-    const portraitSrc = `./${entry.portrait}`;
+    const portraitSrc = `./${portraitForClassName(entry.className)}`;
     if (image && image.getAttribute("src") !== portraitSrc) {
       image.src = portraitSrc;
     }
@@ -182,24 +174,20 @@ function createFirestoreClient(): LeaderboardClient {
       if (Number.isNaN(timestamp.getTime())) throw new Error("Leaderboard timestamp is invalid.");
 
       const completedGames = loadCompletedGames(studentId);
-      const portrait = portraitForClassName(record.className);
       const { doc, setDoc, Timestamp, db } = await loadFirestoreSdk();
       const studentDoc = doc(db, HIGHSCORE_COLLECTION, studentId);
 
-      const payload = {
+      await setDoc(studentDoc, {
         studentId,
         name,
         klasse: record.className?.trim() || null,
-        portrait,
         punkte: record.score,
         completedGames,
         stern1: recordWithStars.stern1 === true,
         stern2: recordWithStars.stern2 === true,
         stern3: recordWithStars.stern3 === true,
         timestamp: Timestamp.fromDate(timestamp)
-      };
-
-      await setDoc(studentDoc, payload);
+      });
     },
 
     async top() {
@@ -223,11 +211,10 @@ function createLegacyHttpClient(endpoint: string, fetcher: typeof fetch): Leader
   return {
     async submit(record) {
       const completedGames = loadCompletedGames(record.studentId);
-      const portrait = portraitForClassName(record.className);
       const response = await fetcher(`${endpoint}/scores`, {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ ...record, portrait, completedGames })
+        body: JSON.stringify({ ...record, completedGames })
       });
       if (!response.ok) throw new Error(`Leaderboard submit failed: ${response.status}`);
     },
@@ -260,7 +247,6 @@ function validateFirestoreEntry(
   const studentIdValue = value.studentId;
   const nameValue = value.name;
   const classNameValue = value.klasse;
-  const portraitValue = value.portrait;
   const scoreValue = value.punkte;
   const completedGamesValue = value.completedGames;
   const stern1Value = value.stern1;
@@ -276,7 +262,6 @@ function validateFirestoreEntry(
     !Number.isInteger(scoreValue) ||
     scoreValue < 0 ||
     (classNameValue !== null && classNameValue !== undefined && typeof classNameValue !== "string") ||
-    (portraitValue !== undefined && (typeof portraitValue !== "string" || !/^P([1-9]|1[0-6])\.png$/i.test(portraitValue.trim()))) ||
     (completedGamesValue !== undefined && (typeof completedGamesValue !== "number" || !Number.isFinite(completedGamesValue))) ||
     (stern1Value !== undefined && typeof stern1Value !== "boolean") ||
     (stern2Value !== undefined && typeof stern2Value !== "boolean") ||
@@ -288,7 +273,6 @@ function validateFirestoreEntry(
     studentId: studentIdValue.trim(),
     name: nameValue,
     className: typeof classNameValue === "string" ? classNameValue : null,
-    portrait: normalizePortrait(portraitValue, typeof classNameValue === "string" ? classNameValue : null),
     score: scoreValue,
     stern1: stern1Value === true,
     stern2: stern2Value === true,
@@ -307,7 +291,6 @@ function validateLegacyEntry(value: unknown): LeaderboardEntry {
   const nameValue = entry.name;
   const scoreValue = entry.score;
   const classNameValue = entry.className;
-  const portraitValue = entry.portrait;
   const completedGamesValue = entry.completedGames;
   const stern1Value = entry.stern1;
   const stern2Value = entry.stern2;
@@ -323,7 +306,6 @@ function validateLegacyEntry(value: unknown): LeaderboardEntry {
     typeof scoreValue !== "number" ||
     !Number.isInteger(scoreValue) ||
     scoreValue < 0 ||
-    (portraitValue !== undefined && (typeof portraitValue !== "string" || !/^P([1-9]|1[0-6])\.png$/i.test(portraitValue.trim()))) ||
     (completedGamesValue !== undefined && (typeof completedGamesValue !== "number" || !Number.isFinite(completedGamesValue))) ||
     (stern1Value !== undefined && typeof stern1Value !== "boolean") ||
     (stern2Value !== undefined && typeof stern2Value !== "boolean") ||
@@ -335,7 +317,6 @@ function validateLegacyEntry(value: unknown): LeaderboardEntry {
     studentId: studentIdValue.trim(),
     name: nameValue,
     className: typeof classNameValue === "string" ? classNameValue : null,
-    portrait: normalizePortrait(portraitValue, typeof classNameValue === "string" ? classNameValue : null),
     score: scoreValue,
     stern1: stern1Value === true,
     stern2: stern2Value === true,
