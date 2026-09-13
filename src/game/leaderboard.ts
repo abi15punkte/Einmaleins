@@ -1,4 +1,4 @@
-import { getPersonalBackgroundAsset, loadCompletedGames, type HighscoreRecord } from "./highscore";
+import { getPersonalBackgroundAsset, loadCompletedGames, loadPersonalHighscore, loadStudentIdentity, type HighscoreRecord } from "./highscore";
 
 type HighscoreRecordWithStars = HighscoreRecord & {
   stern1?: boolean;
@@ -13,6 +13,9 @@ type FirestoreSdk = typeof import("firebase/firestore") & {
 let firestoreSdkPromise: Promise<FirestoreSdk> | null = null;
 let latestLeaderboardEntries: LeaderboardEntry[] | null = null;
 let leaderboardPortraitObserver: MutationObserver | null = null;
+let completedGamesSyncObserver: MutationObserver | null = null;
+let lastCompletedGamesSyncKey: string | null = null;
+let inFlightCompletedGamesSyncKey: string | null = null;
 
 async function loadFirestoreSdk(): Promise<FirestoreSdk> {
   if (!firestoreSdkPromise) {
@@ -92,6 +95,50 @@ function installLeaderboardPortraitObserver(): void {
     applyLeaderboardPortraits();
   });
   leaderboardPortraitObserver.observe(document.body, { childList: true, subtree: true });
+}
+
+async function syncCompletedGamesToLeaderboard(): Promise<void> {
+  if (typeof document === "undefined" || !document.querySelector(".result-screen")) return;
+
+  const student = loadStudentIdentity();
+  const personalBest = loadPersonalHighscore(student.studentId);
+  if (!personalBest) return;
+
+  const completedGames = loadCompletedGames(student.studentId);
+  const syncKey = `${student.studentId}:${completedGames}:${personalBest.score}`;
+  if (syncKey === lastCompletedGamesSyncKey || syncKey === inFlightCompletedGamesSyncKey) return;
+
+  inFlightCompletedGamesSyncKey = syncKey;
+  try {
+    await createLeaderboardClient().submit(personalBest);
+    lastCompletedGamesSyncKey = syncKey;
+  } catch {
+    // Keep the result screen usable when leaderboard synchronization is unavailable.
+  } finally {
+    if (inFlightCompletedGamesSyncKey === syncKey) {
+      inFlightCompletedGamesSyncKey = null;
+    }
+  }
+}
+
+function installCompletedGamesSyncObserver(): void {
+  if (typeof document === "undefined" || completedGamesSyncObserver !== null) return;
+
+  const startObserving = (): void => {
+    if (completedGamesSyncObserver !== null || !document.body) return;
+
+    completedGamesSyncObserver = new MutationObserver(() => {
+      void syncCompletedGamesToLeaderboard();
+    });
+    completedGamesSyncObserver.observe(document.body, { childList: true, subtree: true });
+    void syncCompletedGamesToLeaderboard();
+  };
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", startObserving, { once: true });
+  } else {
+    startObserving();
+  }
 }
 
 export function loadLeaderboardConfig(): LeaderboardConfig {
@@ -287,3 +334,5 @@ function validateLegacyEntry(value: unknown): LeaderboardEntry {
       : 0
   };
 }
+
+installCompletedGamesSyncObserver();
