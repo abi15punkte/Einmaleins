@@ -7,15 +7,18 @@ export interface StudentIdentity {
   source: IdentitySource;
 }
 
-export interface HighscoreRecord {
+export interface EarnedStars {
+  stern1?: boolean;
+  stern2?: boolean;
+  stern3?: boolean;
+}
+
+export interface HighscoreRecord extends EarnedStars {
   studentId: string;
   name: string;
   className: string | null;
   score: number;
   achievedAt: string;
-  stern1?: boolean;
-  stern2?: boolean;
-  stern3?: boolean;
 }
 
 export interface PendingSyncRecord {
@@ -129,29 +132,51 @@ export function loadPersonalHighscore(studentId = loadStudentIdentity().studentI
 export function evaluateResult(
   student: StudentIdentity,
   score: number,
-  achievedAt = new Date().toISOString()
+  achievedAtOrStars: string | EarnedStars = new Date().toISOString(),
+  additionalStars: EarnedStars = {}
 ): HighscoreEvaluation {
   if (!Number.isInteger(score) || score < 0) {
     throw new Error("Score must be a non-negative integer.");
   }
 
+  const achievedAt = typeof achievedAtOrStars === "string"
+    ? achievedAtOrStars
+    : new Date().toISOString();
+  const earnedStars: EarnedStars = typeof achievedAtOrStars === "string"
+    ? additionalStars
+    : achievedAtOrStars;
+
   const previousBest = loadPersonalHighscore(student.studentId);
   const isNewPersonalBest = previousBest === null || score > previousBest.score;
 
-  const personalBest = isNewPersonalBest
+  const mergedStars: EarnedStars = {
+    stern1: previousBest?.stern1 === true || earnedStars.stern1 === true,
+    stern2: previousBest?.stern2 === true || earnedStars.stern2 === true,
+    stern3: previousBest?.stern3 === true || earnedStars.stern3 === true
+  };
+
+  const starsChanged = previousBest === null
+    || mergedStars.stern1 !== (previousBest.stern1 === true)
+    || mergedStars.stern2 !== (previousBest.stern2 === true)
+    || mergedStars.stern3 !== (previousBest.stern3 === true);
+
+  const personalBest: HighscoreRecord = isNewPersonalBest
     ? {
         studentId: student.studentId,
         name: student.name.trim(),
         className: student.className?.trim() || null,
         score,
         achievedAt,
-        stern1: previousBest?.stern1 ?? false,
-        stern2: previousBest?.stern2 ?? false,
-        stern3: previousBest?.stern3 ?? false
+        ...mergedStars
       }
-    : previousBest;
+    : starsChanged
+      ? {
+          ...previousBest!,
+          ...mergedStars
+        }
+      : previousBest!;
 
-  if (isNewPersonalBest) {
+  if (isNewPersonalBest || starsChanged) {
     writeJson(HIGHSCORE_KEY, personalBest);
   }
 
@@ -171,14 +196,25 @@ export function queuePendingSyncRecord(record: HighscoreRecord, queuedAt = new D
   const existing = queue.find((entry) => entry.record.studentId === record.studentId);
 
   if (existing) {
-    if (existing.record.score >= record.score) {
-      return;
+    if (existing.record.score > record.score) {
+      existing.record = {
+        ...existing.record,
+        stern1: existing.record.stern1 === true || record.stern1 === true,
+        stern2: existing.record.stern2 === true || record.stern2 === true,
+        stern3: existing.record.stern3 === true || record.stern3 === true
+      };
+      existing.queuedAt = queuedAt;
+    } else {
+      existing.record = {
+        ...record,
+        stern1: existing.record.stern1 === true || record.stern1 === true,
+        stern2: existing.record.stern2 === true || record.stern2 === true,
+        stern3: existing.record.stern3 === true || record.stern3 === true
+      };
+      existing.queuedAt = queuedAt;
     }
-
-    existing.record = record;
-    existing.queuedAt = queuedAt;
   } else {
-    queue.push({ record, queuedAt });
+    queue.push({ record: { ...record }, queuedAt });
   }
 
   writeJson(SYNC_QUEUE_KEY, queue);
