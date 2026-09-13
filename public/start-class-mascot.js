@@ -2,8 +2,6 @@
   const PROFILE_KEY = "einmaleins.student.profile.v1";
   const CLASS_RE = /^M(?:[1-9]|1[0-6])$/i;
   const PORTRAIT_RE = /^M(?:[1-9]|1[0-6])$/i;
-  const TEST_MASCOT_COUNT = 16;
-  const TEST_MASCOT_CYCLE_MS = 8000;
 
   function syncHighscorePortraits() {
     document.querySelectorAll(".school-highscore-mascot img").forEach((image) => {
@@ -18,33 +16,8 @@
     });
   }
 
-  function installMascotCycle(image) {
-    if (!(image instanceof HTMLImageElement)) return;
-    if (image.dataset.mascotCycleInstalled === "true") return;
-
-    image.dataset.mascotCycleInstalled = "true";
-    image.dataset.mascotCycleIndex = "1";
-    image.src = "./M1.png";
-    image.alt = "Klassentier M1";
-
-    window.setInterval(() => {
-      if (!document.body.contains(image)) return;
-      const current = Number.parseInt(image.dataset.mascotCycleIndex || "1", 10);
-      const next = current >= TEST_MASCOT_COUNT ? 1 : current + 1;
-      image.dataset.mascotCycleIndex = String(next);
-      image.src = `./M${next}.png`;
-      image.alt = `Klassentier M${next}`;
-    }, TEST_MASCOT_CYCLE_MS);
-  }
-
-  function syncClassMascot() {
-    const mascot = document.querySelector(".start-class-overlay");
-    if (mascot instanceof HTMLImageElement) installMascotCycle(mascot);
-  }
-
   function syncAll() {
     syncHighscorePortraits();
-    syncClassMascot();
   }
 
   const observer = new MutationObserver(syncAll);
