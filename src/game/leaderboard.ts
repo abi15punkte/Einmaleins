@@ -83,9 +83,6 @@ function createFirestoreClient(): LeaderboardClient {
       const studentDoc = doc(db, HIGHSCORE_COLLECTION, studentId);
 
       try {
-        // Firestore security rules enforce the important condition here:
-        // an existing score may only be replaced by a strictly higher score.
-        // This removes the extra read that previously happened before every write.
         await setDoc(studentDoc, {
           studentId,
           name,
@@ -97,8 +94,6 @@ function createFirestoreClient(): LeaderboardClient {
           timestamp: Timestamp.fromDate(timestamp)
         });
       } catch (error) {
-        // A rejected update for an equal/lower score simply means that the
-        // personal record is already at least as good as the submitted one.
         const code = error && typeof error === "object" && "code" in error
           ? String((error as { code?: unknown }).code)
           : "";
@@ -193,6 +188,9 @@ function validateLegacyEntry(value: unknown): LeaderboardEntry {
   const nameValue = entry.name;
   const scoreValue = entry.score;
   const classNameValue = entry.className;
+  const stern1Value = entry.stern1;
+  const stern2Value = entry.stern2;
+  const stern3Value = entry.stern3;
 
   if (
     typeof rankValue !== "number" ||
@@ -203,7 +201,10 @@ function validateLegacyEntry(value: unknown): LeaderboardEntry {
     typeof nameValue !== "string" ||
     typeof scoreValue !== "number" ||
     !Number.isInteger(scoreValue) ||
-    scoreValue < 0
+    scoreValue < 0 ||
+    (stern1Value !== undefined && typeof stern1Value !== "boolean") ||
+    (stern2Value !== undefined && typeof stern2Value !== "boolean") ||
+    (stern3Value !== undefined && typeof stern3Value !== "boolean")
   ) throw new Error("Invalid leaderboard entry.");
 
   return {
@@ -212,8 +213,8 @@ function validateLegacyEntry(value: unknown): LeaderboardEntry {
     name: nameValue,
     className: typeof classNameValue === "string" ? classNameValue : null,
     score: scoreValue,
-    stern1: false,
-    stern2: false,
-    stern3: false
+    stern1: stern1Value === true,
+    stern2: stern2Value === true,
+    stern3: stern3Value === true
   };
 }
