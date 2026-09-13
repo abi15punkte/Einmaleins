@@ -81,14 +81,6 @@
   75% { transform: translate3d(-0.7vw, -1.1vh, 0) rotate(0.25deg) scale(1.01); }
 }
 
-/* Klassentier: gleiche ruhige Bewegung, spiegelverkehrt nach links-unten. */
-@keyframes highscore-class-animal-float {
-  0%, 100% { transform: translate3d(0, 0, 0) rotate(1deg) scale(1); }
-  25% { transform: translate3d(-0.35vw, 0.7vh, 0) rotate(-0.5deg) scale(1.012); }
-  50% { transform: translate3d(0, 1.1vh, 0) rotate(-1deg) scale(1.02); }
-  75% { transform: translate3d(0.35vw, 0.55vh, 0) rotate(-0.25deg) scale(1.01); }
-}
-
 @media (orientation: landscape) {
   .game-screen::after,
   .start-screen::after,
@@ -104,15 +96,10 @@
     animation-name: highscore-alien-float-wide !important;
   }
 
-  /* Klassentiere auf der schulweiten Highscoreliste bewegen sich spiegelverkehrt nach links-unten. */
-  .school-highscore-overlay .school-highscore-mascot {
-    overflow: visible !important;
-  }
-
+  /* Die Portrait-Klassentiere P1-P16 der Highscoreliste bleiben vollständig statisch. */
+  .school-highscore-overlay .school-highscore-mascot,
   .school-highscore-overlay .school-highscore-mascot img {
-    animation: highscore-class-animal-float 5.8s ease-in-out infinite;
-    transform-origin: 50% 100%;
-    will-change: transform;
+    animation: none !important;
   }
 
   /* Auf der Highscoreliste bleibt der Alien hinter der Liste. */
@@ -159,6 +146,7 @@
   .start-screen::after,
   .result-screen::after,
   .school-highscore-overlay::after,
+  .school-highscore-overlay .school-highscore-mascot,
   .school-highscore-overlay .school-highscore-mascot img {
     animation: none !important;
     transform: none !important;
