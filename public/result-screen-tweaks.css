@@ -194,6 +194,16 @@
 .school-highscore-overlay .school-highscore-mascot img[alt="Klasse M15"] { content: url("./P15.png") !important; }
 .school-highscore-overlay .school-highscore-mascot img[alt="Klasse M16"] { content: url("./P16.png") !important; }
 
+/* Highscore-Portraitgröße: 70 % der Kachel, weiterhin unten bündig. */
+.school-highscore-overlay .school-highscore-mascot img {
+  width: auto !important;
+  height: 70% !important;
+  position: absolute !important;
+  bottom: 0 !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .mode-actions .mode-card,
   .result-card > #again,
