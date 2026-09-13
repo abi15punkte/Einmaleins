@@ -204,12 +204,12 @@
   transform: translateX(-50%) !important;
 }
 
-/* Highscore-Hintergrund: 50.png liegt hinter dem Portrait. */
+/* Highscore-Hintergrund: für 0–9 Spiele weiß, das App-Hintergrundbild bleibt davon unberührt. */
 .school-highscore-overlay .school-highscore-mascot::before {
   content: "" !important;
   position: absolute !important;
   inset: 0 !important;
-  background: url("./50.png") center/cover no-repeat !important;
+  background: #ffffff !important;
   z-index: 0 !important;
 }
 
