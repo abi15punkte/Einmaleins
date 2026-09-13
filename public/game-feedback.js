@@ -24,12 +24,10 @@
   function isShowingExpectedSolution(answerElement, feedbackElement) {
     const text = answerElement.textContent?.trim() ?? "";
     if (!text) return false;
-
     const feedbackExpected = feedbackElement.classList.contains("feedback-wrong")
       ? (feedbackElement.textContent ?? "").match(/Die Antwort ist\s+(\d+)\.?/i)?.[1]
       : null;
     if (feedbackExpected && text === feedbackExpected) return true;
-
     const factorA = Number(currentGameScreen?.querySelector("#factor-a")?.textContent ?? "");
     const factorB = Number(currentGameScreen?.querySelector("#factor-b")?.textContent ?? "");
     if (!Number.isFinite(factorA) || !Number.isFinite(factorB)) return false;
@@ -54,7 +52,6 @@
     const answerElement = currentGameScreen.querySelector("#answer");
     const firstKey = currentGameScreen.querySelector(".keypad-key:first-child");
     if (!(equation instanceof HTMLElement) || !(answerElement instanceof HTMLElement) || !(firstKey instanceof HTMLElement)) return;
-
     equation.style.transform = "translateY(0)";
     const delta = firstKey.getBoundingClientRect().top - answerElement.getBoundingClientRect().top;
     equation.style.transform = `translateY(${delta}px)`;
@@ -85,7 +82,6 @@
     const startY = cardRect.top + cardRect.height * 0.52;
     const targetX = scoreRect.left + scoreRect.width * 0.5;
     const targetY = scoreRect.top + scoreRect.height * 0.5;
-
     const particle = document.createElement("span");
     particle.className = `points-fly multiplier-x${multiplier}`;
     particle.style.color = MULTIPLIER_COLORS[multiplier] ?? MULTIPLIER_COLORS[1];
@@ -128,7 +124,6 @@
   function ensureResultCloseAction() {
     const resultCard = document.querySelector(".result-card");
     if (!(resultCard instanceof HTMLElement) || resultCard.querySelector("#close-app")) return;
-
     const againButton = resultCard.querySelector("#again");
     const closeButton = document.createElement("button");
     closeButton.type = "button";
@@ -136,13 +131,11 @@
     closeButton.id = "close-app";
     closeButton.textContent = "App schließen";
     closeButton.addEventListener("click", tryCloseApp);
-
     const status = document.createElement("p");
     status.id = "close-app-status";
     status.className = "close-app-status";
     status.hidden = true;
     status.setAttribute("aria-live", "polite");
-
     if (againButton) {
       againButton.insertAdjacentElement("afterend", closeButton);
       closeButton.insertAdjacentElement("afterend", status);
@@ -152,50 +145,62 @@
   }
 
   function ensureResultAwards(resultScreen) {
-    const resultCard = resultScreen.querySelector(".result-card");
-    if (!(resultCard instanceof HTMLElement)) return;
+    const awards = resultScreen.querySelector(".result-stars");
+    if (!(awards instanceof HTMLElement)) return;
 
-    const won = (resultScreen.querySelector("#result-title")?.textContent ?? "").trim() === "Geschafft!";
-    const earnedStar3 = won;
-    const existing = resultCard.querySelector("#result-stars");
+    const existingSources = new Set(
+      Array.from(awards.querySelectorAll("img"))
+        .map((image) => image.getAttribute("src") ?? "")
+        .map((src) => src.split("/").pop() ?? "")
+    );
+    const starStates = [
+      existingSources.has("Stern1.png"),
+      existingSources.has("Stern2.png"),
+      existingSources.has("Stern3.png")
+    ];
 
-    if (!earnedStar1ThisGame && !earnedStar3) {
-      existing?.remove();
-      return;
-    }
+    awards.setAttribute("aria-label", "Sterne");
+    awards.style.margin = "22px auto 0";
+    awards.style.padding = "12px 16px";
+    awards.style.display = "inline-flex";
+    awards.style.flexDirection = "column";
+    awards.style.alignItems = "center";
+    awards.style.gap = "8px";
+    awards.style.border = "1px solid rgba(23,32,51,.08)";
+    awards.style.borderRadius = "16px";
+    awards.style.background = "#f6f8fb";
+    awards.style.maxWidth = "100%";
 
-    const awards = existing instanceof HTMLElement ? existing : document.createElement("section");
-    awards.id = "result-stars";
-    awards.setAttribute("aria-label", "Verdiente Sterne");
-    awards.style.margin = "26px 0 0";
-    awards.style.display = "grid";
-    awards.style.gap = "14px";
+    const title = document.createElement("span");
+    title.textContent = "Sterne";
+    title.style.fontSize = ".78rem";
+    title.style.fontWeight = "800";
+    title.style.letterSpacing = ".08em";
+    title.style.textTransform = "uppercase";
+    title.style.color = "#7a8495";
 
-    const stars = [];
-    if (earnedStar1ThisGame) {
-      stars.push(`
-        <div class="earned-star" style="display:flex;align-items:center;justify-content:center;gap:12px;">
-          <img src="./Stern1.png" alt="Stern 1 verdient" style="width:72px;height:auto;display:block;" />
-          <strong>Stern 1</strong>
-        </div>
-      `);
-    }
-    if (earnedStar3) {
-      stars.push(`
-        <div class="earned-star" style="display:flex;align-items:center;justify-content:center;gap:12px;">
-          <img src="./Stern3.png" alt="Stern 3 verdient" style="width:72px;height:auto;display:block;" />
-          <strong>Stern 3</strong>
-        </div>
-      `);
-    }
+    const row = document.createElement("span");
+    row.style.display = "inline-flex";
+    row.style.alignItems = "center";
+    row.style.justifyContent = "center";
+    row.style.gap = "12px";
 
-    awards.innerHTML = `<p style="margin:0;color:#7a8495;font-size:.78rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;">Deine Sterne</p>${stars.join("")}`;
+    ["Stern1.png", "Stern2.png", "Stern3.png"].forEach((asset, index) => {
+      const image = document.createElement("img");
+      image.src = `./${asset}`;
+      image.alt = starStates[index] ? `Stern ${index + 1} freigeschaltet` : `Stern ${index + 1} noch nicht freigeschaltet`;
+      image.style.width = "56px";
+      image.style.height = "56px";
+      image.style.objectFit = "contain";
+      image.style.display = "block";
+      if (!starStates[index]) {
+        image.style.opacity = ".22";
+        image.style.filter = "grayscale(1)";
+      }
+      row.appendChild(image);
+    });
 
-    if (!existing) {
-      const stats = resultCard.querySelector(".result-stats");
-      if (stats) stats.insertAdjacentElement("afterend", awards);
-      else resultCard.prepend(awards);
-    }
+    awards.replaceChildren(title, row);
   }
 
   function sync() {
@@ -228,7 +233,8 @@
     syncAnswerColor(answerElement, feedback);
     scheduleAnswerBoxAlignment();
 
-    const multiplierText = streakElement?.textContent ?? "";
+    const streakVisible = streakElement instanceof HTMLElement && !streakElement.hidden;
+    const multiplierText = streakVisible ? (streakElement.textContent ?? "") : "Serie ×1";
     if (multiplierText.includes("×5")) earnedStar1ThisGame = true;
 
     const signature = `${feedback.className}|${feedback.textContent ?? ""}`;
@@ -236,7 +242,6 @@
     feedbackSignature = signature;
 
     if (!feedback.classList.contains("feedback-correct")) return;
-
     const match = (feedback.textContent ?? "").match(/\+(\d+) Punkte/);
     if (!match) return;
 
