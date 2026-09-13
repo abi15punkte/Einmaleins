@@ -16,6 +16,34 @@
   let earnedStar1ThisGame = false;
   let highscoreOverlayWasVisible = false;
 
+  function ensureAlienAnimationStyles() {
+    if (document.getElementById("highscore-alien-animation")) return;
+    const style = document.createElement("style");
+    style.id = "highscore-alien-animation";
+    style.textContent = `
+      .school-highscore-overlay::after {
+        animation: highscore-alien-float 5.8s ease-in-out infinite;
+        transform-origin: 50% 100%;
+        will-change: transform, opacity;
+      }
+      @keyframes highscore-alien-float {
+        0%, 100% { transform: translate3d(0, 0, 0) rotate(-1deg) scale(1); }
+        25% { transform: translate3d(0.35vw, -0.7vh, 0) rotate(0.5deg) scale(1.012); }
+        50% { transform: translate3d(0, -1.1vh, 0) rotate(1deg) scale(1.02); }
+        75% { transform: translate3d(-0.35vw, -0.55vh, 0) rotate(0.25deg) scale(1.01); }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .school-highscore-overlay::after {
+          animation: none !important;
+          transform: none !important;
+        }
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
+  ensureAlienAnimationStyles();
+
   function updateCriticalTime(timeElement) {
     const match = (timeElement.textContent ?? "").match(/^(\d+):(\d{2})$/);
     const seconds = match ? Number(match[1]) * 60 + Number(match[2]) : Number.POSITIVE_INFINITY;
@@ -157,65 +185,11 @@
     document.querySelector<HTMLButtonElement>(".result-highscore-action button")?.removeAttribute("disabled");
   }
 
-  function ensureResultAwards(resultScreen) {
-    const existingAwards = resultScreen.querySelector(".result-stars");
-    const existingStarSources = new Set(
-      Array.from(existingAwards?.querySelectorAll("img") ?? [])
-        .map((image) => image.getAttribute("src") ?? "")
-        .map((src) => src.split("/").pop() ?? "")
-    );
-
-    const starsBox = resultScreen.querySelector(".result-stat:last-child");
-    const starHost = starsBox?.querySelector("strong");
-    if (!(starsBox instanceof HTMLElement) || !(starHost instanceof HTMLElement)) return;
-
-    const starStates = [
-      existingStarSources.has("Stern1.png"),
-      existingStarSources.has("Stern2.png"),
-      existingStarSources.has("Stern3.png")
-    ];
-
-    starHost.replaceChildren();
-    starHost.style.position = "absolute";
-    starHost.style.left = "0";
-    starHost.style.bottom = "1.75vh";
-    starHost.style.display = "flex";
-    starHost.style.alignItems = "center";
-    starHost.style.justifyContent = "center";
-    starHost.style.gap = "3.2%";
-    starHost.style.width = "100%";
-    starHost.style.height = "4.9vh";
-    starHost.style.margin = "0";
-    starHost.style.overflow = "visible";
-    starHost.style.fontSize = "0";
-    starHost.style.lineHeight = "1";
-    starHost.style.background = "none";
-    starHost.style.filter = "none";
-    starHost.style.opacity = "1";
-
-    ["Stern1.png", "Stern2.png", "Stern3.png"].forEach((asset, index) => {
-      const image = document.createElement("img");
-      image.src = `./${asset}`;
-      image.alt = starStates[index] ? `Stern ${index + 1} freigeschaltet` : `Stern ${index + 1} noch nicht freigeschaltet`;
-      image.style.width = "20%";
-      image.style.height = "4.6vh";
-      image.style.objectFit = "contain";
-      image.style.display = "block";
-      image.style.filter = starStates[index] ? "none" : "grayscale(1)";
-      image.style.opacity = starStates[index] ? "1" : ".35";
-      if (index === 2) image.style.transform = "translateY(-0.6vh)";
-      starHost.appendChild(image);
-    });
-
-    existingAwards?.remove();
-  }
-
   function sync() {
     syncHighscoreReturnState();
 
     const resultScreen = document.querySelector(".result-screen");
     if (resultScreen) {
-      ensureResultAwards(resultScreen);
       ensureResultCloseAction();
     }
 
