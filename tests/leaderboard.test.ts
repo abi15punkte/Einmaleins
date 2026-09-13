@@ -126,7 +126,7 @@ describe("school leaderboard client", () => {
     });
 
     const client = createLeaderboardClient();
-    const entries = await client.top();
+    const entries = await client.top(false);
 
     expect(query).toHaveBeenCalledWith("highscores-ref", "order-by-ref");
     expect(orderBy).toHaveBeenCalledWith("punkte", "desc");
@@ -173,7 +173,7 @@ describe("school leaderboard client", () => {
 
     const client = createLeaderboardClient();
 
-    await expect(client.top()).resolves.toEqual([
+    await expect(client.top(false)).resolves.toEqual([
       {
         rank: 1,
         studentId: "student-3",
@@ -204,6 +204,6 @@ describe("school leaderboard client", () => {
 
     const client = createLeaderboardClient();
 
-    await expect(client.top()).rejects.toThrow("Invalid leaderboard entry.");
+    await expect(client.top(false)).rejects.toThrow("Invalid leaderboard entry.");
   });
 });
