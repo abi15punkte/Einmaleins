@@ -4,6 +4,7 @@
   const REDUCED_MOTION = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const SCORE_UPDATE_DELAY_MS = REDUCED_MOTION ? 0 : SCORE_ARRIVAL_MS;
   const MULTIPLIER_COLORS = { 1: "#000000", 2: "#ffc65a", 3: "#ee737f", 5: "#9877e6" };
+  const PORTRAIT_RE = /^M(?:[1-9]|1[0-6])$/i;
   let currentGameScreen = null;
   let feedbackSignature = "";
   let displayedScore = 0;
@@ -48,6 +49,61 @@
     document.head.appendChild(style);
   }
   ensureAlienAnimationStyles();
+
+  function ensureBuildIndicatorStyles() {
+    if (document.getElementById("build-indicator-styles")) return;
+    const style = document.createElement("style");
+    style.id = "build-indicator-styles";
+    style.textContent = `
+      .app-build-indicator {
+        position: absolute;
+        right: 14px;
+        bottom: 10px;
+        z-index: 2;
+        margin: 0;
+        color: rgba(23, 32, 51, 0.42);
+        font-size: 11px;
+        line-height: 1;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
+  function getCurrentBuildId() {
+    const manifestLink = document.querySelector('link[rel="manifest"]');
+    if (!(manifestLink instanceof HTMLLinkElement)) return "dev";
+    const buildId = new URL(manifestLink.href, document.baseURI).searchParams.get("build");
+    return buildId && buildId !== "__BUILD_ID__" ? buildId : "dev";
+  }
+
+  function syncBuildIndicator() {
+    const card = document.querySelector(".start-screen .welcome-card");
+    if (!(card instanceof HTMLElement)) return;
+    ensureBuildIndicatorStyles();
+    let indicator = card.querySelector(".app-build-indicator");
+    if (!(indicator instanceof HTMLElement)) {
+      indicator = document.createElement("p");
+      indicator.className = "app-build-indicator";
+      indicator.setAttribute("aria-label", "Buildnummer");
+      card.appendChild(indicator);
+    }
+    indicator.textContent = `Build ${getCurrentBuildId()}`;
+  }
+
+  function syncHighscorePortraits() {
+    document.querySelectorAll(".school-highscore-mascot img").forEach((image) => {
+      if (!(image instanceof HTMLImageElement)) return;
+      const match = (image.alt || "").match(/Klasse\s+(M(?:[1-9]|1[0-6]))/i);
+      if (!match || !PORTRAIT_RE.test(match[1])) return;
+      const className = match[1].toUpperCase();
+      const portraitSrc = `./P${className.slice(1)}.png`;
+      if (image.dataset.highscorePortrait === portraitSrc && image.src.endsWith(portraitSrc.replace("./", "/"))) return;
+      image.dataset.highscorePortrait = portraitSrc;
+      image.src = portraitSrc;
+    });
+  }
 
   function updateCriticalTime(timeElement) {
     const match = (timeElement.textContent ?? "").match(/^(\d+):(\d{2})$/);
@@ -157,6 +213,8 @@
   }
   function sync() {
     syncHighscoreReturnState();
+    syncBuildIndicator();
+    syncHighscorePortraits();
     syncResultStars();
     const resultScreen = document.querySelector(".result-screen");
     if (resultScreen) ensureResultCloseAction();
