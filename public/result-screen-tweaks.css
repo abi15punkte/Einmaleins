@@ -117,18 +117,20 @@
   100% { transform: translateY(2px) scale(0.985); }
 }
 
+/* FUNCTION TEST: only the animation waypoints are intentionally extreme.
+   Base position and size stay in space-theme.css unchanged. */
 @keyframes highscore-alien-float {
   0%, 100% { transform: translate3d(0, 0, 0) rotate(-1deg) scale(1); }
-  25% { transform: translate3d(0.35vw, -0.7vh, 0) rotate(0.5deg) scale(1.012); }
-  50% { transform: translate3d(0, -1.1vh, 0) rotate(1deg) scale(1.02); }
-  75% { transform: translate3d(-0.35vw, -0.55vh, 0) rotate(0.25deg) scale(1.01); }
+  25% { transform: translate3d(20vw, -15vh, 0) rotate(45deg) scale(1.4); }
+  50% { transform: translate3d(-18vw, 20vh, 0) rotate(-60deg) scale(0.55); }
+  75% { transform: translate3d(25vw, -25vh, 0) rotate(120deg) scale(1.7); }
 }
 
 @keyframes highscore-alien-float-wide {
   0%, 100% { transform: translate3d(0, 0, 0) rotate(-1deg) scale(1); }
-  25% { transform: translate3d(0.7vw, -1.4vh, 0) rotate(0.5deg) scale(1.012); }
-  50% { transform: translate3d(0, -2.2vh, 0) rotate(1deg) scale(1.02); }
-  75% { transform: translate3d(-0.7vw, -1.1vh, 0) rotate(0.25deg) scale(1.01); }
+  25% { transform: translate3d(-25vw, 18vh, 0) rotate(-55deg) scale(1.5); }
+  50% { transform: translate3d(22vw, -22vh, 0) rotate(75deg) scale(0.5); }
+  75% { transform: translate3d(-30vw, -18vh, 0) rotate(140deg) scale(1.8); }
 }
 
 @media (orientation: landscape) {
@@ -173,22 +175,6 @@
 .result-screen .result-stat:last-child strong img:nth-child(3) { content: url("./Stern3.png") !important; }
 /* Der dritte Stern sitzt konstruktionsbedingt 3px tiefer; global 3px anheben. */
 .result-screen .result-stat:last-child strong img:nth-child(3) { transform: translateY(-3px) !important; }
-
-/* FUNCTION TEST: absurd Alien values — this must be unmistakably visible. */
-@media (orientation: landscape) {
-  .game-screen::after,
-  .start-screen::after,
-  .result-screen::after,
-  .school-highscore-overlay::after {
-    left: 11vw !important;
-    bottom: 14vh !important;
-    width: 41vw !important;
-    height: 41vw !important;
-    transform: rotate(137deg) scale(1.8) !important;
-    transform-origin: 50% 100% !important;
-    z-index: 99999 !important;
-  }
-}
 
 @media (prefers-reduced-motion: reduce) {
   .mode-actions .mode-card,
