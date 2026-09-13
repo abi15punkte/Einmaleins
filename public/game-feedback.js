@@ -28,9 +28,9 @@
       }
       @keyframes highscore-alien-float {
         0%, 100% { transform: translate3d(0, 0, 0) rotate(-1deg) scale(1); }
-        25% { transform: translate3d(0.35vw, -0.7vh, 0) rotate(0.5deg) scale(1.012); }
-        50% { transform: translate3d(0, -1.1vh, 0) rotate(1deg) scale(1.02); }
-        75% { transform: translate3d(-0.35vw, -0.55vh, 0) rotate(0.25deg) scale(1.01); }
+        25% { transform: translate3d(28vw, -22vh, 0) rotate(65deg) scale(1.7); }
+        50% { transform: translate3d(-24vw, 26vh, 0) rotate(-90deg) scale(0.45); }
+        75% { transform: translate3d(34vw, -30vh, 0) rotate(150deg) scale(2.1); }
       }
       @media (prefers-reduced-motion: reduce) {
         .school-highscore-overlay::after {
