@@ -79,7 +79,6 @@
   }
 
   .result-screen #close-app { display: none !important; }
-  .result-screen::after { display: none !important; }
   .result-card::after {
     content: "Bitte schließe die App selbst.";
     position: absolute !important; left: 50% !important; bottom: 1.2vh !important; transform: translateX(-50%) !important;
