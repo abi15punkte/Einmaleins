@@ -1,4 +1,4 @@
-import { getPersonalBackgroundAsset, loadCompletedGames, loadPersonalHighscore, loadStudentIdentity, type HighscoreRecord } from "./highscore";
+import { getPersonalBackgroundAsset, loadCompletedGames, loadPersonalHighscore, loadStudentIdentity, unlockSecondStar, type HighscoreRecord } from "./highscore";
 
 type HighscoreRecordWithStars = HighscoreRecord & {
   stern1?: boolean;
@@ -17,6 +17,9 @@ let completedGamesSyncObserver: MutationObserver | null = null;
 let lastCompletedGamesSyncKey: string | null = null;
 let inFlightCompletedGamesSyncKey: string | null = null;
 let lastSuccessfulLeaderboardSubmitKey: string | null = null;
+let secondStarChallengeLoadedForGame = false;
+let secondStarChallengeLoading = false;
+let secondStarTargetScore: number | null = null;
 
 async function loadFirestoreSdk(): Promise<FirestoreSdk> {
   if (!firestoreSdkPromise) {
@@ -128,7 +131,7 @@ async function syncCompletedGamesToLeaderboard(): Promise<void> {
   if (!personalBest) return;
 
   const completedGames = loadCompletedGames(student.studentId);
-  const syncKey = `${student.studentId}:${completedGames}:${personalBest.score}`;
+  const syncKey = `${student.studentId}:${completedGames}:${personalBest.score}:${personalBest.stern1 === true}:${personalBest.stern2 === true}:${personalBest.stern3 === true}`;
   if (syncKey === lastCompletedGamesSyncKey || syncKey === inFlightCompletedGamesSyncKey) return;
 
   inFlightCompletedGamesSyncKey = syncKey;
@@ -144,6 +147,61 @@ async function syncCompletedGamesToLeaderboard(): Promise<void> {
   }
 }
 
+async function checkSecondStarChallenge(): Promise<void> {
+  if (typeof document === "undefined") return;
+
+  const timeElement = document.querySelector<HTMLElement>(".game-screen #time");
+  if (!timeElement) return;
+
+  const match = timeElement.textContent?.trim().match(/^(\d+):(\d{2})$/);
+  if (!match) return;
+
+  const remainingSeconds = Number(match[1]) * 60 + Number(match[2]);
+  if (remainingSeconds > 60) {
+    secondStarChallengeLoadedForGame = false;
+    secondStarChallengeLoading = false;
+    secondStarTargetScore = null;
+    return;
+  }
+
+  const student = loadStudentIdentity();
+  const personalBest = loadPersonalHighscore(student.studentId);
+  if (personalBest?.stern2 === true) {
+    secondStarChallengeLoadedForGame = true;
+    secondStarTargetScore = null;
+    return;
+  }
+
+  const scoreElement = document.querySelector<HTMLElement>(".game-screen #score");
+  if (!scoreElement) return;
+
+  const currentScore = Number.parseInt(scoreElement.textContent?.trim() ?? "0", 10);
+  if (!Number.isFinite(currentScore)) return;
+
+  if (!secondStarChallengeLoadedForGame && !secondStarChallengeLoading) {
+    secondStarChallengeLoading = true;
+    try {
+      const entries = await createLeaderboardClient().top();
+      secondStarTargetScore = entries[2]?.score ?? null;
+      secondStarChallengeLoadedForGame = true;
+    } catch (error) {
+      console.error("Highscoreliste konnte für Stern2 nicht geladen werden.", error);
+    } finally {
+      secondStarChallengeLoading = false;
+    }
+  }
+
+  if (
+    secondStarChallengeLoadedForGame
+    && secondStarTargetScore !== null
+    && currentScore > secondStarTargetScore
+  ) {
+    unlockSecondStar(student.studentId);
+    secondStarChallengeLoadedForGame = true;
+    secondStarTargetScore = null;
+  }
+}
+
 function installCompletedGamesSyncObserver(): void {
   if (typeof document === "undefined" || completedGamesSyncObserver !== null) return;
 
@@ -152,9 +210,11 @@ function installCompletedGamesSyncObserver(): void {
 
     completedGamesSyncObserver = new MutationObserver(() => {
       void syncCompletedGamesToLeaderboard();
+      void checkSecondStarChallenge();
     });
     completedGamesSyncObserver.observe(document.body, { childList: true, subtree: true });
     void syncCompletedGamesToLeaderboard();
+    void checkSecondStarChallenge();
   };
 
   if (document.readyState === "loading") {
