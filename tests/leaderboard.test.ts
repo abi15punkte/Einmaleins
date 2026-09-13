@@ -66,7 +66,9 @@ describe("school leaderboard client", () => {
         studentId: "student-1",
         name: "Max",
         klasse: "4a",
+        portrait: "P1.png",
         punkte: 500,
+        completedGames: 0,
         stern1: true,
         stern2: false,
         stern3: true,
@@ -75,12 +77,12 @@ describe("school leaderboard client", () => {
     );
   });
 
-  it("treats permission-denied as an already better-or-equal stored score", async () => {
+  it("propagates Firestore permission-denied write failures", async () => {
     setDoc.mockRejectedValue({ code: "permission-denied" });
 
     const client = createLeaderboardClient();
 
-    await expect(client.submit(record)).resolves.toBeUndefined();
+    await expect(client.submit(record)).rejects.toMatchObject({ code: "permission-denied" });
   });
 
   it("propagates other Firestore write failures", async () => {
@@ -98,8 +100,10 @@ describe("school leaderboard client", () => {
           data: () => ({
             studentId: "student-2",
             name: "Sophie",
-            klasse: "4a",
+            klasse: "M2",
+            portrait: "P2.png",
             punkte: 700,
+            completedGames: 50,
             stern1: true,
             stern2: true,
             stern3: false
@@ -109,8 +113,10 @@ describe("school leaderboard client", () => {
           data: () => ({
             studentId: "student-1",
             name: "Max",
-            klasse: "4b",
+            klasse: "M1",
+            portrait: "P1.png",
             punkte: 500,
+            completedGames: 10,
             stern1: true,
             stern2: false,
             stern3: false
@@ -130,33 +136,37 @@ describe("school leaderboard client", () => {
         rank: 1,
         studentId: "student-2",
         name: "Sophie",
-        className: "4a",
+        className: "M2",
+        portrait: "P2.png",
         score: 700,
         stern1: true,
         stern2: true,
-        stern3: false
+        stern3: false,
+        completedGames: 50
       },
       {
         rank: 2,
         studentId: "student-1",
         name: "Max",
-        className: "4b",
+        className: "M1",
+        portrait: "P1.png",
         score: 500,
         stern1: true,
         stern2: false,
-        stern3: false
+        stern3: false,
+        completedGames: 10
       }
     ]);
   });
 
-  it("treats missing star fields as false", async () => {
+  it("treats missing portrait, completed games and star fields as fallback values", async () => {
     getDocs.mockResolvedValue({
       docs: [
         {
           data: () => ({
             studentId: "student-3",
             name: "Lea",
-            klasse: "4c",
+            klasse: "M3",
             punkte: 400
           })
         }
@@ -170,11 +180,13 @@ describe("school leaderboard client", () => {
         rank: 1,
         studentId: "student-3",
         name: "Lea",
-        className: "4c",
+        className: "M3",
+        portrait: "P3.png",
         score: 400,
         stern1: false,
         stern2: false,
-        stern3: false
+        stern3: false,
+        completedGames: 0
       }
     ]);
   });
