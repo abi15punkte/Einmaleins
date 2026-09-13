@@ -1,21 +1,40 @@
 const BUILD_ID = new URL(self.location.href).searchParams.get("v") || "dev";
 const CACHE_NAME = `einmaleins-reset-${BUILD_ID}`;
+
+const IMAGE_ASSETS = [
+  "./einmaleins-icon.svg",
+  "./Background.png",
+  "./Alien.png",
+  "./Querformathinweis.png",
+  "./10.png",
+  "./50.png",
+  "./100.png",
+  "./200.png",
+  "./10000.png",
+  ...Array.from({ length: 16 }, (_, index) => `./M${index + 1}.png`),
+  ...Array.from({ length: 16 }, (_, index) => `./P${index + 1}.png`),
+  "./Stern1.png",
+  "./Stern2.png",
+  "./Stern3.png",
+  "./space-background-original.jpg",
+  "./space-background-original.png",
+  "./space-background.webp",
+  "./space-background.svg",
+  "./space-bg.svg",
+];
+
 const APP_SHELL = [
   "./",
   "./index.html",
   "./manifest.webmanifest",
-  "./einmaleins-icon.svg",
   "./space-theme.css?v=23",
   "./game-layout-tweaks.css?build=__BUILD_ID__",
   "./orientation-lock.css?build=__BUILD_ID__",
   "./start-class-mascot.css",
   "./start-class-mascot.js",
-  "./Querformathinweis.png",
-  "./Background.png",
-  "./Alien.png",
   "./src/responsive.css",
   "./src/laptop.css",
-  ...Array.from({ length: 16 }, (_, index) => `./P${index + 1}.png`),
+  ...IMAGE_ASSETS,
 ];
 
 const HIGHSCORE_ASSETS = [
