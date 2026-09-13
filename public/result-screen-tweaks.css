@@ -176,6 +176,24 @@
 /* Der dritte Stern sitzt konstruktionsbedingt 3px tiefer; global 3px anheben. */
 .result-screen .result-stat:last-child strong img:nth-child(3) { transform: translateY(-3px) !important; }
 
+/* Schulweite Highscoreliste: Die sichtbaren Portraits sind immer P1-P16. */
+.school-highscore-overlay .school-highscore-mascot img[alt="Klasse M1"] { content: url("./P1.png") !important; }
+.school-highscore-overlay .school-highscore-mascot img[alt="Klasse M2"] { content: url("./P2.png") !important; }
+.school-highscore-overlay .school-highscore-mascot img[alt="Klasse M3"] { content: url("./P3.png") !important; }
+.school-highscore-overlay .school-highscore-mascot img[alt="Klasse M4"] { content: url("./P4.png") !important; }
+.school-highscore-overlay .school-highscore-mascot img[alt="Klasse M5"] { content: url("./P5.png") !important; }
+.school-highscore-overlay .school-highscore-mascot img[alt="Klasse M6"] { content: url("./P6.png") !important; }
+.school-highscore-overlay .school-highscore-mascot img[alt="Klasse M7"] { content: url("./P7.png") !important; }
+.school-highscore-overlay .school-highscore-mascot img[alt="Klasse M8"] { content: url("./P8.png") !important; }
+.school-highscore-overlay .school-highscore-mascot img[alt="Klasse M9"] { content: url("./P9.png") !important; }
+.school-highscore-overlay .school-highscore-mascot img[alt="Klasse M10"] { content: url("./P10.png") !important; }
+.school-highscore-overlay .school-highscore-mascot img[alt="Klasse M11"] { content: url("./P11.png") !important; }
+.school-highscore-overlay .school-highscore-mascot img[alt="Klasse M12"] { content: url("./P12.png") !important; }
+.school-highscore-overlay .school-highscore-mascot img[alt="Klasse M13"] { content: url("./P13.png") !important; }
+.school-highscore-overlay .school-highscore-mascot img[alt="Klasse M14"] { content: url("./P14.png") !important; }
+.school-highscore-overlay .school-highscore-mascot img[alt="Klasse M15"] { content: url("./P15.png") !important; }
+.school-highscore-overlay .school-highscore-mascot img[alt="Klasse M16"] { content: url("./P16.png") !important; }
+
 @media (prefers-reduced-motion: reduce) {
   .mode-actions .mode-card,
   .result-card > #again,
