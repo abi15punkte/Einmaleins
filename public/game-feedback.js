@@ -3,6 +3,12 @@
   const SCORE_ARRIVAL_MS = 850;
   const REDUCED_MOTION = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const SCORE_UPDATE_DELAY_MS = REDUCED_MOTION ? 0 : SCORE_ARRIVAL_MS;
+  const MULTIPLIER_COLORS = {
+    1: "#000000",
+    2: "#ffc65a",
+    3: "#ee737f",
+    5: "#9877e6"
+  };
 
   let currentGameScreen = null;
   let feedbackSignature = "";
@@ -81,6 +87,7 @@
 
     const particle = document.createElement("span");
     particle.className = `points-fly multiplier-x${multiplier}`;
+    particle.style.color = MULTIPLIER_COLORS[multiplier] ?? MULTIPLIER_COLORS[1];
     particle.textContent = `+${points}`;
     particle.style.left = `${startX}px`;
     particle.style.top = `${startY}px`;
