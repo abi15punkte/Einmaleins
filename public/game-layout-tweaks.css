@@ -62,7 +62,7 @@
   }
 }
 
-/* Permanent class mascot: closer test start position and deliberately slow peek. */
+/* Permanent class mascot: closer test start position and a short 8s peek. */
 .start-class-overlay {
   position: fixed !important;
   left: auto !important;
@@ -72,23 +72,10 @@
   width: 18.5vw !important;
   height: 18.5vw !important;
   transform: translateY(-50%);
-  animation-duration: 14s !important;
+  animation-duration: 8s !important;
   object-fit: contain !important;
   pointer-events: none !important;
   z-index: 20001 !important;
-}
-
-/* Test override: reduce the visible travel while keeping the 14s timing. */
-@keyframes class-mascot-peek {
-  0%, 25% {
-    transform: translateY(-50%) translateX(0);
-  }
-  55% {
-    transform: translateY(-50%) translateX(-5vw);
-  }
-  70%, 100% {
-    transform: translateY(-50%) translateX(0);
-  }
 }
 
 /* Keep the test readout in place while the mascot itself is promoted to an overlay. */
