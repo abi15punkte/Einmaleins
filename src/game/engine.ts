@@ -59,7 +59,15 @@ export class GameEngine {
     this.random = random; this.clock = clock; this.onRoundComplete = onRoundComplete;
   }
 
-  getState(): GameState { return { ...this.state, remainingTasks: [...this.state.remainingTasks] }; }
+  getState(): GameState {
+    return {
+      ...this.state,
+      elapsedMs: this.state.phase === "playing"
+        ? Math.max(0, GAME_DURATION_MS - this.state.elapsedMs)
+        : this.state.phase === "ready" ? GAME_DURATION_MS : 0,
+      remainingTasks: [...this.state.remainingTasks]
+    };
+  }
 
   start(): GameState {
     if (this.state.phase !== "ready") throw new Error("The game has already started.");
