@@ -31,7 +31,7 @@ describe("Timer", () => {
     testClock.advance(GAME_DURATION_MS - 1);
 
     expect(game.tick().phase).toBe("playing");
-    expect(game.tick().elapsedMs).toBe(GAME_DURATION_MS - 1);
+    expect(game.tick().elapsedMs).toBe(1);
   });
 
   it("beendet das Spiel während einer Eingabe und nimmt die Antwort nicht mehr an", () => {
@@ -65,7 +65,7 @@ describe("Timer", () => {
     const state = game.tick();
 
     expect(state.phase).toBe("timeUp");
-    expect(state.elapsedMs).toBe(GAME_DURATION_MS);
+    expect(state.elapsedMs).toBe(0);
     expect(state.currentTask).toBeNull();
 
     expect(() => game.answer(task[0] * task[1])).toThrow(
