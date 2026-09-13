@@ -5,16 +5,11 @@
   const SCORE_UPDATE_DELAY_MS = REDUCED_MOTION ? 0 : SCORE_ARRIVAL_MS;
   const MULTIPLIER_COLORS = { 1: "#000000", 2: "#ffc65a", 3: "#ee737f", 5: "#9877e6" };
   const PORTRAIT_RE = /^M(?:[1-9]|1[0-6])$/i;
-  const MASCOT_COUNT = 16;
-  const MASCOT_CYCLE_MS = 8000;
   let currentGameScreen = null;
   let feedbackSignature = "";
   let displayedScore = 0;
   let earnedStar1ThisGame = false;
   let highscoreOverlayWasVisible = false;
-  let mascotCycleImage = null;
-  let mascotCycleTimer = null;
-  let mascotCycleIndex = 1;
 
   function ensureAlienAnimationStyles() {
     if (document.getElementById("highscore-alien-animation")) return;
@@ -110,38 +105,6 @@
     });
   }
 
-  function syncClassMascotCycle() {
-    const image = document.querySelector(".start-class-overlay");
-    if (!(image instanceof HTMLImageElement)) {
-      if (mascotCycleTimer !== null) window.clearTimeout(mascotCycleTimer);
-      mascotCycleTimer = null;
-      mascotCycleImage = null;
-      mascotCycleIndex = 1;
-      return;
-    }
-
-    if (image !== mascotCycleImage) {
-      if (mascotCycleTimer !== null) window.clearTimeout(mascotCycleTimer);
-      mascotCycleImage = image;
-      mascotCycleIndex = 1;
-      image.dataset.mascotCycleInstalled = "true";
-      image.dataset.mascotCycleIndex = "1";
-      image.src = "./M1.png";
-      image.alt = "Klassentier M1";
-
-      const advance = () => {
-        if (mascotCycleImage !== image || !document.body.contains(image)) return;
-        mascotCycleIndex = mascotCycleIndex >= MASCOT_COUNT ? 1 : mascotCycleIndex + 1;
-        image.dataset.mascotCycleIndex = String(mascotCycleIndex);
-        image.src = `./M${mascotCycleIndex}.png`;
-        image.alt = `Klassentier M${mascotCycleIndex}`;
-        mascotCycleTimer = window.setTimeout(advance, MASCOT_CYCLE_MS);
-      };
-
-      mascotCycleTimer = window.setTimeout(advance, MASCOT_CYCLE_MS);
-    }
-  }
-
   function updateCriticalTime(timeElement) {
     const match = (timeElement.textContent ?? "").match(/^(\d+):(\d{2})$/);
     const seconds = match ? Number(match[1]) * 60 + Number(match[2]) : Number.POSITIVE_INFINITY;
@@ -164,18 +127,6 @@
     if (answerElement.classList.contains("answer-feedback-correct") || isShowingExpectedSolution(answerElement, feedbackElement)) { answerElement.style.setProperty("color", "#69cb6c", "important"); return; }
     answerElement.style.setProperty("color", "#000000", "important");
   }
-
-  function alignAnswerBoxWithKeypad() {
-    if (currentGameScreen === null) return;
-    const equation = currentGameScreen.querySelector(".task-equation");
-    const answerElement = currentGameScreen.querySelector("#answer");
-    const firstKey = currentGameScreen.querySelector(".keypad-key:first-child");
-    if (!(equation instanceof HTMLElement) || !(answerElement instanceof HTMLElement) || !(firstKey instanceof HTMLElement)) return;
-    equation.style.transform = "translateY(0)";
-    const delta = firstKey.getBoundingClientRect().top - answerElement.getBoundingClientRect().top;
-    equation.style.transform = `translateY(${delta}px)`;
-  }
-  function scheduleAnswerBoxAlignment() { window.requestAnimationFrame(() => window.requestAnimationFrame(alignAnswerBoxWithKeypad)); }
 
   function triggerScoreArrival(scoreElement) {
     const scoreCard = scoreElement.closest(".stat-score");
@@ -252,7 +203,6 @@
     syncHighscoreReturnState();
     syncBuildIndicator();
     syncHighscorePortraits();
-    syncClassMascotCycle();
     syncResultStars();
     const resultScreen = document.querySelector(".result-screen");
     if (resultScreen) ensureResultCloseAction();
@@ -270,7 +220,6 @@
     scoreElement.textContent = String(displayedScore);
     updateCriticalTime(timeElement);
     syncAnswerColor(answerElement, feedback);
-    scheduleAnswerBoxAlignment();
     const streakVisible = streakElement instanceof HTMLElement && !streakElement.hidden;
     const multiplierText = streakVisible ? (streakElement.textContent ?? "") : "Serie ×1";
     if (multiplierText.includes("×5")) earnedStar1ThisGame = true;
@@ -286,7 +235,6 @@
     flyPoints(taskCard, scoreElement, points, multiplier);
     applyPointsWhenArrived(screen, scoreElement, points);
   }
-  window.addEventListener("resize", scheduleAnswerBoxAlignment, { passive: true });
   window.setInterval(sync, 80);
   sync();
 })();
