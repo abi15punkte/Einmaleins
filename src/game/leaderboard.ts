@@ -16,6 +16,7 @@ let leaderboardPortraitObserver: MutationObserver | null = null;
 let completedGamesSyncObserver: MutationObserver | null = null;
 let lastCompletedGamesSyncKey: string | null = null;
 let inFlightCompletedGamesSyncKey: string | null = null;
+let lastSuccessfulLeaderboardSubmitKey: string | null = null;
 
 async function loadFirestoreSdk(): Promise<FirestoreSdk> {
   if (!firestoreSdkPromise) {
@@ -62,6 +63,28 @@ function portraitForClassName(className: string | null): string {
 function backgroundForCompletedGames(completedGames: number): string | null {
   const asset = getPersonalBackgroundAsset(completedGames);
   return asset ? `url("./${asset}")` : null;
+}
+
+function leaderboardSubmitKey(record: HighscoreRecord, completedGames: number): string {
+  const recordWithStars = record as HighscoreRecordWithStars;
+  return JSON.stringify([
+    record.studentId.trim(),
+    record.name.trim(),
+    record.className?.trim() || null,
+    record.score,
+    completedGames,
+    recordWithStars.stern1 === true,
+    recordWithStars.stern2 === true,
+    recordWithStars.stern3 === true
+  ]);
+}
+
+function hasAlreadySubmitted(record: HighscoreRecord, completedGames: number): boolean {
+  return lastSuccessfulLeaderboardSubmitKey === leaderboardSubmitKey(record, completedGames);
+}
+
+function markLeaderboardSubmitted(record: HighscoreRecord, completedGames: number): void {
+  lastSuccessfulLeaderboardSubmitKey = leaderboardSubmitKey(record, completedGames);
 }
 
 function applyLeaderboardPortraits(): void {
@@ -174,6 +197,8 @@ function createFirestoreClient(): LeaderboardClient {
       if (Number.isNaN(timestamp.getTime())) throw new Error("Leaderboard timestamp is invalid.");
 
       const completedGames = loadCompletedGames(studentId);
+      if (hasAlreadySubmitted(record, completedGames)) return;
+
       const { doc, setDoc, Timestamp, db } = await loadFirestoreSdk();
       const studentDoc = doc(db, HIGHSCORE_COLLECTION, studentId);
 
@@ -188,6 +213,8 @@ function createFirestoreClient(): LeaderboardClient {
         stern3: recordWithStars.stern3 === true,
         timestamp: Timestamp.fromDate(timestamp)
       });
+
+      markLeaderboardSubmitted(record, completedGames);
     },
 
     async top() {
@@ -211,12 +238,15 @@ function createLegacyHttpClient(endpoint: string, fetcher: typeof fetch): Leader
   return {
     async submit(record) {
       const completedGames = loadCompletedGames(record.studentId);
+      if (hasAlreadySubmitted(record, completedGames)) return;
+
       const response = await fetcher(`${endpoint}/scores`, {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ ...record, completedGames })
       });
       if (!response.ok) throw new Error(`Leaderboard submit failed: ${response.status}`);
+      markLeaderboardSubmitted(record, completedGames);
     },
 
     async top() {
