@@ -62,16 +62,17 @@
   }
 }
 
-/* Permanent class mascot: test position starts 10vw farther to the right before crossing the screen. */
+/* Permanent class mascot: closer test start position and deliberately slow peek. */
 .start-class-overlay {
   position: fixed !important;
   left: auto !important;
-  right: -17vw !important;
+  right: -12vw !important;
   top: calc(50% - 25vh) !important;
   bottom: auto !important;
   width: 18.5vw !important;
   height: 18.5vw !important;
   transform: translateY(-50%);
+  animation-duration: 14s !important;
   object-fit: contain !important;
   pointer-events: none !important;
   z-index: 20001 !important;
