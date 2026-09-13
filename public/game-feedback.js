@@ -186,8 +186,9 @@
     if (!match) return;
 
     const points = Number(match[1]);
-    const streak = Number.parseInt((screen.querySelector("#streak")?.textContent ?? "").replace(/\D/g, ""), 10) || 1;
-    const multiplier = streak >= 20 ? 5 : streak >= 10 ? 3 : streak >= 3 ? 2 : 1;
+    const multiplierText = screen.querySelector("#streak")?.textContent ?? "";
+    const multiplierMatch = multiplierText.match(/×(1|2|3|5)\b/);
+    const multiplier = multiplierMatch ? Number(multiplierMatch[1]) : 1;
     flyPoints(taskCard, scoreElement, points, multiplier);
     applyPointsWhenArrived(screen, scoreElement, points);
   }
