@@ -18,6 +18,7 @@ type AnswerPresentation = { factorA: string; factorB: string; entered: string; e
 type TaskCardAnimation = "shake" | "pop";
 function getRequiredElement<T extends HTMLElement>(selector: string): T { const element = document.querySelector<T>(selector); if (!element) throw new Error(`Required UI element not found: ${selector}`); return element; }
 function escapeHtml(value: string): string { return value.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;").replaceAll("'", "&#039;"); }
+function formatTime(elapsedMs: number): string { const totalSeconds = Math.max(0, Math.floor(elapsedMs / 1000)); const minutes = Math.floor(totalSeconds / 60); const seconds = totalSeconds % 60; return `${minutes}:${String(seconds).padStart(2, "0")}`; }
 function getCurrentBuildId(): string { const manifestLink = document.querySelector<HTMLLinkElement>('link[rel="manifest"]'); if (!manifestLink) return "dev"; const buildId = new URL(manifestLink.href, document.baseURI).searchParams.get("build"); if (!buildId || buildId === "__BUILD_ID__") return "dev"; return buildId; }
 function getGreetingName(name: string): string { return name.trim().split(/\s+/)[0] || name; }
 const CURRENT_BUILD_ID = getCurrentBuildId();
@@ -50,5 +51,5 @@ function scheduleNextTaskAfterWrongAnswer(): void { clearWrongAnswerTimer(); wro
 function clearWrongAnswerTimer(): void { if (wrongAnswerTimer !== null) { window.clearTimeout(wrongAnswerTimer); wrongAnswerTimer = null; } }
 function clearGameTimer(): void { if (gameTimer !== null) { window.clearInterval(gameTimer); gameTimer = null; } }
 window.addEventListener("keydown", handleKeyboardInput);
-initHighscoreFlow(() => screen === "result");
+initHighscoreFlow();
 renderStartScreen();
