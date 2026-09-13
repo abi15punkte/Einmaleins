@@ -32,6 +32,11 @@ export interface HighscoreEvaluation {
   personalBest: HighscoreRecord;
 }
 
+export interface CompletedGamesRecord {
+  studentId: string;
+  completedGames: number;
+}
+
 interface StorageLike {
   getItem(key: string): string | null;
   setItem(key: string, value: string): void;
@@ -40,7 +45,16 @@ interface StorageLike {
 
 const PROFILE_KEY = "einmaleins.student.profile.v1";
 const HIGHSCORE_KEY = "einmaleins.student.highscore.v1";
+const COMPLETED_GAMES_KEY = "einmaleins.student.completed-games.v1";
 const SYNC_QUEUE_KEY = "einmaleins.highscore.sync-queue.v1";
+
+const PERSONAL_BACKGROUND_THRESHOLDS = [
+  { games: 10000, asset: "10000.png" },
+  { games: 200, asset: "200.png" },
+  { games: 100, asset: "100.png" },
+  { games: 50, asset: "50.png" },
+  { games: 10, asset: "10.png" }
+] as const;
 
 const memoryStorage = new Map<string, string>();
 
@@ -81,14 +95,83 @@ function createStudentId(): string {
   return `local-${Date.now()}-${Math.random().toString(36).slice(2)}`;
 }
 
+function applyPersonalBackground(completedGames: number): void {
+  if (typeof document === "undefined") return;
+
+  const background = getPersonalBackgroundAsset(completedGames);
+  const elements = [document.documentElement, document.body];
+
+  for (const element of elements) {
+    if (!element) continue;
+
+    if (background) {
+      element.style.setProperty("background-image", `url("./${background}")`, "important");
+      element.style.setProperty("background-position", "center", "important");
+      element.style.setProperty("background-size", "cover", "important");
+      element.style.setProperty("background-repeat", "no-repeat", "important");
+      element.style.setProperty("background-attachment", "fixed", "important");
+      element.style.setProperty("background-color", "#e9f7ff", "important");
+    } else {
+      element.style.setProperty("background-image", "none", "important");
+      element.style.setProperty("background-color", "#ffffff", "important");
+      element.style.setProperty("background-position", "initial", "important");
+      element.style.setProperty("background-size", "auto", "important");
+      element.style.setProperty("background-repeat", "repeat", "important");
+      element.style.setProperty("background-attachment", "scroll", "important");
+    }
+  }
+}
+
+export function getPersonalBackgroundAsset(completedGames: number): string | null {
+  const threshold = PERSONAL_BACKGROUND_THRESHOLDS.find((entry) => completedGames >= entry.games);
+  return threshold?.asset ?? null;
+}
+
+export function loadCompletedGames(studentId = loadStudentIdentity().studentId): number {
+  const record = readJson<CompletedGamesRecord>(COMPLETED_GAMES_KEY);
+
+  if (!record || record.studentId !== studentId) {
+    applyPersonalBackground(0);
+    return 0;
+  }
+
+  const completedGames = Number.isFinite(record.completedGames)
+    ? Math.max(0, Math.floor(record.completedGames))
+    : 0;
+
+  if (completedGames !== record.completedGames) {
+    writeJson(COMPLETED_GAMES_KEY, { studentId, completedGames });
+  }
+
+  applyPersonalBackground(completedGames);
+  return completedGames;
+}
+
+export function recordCompletedGame(studentId: string, score: number): number {
+  const previousCompletedGames = loadCompletedGames(studentId);
+  const completedGames = score >= 10000
+    ? Math.max(previousCompletedGames + 1, 10000)
+    : previousCompletedGames + 1;
+
+  writeJson<CompletedGamesRecord>(COMPLETED_GAMES_KEY, {
+    studentId,
+    completedGames
+  });
+
+  applyPersonalBackground(completedGames);
+  return completedGames;
+}
+
 export function loadStudentIdentity(): StudentIdentity {
   const stored = readJson<StudentIdentity>(PROFILE_KEY);
 
   if (stored?.studentId && stored.name) {
-    return {
+    const identity = {
       ...stored,
       source: stored.source ?? "local"
     };
+    loadCompletedGames(identity.studentId);
+    return identity;
   }
 
   const identity: StudentIdentity = {
@@ -99,6 +182,7 @@ export function loadStudentIdentity(): StudentIdentity {
   };
 
   writeJson(PROFILE_KEY, identity);
+  loadCompletedGames(identity.studentId);
   return identity;
 }
 
@@ -112,6 +196,8 @@ export function saveStudentIdentity(identity: StudentIdentity): void {
     name: identity.name.trim(),
     className: identity.className?.trim() || null
   });
+
+  loadCompletedGames(identity.studentId);
 }
 
 export function loadPersonalHighscore(studentId = loadStudentIdentity().studentId): HighscoreRecord | null {
@@ -185,6 +271,8 @@ export function evaluateResult(
   if (isNewPersonalBest || starsChanged) {
     writeJson(HIGHSCORE_KEY, personalBest);
   }
+
+  recordCompletedGame(student.studentId, score);
 
   return {
     previousBest,
