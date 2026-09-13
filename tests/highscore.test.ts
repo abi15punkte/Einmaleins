@@ -7,6 +7,7 @@ import {
   queuePendingSyncRecord,
   resetHighscoreStorageForTests,
   saveStudentIdentity,
+  unlockSecondStar,
   type HighscoreRecord,
   type StudentIdentity
 } from "../src/game/highscore";
@@ -56,6 +57,20 @@ describe("highscore storage", () => {
     expect(result.personalBest.stern3).toBe(true);
     expect(loadPersonalHighscore(student.studentId)?.stern1).toBe(true);
     expect(loadPersonalHighscore(student.studentId)?.stern3).toBe(true);
+  });
+
+  it("permanently keeps Stern2 when unlocked independently of the current game result", () => {
+    evaluateResult(student, 500, "2026-01-01T10:00:00.000Z");
+
+    const unlocked = unlockSecondStar(student.studentId);
+
+    expect(unlocked?.stern2).toBe(true);
+    expect(loadPersonalHighscore(student.studentId)?.stern2).toBe(true);
+
+    const laterResult = evaluateResult(student, 200, "2026-01-01T10:05:00.000Z");
+    expect(laterResult.personalBest.score).toBe(500);
+    expect(laterResult.personalBest.stern2).toBe(true);
+    expect(loadPersonalHighscore(student.studentId)?.stern2).toBe(true);
   });
 
   it("merges newly earned stars with previously unlocked stars", () => {
