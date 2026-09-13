@@ -7,6 +7,7 @@ import {
   queuePendingSyncRecord,
   resetHighscoreStorageForTests,
   saveStudentIdentity,
+  type HighscoreRecord,
   type StudentIdentity
 } from "../src/game/highscore";
 
@@ -40,6 +41,32 @@ describe("highscore storage", () => {
     expect(result.personalBest.stern3).toBe(false);
   });
 
+  it("permanently keeps a newly earned star even when the current score is lower", () => {
+    evaluateResult(student, 500, "2026-01-01T10:00:00.000Z");
+
+    const result = evaluateResult(
+      student,
+      200,
+      { stern1: true, stern3: true }
+    );
+
+    expect(result.isNewPersonalBest).toBe(false);
+    expect(result.personalBest.score).toBe(500);
+    expect(result.personalBest.stern1).toBe(true);
+    expect(result.personalBest.stern3).toBe(true);
+    expect(loadPersonalHighscore(student.studentId)?.stern1).toBe(true);
+    expect(loadPersonalHighscore(student.studentId)?.stern3).toBe(true);
+  });
+
+  it("merges newly earned stars with previously unlocked stars", () => {
+    evaluateResult(student, 250, { stern1: true });
+    const result = evaluateResult(student, 300, { stern3: true });
+
+    expect(result.personalBest.score).toBe(300);
+    expect(result.personalBest.stern1).toBe(true);
+    expect(result.personalBest.stern3).toBe(true);
+  });
+
   it("does not queue a new personal best without explicit school-list opt-in", () => {
     evaluateResult(student, 400, "2026-01-01T10:00:00.000Z");
 
@@ -70,6 +97,25 @@ describe("highscore storage", () => {
 
     expect(loadPendingSyncRecords()).toHaveLength(1);
     expect(loadPendingSyncRecords()[0]?.record.score).toBe(400);
+  });
+
+  it("merges star unlocks into an existing queued highscore", () => {
+    const baseRecord: HighscoreRecord = {
+      studentId: student.studentId,
+      name: student.name,
+      className: student.className,
+      score: 400,
+      achievedAt: "2026-01-01T10:00:00.000Z",
+      stern1: false,
+      stern2: false,
+      stern3: false
+    };
+    queuePendingSyncRecord(baseRecord, "2026-01-01T10:00:00.000Z");
+    queuePendingSyncRecord({ ...baseRecord, score: 300, stern1: true }, "2026-01-01T10:05:00.000Z");
+
+    const queued = loadPendingSyncRecords()[0]?.record;
+    expect(queued?.score).toBe(400);
+    expect(queued?.stern1).toBe(true);
   });
 
   it("creates a stable local identity once", () => {
