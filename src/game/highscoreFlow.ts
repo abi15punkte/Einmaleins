@@ -39,8 +39,10 @@ function ensurePermanentClassMascot(): void {
     document.body.appendChild(mascot);
   }
 
-  mascot.src = CLASS_MASCOT(student.className);
-  mascot.alt = `Klassentier ${student.className ?? "M1"}`;
+  if (mascot.dataset.mascotCycleInstalled !== "true") {
+    mascot.src = CLASS_MASCOT(student.className);
+    mascot.alt = `Klassentier ${student.className ?? "M1"}`;
+  }
 }
 
 function renderOverlay(entries: LeaderboardEntry[], studentName: string): void {
