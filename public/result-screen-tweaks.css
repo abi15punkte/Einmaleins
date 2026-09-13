@@ -88,9 +88,10 @@
     z-index: 19999 !important;
   }
 
-  .result-screen.result-screen::after {
-    display: block !important;
-    content: "" !important;
+  /* Der Ergebnisbildschirm nutzt jetzt ausschließlich den gemeinsamen body-Alien. */
+  .result-screen::after {
+    content: none !important;
+    display: none !important;
   }
 
   .result-card .result-card::after {
