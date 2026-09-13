@@ -48,7 +48,7 @@ export interface LeaderboardEntry {
 
 export interface LeaderboardClient {
   submit(record: HighscoreRecord): Promise<void>;
-  top(): Promise<LeaderboardEntry[]>;
+  top(useCache?: boolean): Promise<LeaderboardEntry[]>;
 }
 
 export interface LeaderboardConfig {
@@ -88,6 +88,34 @@ function hasAlreadySubmitted(record: HighscoreRecord, completedGames: number): b
 
 function markLeaderboardSubmitted(record: HighscoreRecord, completedGames: number): void {
   lastSuccessfulLeaderboardSubmitKey = leaderboardSubmitKey(record, completedGames);
+}
+
+function updateCachedLeaderboardEntry(record: HighscoreRecord, completedGames: number): void {
+  if (!latestLeaderboardEntries) return;
+
+  const recordWithStars = record as HighscoreRecordWithStars;
+  const updatedEntry: LeaderboardEntry = {
+    rank: 0,
+    studentId: record.studentId.trim(),
+    name: record.name.trim(),
+    className: record.className?.trim() || null,
+    score: record.score,
+    stern1: recordWithStars.stern1 === true,
+    stern2: recordWithStars.stern2 === true,
+    stern3: recordWithStars.stern3 === true,
+    completedGames
+  };
+
+  const remainingEntries = latestLeaderboardEntries.filter(
+    (entry) => entry.studentId !== updatedEntry.studentId
+  );
+  remainingEntries.push(updatedEntry);
+
+  latestLeaderboardEntries = remainingEntries
+    .sort((a, b) => b.score - a.score)
+    .map((entry, index) => ({ ...entry, rank: index + 1 }));
+
+  applyLeaderboardPortraits();
 }
 
 function applyLeaderboardPortraits(): void {
@@ -161,35 +189,33 @@ async function checkSecondStarChallenge(): Promise<void> {
     secondStarChallengeLoadedForGame = false;
     secondStarChallengeLoading = false;
     secondStarTargetScore = null;
+    latestLeaderboardEntries = null;
     return;
   }
 
   const student = loadStudentIdentity();
   const personalBest = loadPersonalHighscore(student.studentId);
-  if (personalBest?.stern2 === true) {
-    secondStarChallengeLoadedForGame = true;
-    secondStarTargetScore = null;
-    return;
+
+  if (!secondStarChallengeLoadedForGame && !secondStarChallengeLoading) {
+    secondStarChallengeLoading = true;
+    try {
+      const entries = await createLeaderboardClient().top(false);
+      secondStarTargetScore = personalBest?.stern2 === true ? null : entries[2]?.score ?? null;
+      secondStarChallengeLoadedForGame = true;
+    } catch (error) {
+      console.error("Highscoreliste konnte für die Hintergrundvorladung nicht geladen werden.", error);
+    } finally {
+      secondStarChallengeLoading = false;
+    }
   }
+
+  if (personalBest?.stern2 === true) return;
 
   const scoreElement = document.querySelector<HTMLElement>(".game-screen #score");
   if (!scoreElement) return;
 
   const currentScore = Number.parseInt(scoreElement.textContent?.trim() ?? "0", 10);
   if (!Number.isFinite(currentScore)) return;
-
-  if (!secondStarChallengeLoadedForGame && !secondStarChallengeLoading) {
-    secondStarChallengeLoading = true;
-    try {
-      const entries = await createLeaderboardClient().top();
-      secondStarTargetScore = entries[2]?.score ?? null;
-      secondStarChallengeLoadedForGame = true;
-    } catch (error) {
-      console.error("Highscoreliste konnte für Stern2 nicht geladen werden.", error);
-    } finally {
-      secondStarChallengeLoading = false;
-    }
-  }
 
   if (
     secondStarChallengeLoadedForGame
@@ -275,9 +301,14 @@ function createFirestoreClient(): LeaderboardClient {
       });
 
       markLeaderboardSubmitted(record, completedGames);
+      updateCachedLeaderboardEntry(record, completedGames);
     },
 
-    async top() {
+    async top(useCache = true) {
+      if (useCache && latestLeaderboardEntries) {
+        return latestLeaderboardEntries;
+      }
+
       const { getDocs, collection, orderBy, query, db } = await loadFirestoreSdk();
       const snapshot = await getDocs(query(collection(db, HIGHSCORE_COLLECTION), orderBy("punkte", "desc")));
 
@@ -307,9 +338,14 @@ function createLegacyHttpClient(endpoint: string, fetcher: typeof fetch): Leader
       });
       if (!response.ok) throw new Error(`Leaderboard submit failed: ${response.status}`);
       markLeaderboardSubmitted(record, completedGames);
+      updateCachedLeaderboardEntry(record, completedGames);
     },
 
-    async top() {
+    async top(useCache = true) {
+      if (useCache && latestLeaderboardEntries) {
+        return latestLeaderboardEntries;
+      }
+
       const response = await fetcher(`${endpoint}/scores`, {
         method: "GET",
         headers: { accept: "application/json" }
