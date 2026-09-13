@@ -35,7 +35,7 @@ import { createLeaderboardClient } from "../src/game/leaderboard";
 const record = {
   studentId: "student-1",
   name: "Max",
-  className: "4a",
+  className: "M8",
   score: 500,
   achievedAt: "2026-09-10T10:00:00.000Z",
   stern1: true,
@@ -53,7 +53,7 @@ describe("school leaderboard client", () => {
     setDoc.mockResolvedValue(undefined);
   });
 
-  it("writes a Firestore highscore to the student's document ID", async () => {
+  it("writes a Firestore highscore to the student's document ID without storing a portrait", async () => {
     const client = createLeaderboardClient();
 
     await client.submit(record);
@@ -65,8 +65,7 @@ describe("school leaderboard client", () => {
       {
         studentId: "student-1",
         name: "Max",
-        klasse: "4a",
-        portrait: "P1.png",
+        klasse: "M8",
         punkte: 500,
         completedGames: 0,
         stern1: true,
@@ -101,7 +100,6 @@ describe("school leaderboard client", () => {
             studentId: "student-2",
             name: "Sophie",
             klasse: "M2",
-            portrait: "P2.png",
             punkte: 700,
             completedGames: 50,
             stern1: true,
@@ -114,7 +112,6 @@ describe("school leaderboard client", () => {
             studentId: "student-1",
             name: "Max",
             klasse: "M1",
-            portrait: "P1.png",
             punkte: 500,
             completedGames: 10,
             stern1: true,
@@ -137,7 +134,6 @@ describe("school leaderboard client", () => {
         studentId: "student-2",
         name: "Sophie",
         className: "M2",
-        portrait: "P2.png",
         score: 700,
         stern1: true,
         stern2: true,
@@ -149,7 +145,6 @@ describe("school leaderboard client", () => {
         studentId: "student-1",
         name: "Max",
         className: "M1",
-        portrait: "P1.png",
         score: 500,
         stern1: true,
         stern2: false,
@@ -159,7 +154,7 @@ describe("school leaderboard client", () => {
     ]);
   });
 
-  it("treats missing portrait, completed games and star fields as fallback values", async () => {
+  it("treats missing completed games and star fields as fallback values", async () => {
     getDocs.mockResolvedValue({
       docs: [
         {
@@ -181,7 +176,6 @@ describe("school leaderboard client", () => {
         studentId: "student-3",
         name: "Lea",
         className: "M3",
-        portrait: "P3.png",
         score: 400,
         stern1: false,
         stern2: false,
