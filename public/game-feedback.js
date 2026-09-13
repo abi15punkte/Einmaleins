@@ -5,11 +5,16 @@
   const SCORE_UPDATE_DELAY_MS = REDUCED_MOTION ? 0 : SCORE_ARRIVAL_MS;
   const MULTIPLIER_COLORS = { 1: "#000000", 2: "#ffc65a", 3: "#ee737f", 5: "#9877e6" };
   const PORTRAIT_RE = /^M(?:[1-9]|1[0-6])$/i;
+  const MASCOT_COUNT = 16;
+  const MASCOT_CYCLE_MS = 8000;
   let currentGameScreen = null;
   let feedbackSignature = "";
   let displayedScore = 0;
   let earnedStar1ThisGame = false;
   let highscoreOverlayWasVisible = false;
+  let mascotCycleImage = null;
+  let mascotCycleTimer = null;
+  let mascotCycleIndex = 1;
 
   function ensureAlienAnimationStyles() {
     if (document.getElementById("highscore-alien-animation")) return;
@@ -103,6 +108,38 @@
       image.dataset.highscorePortrait = portraitSrc;
       image.src = portraitSrc;
     });
+  }
+
+  function syncClassMascotCycle() {
+    const image = document.querySelector(".start-class-overlay");
+    if (!(image instanceof HTMLImageElement)) {
+      if (mascotCycleTimer !== null) window.clearTimeout(mascotCycleTimer);
+      mascotCycleTimer = null;
+      mascotCycleImage = null;
+      mascotCycleIndex = 1;
+      return;
+    }
+
+    if (image !== mascotCycleImage) {
+      if (mascotCycleTimer !== null) window.clearTimeout(mascotCycleTimer);
+      mascotCycleImage = image;
+      mascotCycleIndex = 1;
+      image.dataset.mascotCycleInstalled = "true";
+      image.dataset.mascotCycleIndex = "1";
+      image.src = "./M1.png";
+      image.alt = "Klassentier M1";
+
+      const advance = () => {
+        if (mascotCycleImage !== image || !document.body.contains(image)) return;
+        mascotCycleIndex = mascotCycleIndex >= MASCOT_COUNT ? 1 : mascotCycleIndex + 1;
+        image.dataset.mascotCycleIndex = String(mascotCycleIndex);
+        image.src = `./M${mascotCycleIndex}.png`;
+        image.alt = `Klassentier M${mascotCycleIndex}`;
+        mascotCycleTimer = window.setTimeout(advance, MASCOT_CYCLE_MS);
+      };
+
+      mascotCycleTimer = window.setTimeout(advance, MASCOT_CYCLE_MS);
+    }
   }
 
   function updateCriticalTime(timeElement) {
@@ -215,6 +252,7 @@
     syncHighscoreReturnState();
     syncBuildIndicator();
     syncHighscorePortraits();
+    syncClassMascotCycle();
     syncResultStars();
     const resultScreen = document.querySelector(".result-screen");
     if (resultScreen) ensureResultCloseAction();
