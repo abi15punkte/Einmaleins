@@ -65,17 +65,29 @@
   100% { transform: translateY(2px) scale(0.985); }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .mode-actions .mode-card,
-  .result-card > #again,
-  .result-highscore-action,
-  .keypad-key:active {
-    animation: none !important;
-    transform: none !important;
-  }
+/* Den gleichen Alien-Impuls auf Start-, Spiel-, Ergebnis- und Highscorebildschirm anwenden. */
+@keyframes highscore-alien-float {
+  0%, 100% { transform: translate3d(0, 0, 0) rotate(-1deg) scale(1); }
+  25% { transform: translate3d(0.35vw, -0.7vh, 0) rotate(0.5deg) scale(1.012); }
+  50% { transform: translate3d(0, -1.1vh, 0) rotate(1deg) scale(1.02); }
+  75% { transform: translate3d(-0.35vw, -0.55vh, 0) rotate(0.25deg) scale(1.01); }
 }
 
 @media (orientation: landscape) {
+  .game-screen::after,
+  .start-screen::after,
+  .result-screen::after,
+  .school-highscore-overlay::after {
+    animation: highscore-alien-float 5.8s ease-in-out infinite;
+    transform-origin: 50% 100%;
+    will-change: transform, opacity;
+  }
+
+  /* Auf der Highscoreliste bleibt der Alien hinter der Liste. */
+  .school-highscore-overlay::after {
+    z-index: 19999 !important;
+  }
+
   .result-screen.result-screen::after {
     display: block !important;
     content: "" !important;
@@ -102,5 +114,19 @@
     visibility: visible !important;
     opacity: 1 !important;
     pointer-events: none !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mode-actions .mode-card,
+  .result-card > #again,
+  .result-highscore-action,
+  .keypad-key:active,
+  .game-screen::after,
+  .start-screen::after,
+  .result-screen::after,
+  .school-highscore-overlay::after {
+    animation: none !important;
+    transform: none !important;
   }
 }
