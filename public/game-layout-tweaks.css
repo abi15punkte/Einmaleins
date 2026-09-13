@@ -40,123 +40,6 @@
     z-index: 20 !important;
   }
 
-  .game-screen .header-statuses #round-caption,
-  .game-screen .header-statuses #task-number-caption {
-    position: static !important;
-    width: 10vw !important;
-    min-width: 10vw !important;
-    height: 10vh !important;
-    min-height: 10vh !important;
-    margin: 0 !important;
-    padding: 0.5vh 0.5vw !important;
-    box-sizing: border-box !important;
-    border: 1px solid rgb(23 32 51 / 7%) !important;
-    border-radius: 0.8vw !important;
-    background: rgb(255 255 255 / 60%) !important;
-    box-shadow: 0 4px 14px rgb(23 32 51 / 5%) !important;
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: center !important;
-    justify-content: center !important;
-    text-align: center !important;
-    color: #000000 !important;
-    white-space: nowrap !important;
-  }
-
-  .game-screen .header-statuses .status-caption-label {
-    display: block !important;
-    color: var(--space-text) !important;
-    font-size: 2vh !important;
-    line-height: 1 !important;
-    font-weight: 800 !important;
-    letter-spacing: 0.08em !important;
-    text-transform: uppercase !important;
-  }
-
-  .game-screen .header-statuses .status-caption-value {
-    display: block !important;
-    margin-top: 0.3vh !important;
-    color: #000000 !important;
-    font-size: 4vh !important;
-    line-height: 0.9 !important;
-    font-weight: 800 !important;
-    letter-spacing: -0.02em !important;
-  }
-
-  .game-screen .task-caption {
-    display: none !important;
-  }
-
-  /* Exact geometry: 3 rows × 68px + 2 × 11px = 226px. */
-  .game-screen .task-card {
-    position: relative !important;
-    top: auto !important;
-    margin-top: 0 !important;
-    transform: translateY(10vh);
-    width: 52vw !important;
-    max-width: 900px !important;
-    height: 226px !important;
-    min-height: 226px !important;
-    background: rgb(255 255 255 / 60%) !important;
-    border: 1px solid rgb(23 32 51 / 7%) !important;
-    box-shadow: 0 4px 14px rgb(23 32 51 / 5%) !important;
-    grid-template-rows: 100% !important;
-  }
-
-  .game-screen .task-equation {
-    position: absolute !important;
-    top: calc(50% - 5vh) !important;
-    left: 0 !important;
-    transform: translateY(-50%) !important;
-    grid-row: auto !important;
-    align-self: auto !important;
-    justify-self: auto !important;
-    width: 100% !important;
-    height: auto !important;
-    margin: 0 !important;
-  }
-
-  .game-screen .task-card:has(.answer-box.answer-feedback-wrong) {
-    animation: none !important;
-  }
-
-  .game-screen .task-card.correct-pop {
-    animation: task-card-pop 420ms cubic-bezier(.2,.8,.2,1) both;
-    box-shadow: 0 8px 28px rgb(105 203 108 / 26%), 0 0 0 3px rgb(105 203 108 / 18%);
-  }
-
-  .game-screen .task-card.is-wrong .answer-box:not(.answer-feedback-wrong) {
-    color: #248f5b !important;
-    border-bottom-color: #248f5b !important;
-  }
-
-  .game-screen #score {
-    color: #000000 !important;
-  }
-
-  .game-screen .stat-score.score-arrival {
-    animation: score-box-arrival 420ms cubic-bezier(.36,.07,.19,.97) both;
-  }
-
-  .game-screen #time.time-critical {
-    color: #ee737f !important;
-  }
-
-  .points-fly {
-    position: fixed;
-    z-index: 10000;
-    pointer-events: none;
-    font-size: 7vh;
-    line-height: 1;
-    font-weight: 900;
-    letter-spacing: -0.03em;
-    text-shadow: 0 3px 10px rgb(23 52 95 / 20%);
-    transform: translate(-50%, -50%);
-    animation: points-fly-to-score 1520ms cubic-bezier(.2,.8,.2,1) forwards;
-  }
-
-  .points-fly.multiplier-x1 { color: #000000; }
-  .points-fly.multiplier-x2 { color: #ffc65a; }
   .points-fly.multiplier-x3 { color: #ee737f; }
   .points-fly.multiplier-x5 { color: #9877e6; }
 
@@ -188,7 +71,7 @@
   bottom: auto !important;
   width: 18.5vw !important;
   height: 18.5vw !important;
-  transform: translateY(-50%) !important;
+  transform: translateY(-50%);
   object-fit: contain !important;
   pointer-events: none !important;
   z-index: 20001 !important;
@@ -208,100 +91,18 @@
 @keyframes task-card-shake {
   0%, 100% { transform: translateX(0) translateY(10vh) rotate(0deg) scale(1); }
   7% { transform: translateX(-1.8vw) translateY(10vh) rotate(-2.2deg) scale(1.02); }
-  14% { transform: translateX(1.65vw) translateY(10vh) rotate(2deg) scale(1.02); }
-  21% { transform: translateX(-1.5vw) translateY(10vh) rotate(-1.8deg) scale(1.018); }
-  28% { transform: translateX(1.35vw) translateY(10vh) rotate(1.6deg) scale(1.016); }
-  35% { transform: translateX(-1.2vw) translateY(10vh) rotate(-1.4deg) scale(1.014); }
-  42% { transform: translateX(1.05vw) translateY(10vh) rotate(1.25deg) scale(1.012); }
-  49% { transform: translateX(-0.9vw) translateY(10vh) rotate(-1.05deg) scale(1.01); }
-  56% { transform: translateX(0.76vw) translateY(10vh) rotate(0.9deg) scale(1.008); }
-  63% { transform: translateX(-0.62vw) translateY(10vh) rotate(-0.75deg) scale(1.006); }
-  70% { transform: translateX(0.48vw) translateY(10vh) rotate(0.6deg) scale(1.004); }
-  77% { transform: translateX(-0.35vw) translateY(10vh) rotate(-0.45deg) scale(1.002); }
-  84% { transform: translateX(0.23vw) translateY(10vh) rotate(0.3deg) scale(1.001); }
-  92% { transform: translateX(-0.1vw) translateY(10vh) rotate(-0.15deg) scale(1); }
+  14% { transform: translateX(1.6vw) translateY(10vh) rotate(2deg) scale(1.015); }
+  22% { transform: translateX(-1.35vw) translateY(10vh) rotate(-1.7deg) scale(1.01); }
+  30% { transform: translateX(1.15vw) translateY(10vh) rotate(1.4deg) scale(1.008); }
+  38% { transform: translateX(-0.95vw) translateY(10vh) rotate(-1.1deg) scale(1.004); }
+  46% { transform: translateX(0.7vw) translateY(10vh) rotate(0.8deg) scale(1.002); }
+  56% { transform: translateX(-0.45vw) translateY(10vh) rotate(-0.55deg) scale(1.001); }
+  68% { transform: translateX(0.2vw) translateY(10vh) rotate(0.25deg) scale(1); }
+  100% { transform: translateX(0) translateY(10vh) rotate(0deg) scale(1); }
 }
 
-@keyframes task-card-pop {
+@keyframes task-card-correct-pop {
   0% { transform: translateY(10vh) scale(1); }
-  35% { transform: translateY(calc(10vh - 0.9vh)) scale(1.035); }
-  65% { transform: translateY(calc(10vh + 0.35vh)) scale(0.992); }
+  45% { transform: translateY(10vh) scale(1.035); }
   100% { transform: translateY(10vh) scale(1); }
-}
-
-@keyframes score-box-arrival {
-  0%, 100% {
-    transform: translateX(0) rotate(0deg) scale(1);
-    box-shadow: 0 4px 14px rgb(23 32 51 / 5%);
-  }
-  12% {
-    transform: translateX(-0.28vw) rotate(-1.2deg) scale(1.018);
-    box-shadow: 0 7px 20px rgb(105 203 108 / 12%), 0 0 0 2px rgb(105 203 108 / 10%);
-  }
-  24% {
-    transform: translateX(0.28vw) rotate(1.1deg) scale(1.018);
-  }
-  36% {
-    transform: translateX(-0.2vw) rotate(-0.8deg) scale(1.01);
-  }
-  48% {
-    transform: translateX(0.16vw) rotate(0.65deg) scale(1.006);
-  }
-  60% {
-    transform: translateX(-0.1vw) rotate(-0.45deg) scale(1.003);
-  }
-  72% {
-    transform: translateX(0.06vw) rotate(0.25deg) scale(1.001);
-  }
-}
-
-.game-screen .stat-score.score-arrival-medium {
-  animation-name: score-box-arrival-medium;
-}
-
-.game-screen .stat-score.score-arrival-strong {
-  animation-name: score-box-arrival-strong;
-}
-
-@keyframes score-box-arrival-medium {
-  0%, 100% {
-    transform: translateX(0) rotate(0deg) scale(1);
-    box-shadow: 0 4px 14px rgb(23 32 51 / 5%);
-  }
-  12% { transform: translateX(-0.42vw) rotate(-1.8deg) scale(1.022); }
-  24% { transform: translateX(0.42vw) rotate(1.6deg) scale(1.022); }
-  36% { transform: translateX(-0.3vw) rotate(-1.2deg) scale(1.014); }
-  48% { transform: translateX(0.24vw) rotate(0.95deg) scale(1.009); }
-  60% { transform: translateX(-0.16vw) rotate(-0.65deg) scale(1.004); }
-  72% { transform: translateX(0.1vw) rotate(0.4deg) scale(1.002); }
-}
-
-@keyframes score-box-arrival-strong {
-  0%, 100% {
-    transform: translateX(0) rotate(0deg) scale(1);
-    box-shadow: 0 4px 14px rgb(23 32 51 / 5%);
-  }
-  8% { transform: translateX(-0.58vw) rotate(-2.5deg) scale(1.026); }
-  16% { transform: translateX(0.62vw) rotate(2.2deg) scale(1.028); }
-  24% { transform: translateX(-0.5vw) rotate(-2deg) scale(1.02); }
-  32% { transform: translateX(0.44vw) rotate(1.7deg) scale(1.016); }
-  40% { transform: translateX(-0.36vw) rotate(-1.35deg) scale(1.012); }
-  52% { transform: translateX(0.28vw) rotate(1.05deg) scale(1.008); }
-  64% { transform: translateX(-0.2vw) rotate(-0.75deg) scale(1.004); }
-  76% { transform: translateX(0.12vw) rotate(0.45deg) scale(1.002); }
-}
-
-@keyframes points-fly-to-score {
-  0% {
-    opacity: 0;
-    transform: translate(-50%, -50%) scale(0.7) rotate(-4deg);
-  }
-  12% {
-    opacity: 1;
-    transform: translate(-50%, -50%) scale(1.12) rotate(0deg);
-  }
-  100% {
-    opacity: 0;
-    transform: translate(calc(-50% + var(--fly-x)), calc(-50% + var(--fly-y))) scale(0.72) rotate(5deg);
-  }
 }
