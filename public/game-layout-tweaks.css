@@ -66,7 +66,7 @@
 .start-class-overlay {
   position: fixed !important;
   left: auto !important;
-  right: -12vw !important;
+  right: -13vw !important;
   top: calc(50% - 25vh) !important;
   bottom: auto !important;
   width: 18.5vw !important;
