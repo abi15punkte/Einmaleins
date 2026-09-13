@@ -21,7 +21,7 @@
   .game-screen .task-caption { grid-row: 1 !important; width: 100% !important; height: 100% !important; margin: 0 !important; padding: 0 !important; display: flex !important; align-items: center !important; justify-content: space-between !important; gap: 2vw !important; font-size: 4vh !important; line-height: 1 !important; letter-spacing: 0.02em !important; white-space: nowrap !important; position: relative !important; }
   .game-screen #round-caption { flex: 0 0 auto !important; text-align: left !important; position: relative !important; left: -5vw !important; }
   .game-screen #task-number-caption { flex: 0 0 auto !important; text-align: right !important; position: relative !important; right: -5vw !important; }
-  .game-screen .task-equation { grid-row: 3 !important; width: 100% !important; height: 100% !important; margin: 0 !important; padding: 0 1vw !important; display: flex !important; align-items: center !important; justify-content: center !important; align-self: stretch !important; gap: 1.4vw !important; font-size: 15vh !important; line-height: 1 !important; }
+  .game-screen .task-equation { grid-row: 3 !important; width: 100% !important; height: 100% !important; margin: 0 !important; padding: 0 1vw !important; display: flex !important; align-items: center !important; justify-content: center !important; align-self: stretch !important; gap: 1.4vw !important; font-size: 15vh !important; line-height: 1 !important; transform: translateY(0) !important; }
   .game-screen .answer-box { border-bottom-width: 0.45vh !important; }
   .game-screen .feedback-area { grid-row: 5 !important; width: 100% !important; height: 100% !important; min-height: 0 !important; margin: 0 !important; padding: 0 1.5vw !important; display: flex !important; flex-direction: column !important; align-items: center !important; justify-content: center !important; gap: 0.6vh !important; }
   .game-screen .feedback { font-size: 5vh !important; line-height: 1 !important; }
@@ -31,7 +31,7 @@
   .game-screen .keypad-key { width: 12vw !important; min-width: 12vw !important; height: 12vh !important; min-height: 12vh !important; max-height: 12vh !important; padding: 0 !important; border-radius: 1vw !important; font-size: 9vh !important; line-height: 1 !important; }
 }
 
-/* Move the task card 10px upward without changing its internal layout. */
+/* Move the task card 12px upward without changing its internal layout. */
 @media (min-width: 1000px) and (orientation: landscape) {
-  .game-screen .task-card { top: calc(12vh - 10px) !important; }
+  .game-screen .task-card { top: calc(12vh - 12px) !important; }
 }
