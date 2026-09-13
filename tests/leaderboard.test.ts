@@ -51,6 +51,7 @@ describe("school leaderboard client", () => {
     orderBy.mockReturnValue("order-by-ref");
     query.mockReturnValue("query-ref");
     setDoc.mockResolvedValue(undefined);
+    getDocs.mockReset();
   });
 
   it("writes a Firestore highscore to the student's document ID without storing a portrait", async () => {
