@@ -30,26 +30,11 @@
 }
 
 @keyframes points-fly-to-score {
-  0% {
-    opacity: 0;
-    transform: translate3d(0, 8px, 0) scale(0.78);
-  }
-  10% {
-    opacity: 1;
-    transform: translate3d(0, 0, 0) scale(1.08);
-  }
-  68% {
-    opacity: 1;
-    transform: translate3d(var(--fly-x), var(--fly-y), 0) scale(1.02);
-  }
-  88% {
-    opacity: 1;
-    transform: translate3d(var(--fly-x), var(--fly-y), 0) scale(0.9);
-  }
-  100% {
-    opacity: 0;
-    transform: translate3d(var(--fly-x), var(--fly-y), 0) scale(0.72);
-  }
+  0% { opacity: 0; transform: translate3d(0, 8px, 0) scale(0.78); }
+  10% { opacity: 1; transform: translate3d(0, 0, 0) scale(1.08); }
+  68% { opacity: 1; transform: translate3d(var(--fly-x), var(--fly-y), 0) scale(1.02); }
+  88% { opacity: 1; transform: translate3d(var(--fly-x), var(--fly-y), 0) scale(0.9); }
+  100% { opacity: 0; transform: translate3d(var(--fly-x), var(--fly-y), 0) scale(0.72); }
 }
 
 /* Deutlicher kurzer Impuls genau beim Eintreffen der Punkte. */
@@ -59,13 +44,8 @@
   will-change: transform !important;
 }
 
-.game-screen .stat-score.score-arrival-medium {
-  animation-name: score-box-arrival-medium !important;
-}
-
-.game-screen .stat-score.score-arrival-strong {
-  animation-name: score-box-arrival-strong !important;
-}
+.game-screen .stat-score.score-arrival-medium { animation-name: score-box-arrival-medium !important; }
+.game-screen .stat-score.score-arrival-strong { animation-name: score-box-arrival-strong !important; }
 
 @keyframes score-box-arrival {
   0%, 100% { transform: translateX(0) scale(1); }
@@ -102,9 +82,7 @@
 }
 
 .mode-actions .mode-card[data-mode="free"],
-.result-highscore-action {
-  animation-delay: 1s !important;
-}
+.result-highscore-action { animation-delay: 1s !important; }
 
 .personal-best strong {
   margin-top: 5px !important;
@@ -163,28 +141,14 @@
     will-change: transform, opacity;
   }
 
-  body::after {
-    animation-name: highscore-alien-float-wide !important;
-  }
+  body::after { animation-name: highscore-alien-float-wide !important; }
 
   .school-highscore-overlay .school-highscore-mascot,
-  .school-highscore-overlay .school-highscore-mascot img {
-    animation: none !important;
-  }
+  .school-highscore-overlay .school-highscore-mascot img { animation: none !important; }
 
-  .school-highscore-overlay::after {
-    z-index: 19999 !important;
-  }
-
-  .result-screen::after {
-    content: none !important;
-    display: none !important;
-  }
-
-  .result-card .result-card::after {
-    content: none !important;
-    display: none !important;
-  }
+  .school-highscore-overlay::after { z-index: 19999 !important; }
+  .result-screen::after { content: none !important; display: none !important; }
+  .result-card .result-card::after { content: none !important; display: none !important; }
 
   .result-card #close-app-status {
     display: block !important;
@@ -204,6 +168,13 @@
     pointer-events: none !important;
   }
 }
+
+/* Die Sternbilder werden im Ergebnis per JS in die Sterne-Box verschoben.
+   Die gespeicherten Bildpfade können je nach Hosting-Basis abweichen; content
+   stellt sicher, dass die drei vorgesehenen Sternbilder trotzdem sichtbar sind. */
+.result-screen .result-stat:last-child strong img:nth-child(1) { content: url("./Stern1.png") !important; }
+.result-screen .result-stat:last-child strong img:nth-child(2) { content: url("./Stern2.png") !important; }
+.result-screen .result-stat:last-child strong img:nth-child(3) { content: url("./Stern3.png") !important; }
 
 @media (prefers-reduced-motion: reduce) {
   .mode-actions .mode-card,
