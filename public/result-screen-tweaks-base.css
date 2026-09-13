@@ -55,11 +55,17 @@
     font-weight: 900; text-transform: uppercase; letter-spacing: 0.08em; text-align: center !important; line-height: 1 !important;
   }
   .result-screen .result-stat:last-child strong {
-    position: absolute !important; left: 0 !important; bottom: 1.75vh !important; display: block !important; width: 100% !important;
-    height: 4.9vh; margin: 0 !important; overflow: visible !important; font-size: 0 !important; line-height: 1 !important;
-    background-image: url("./Stern1.png"), url("./Stern2.png"), url("./Stern3.png"); background-repeat: no-repeat;
-    background-position: 20% 48%, 50% 48%, 80% 52%; background-size: 20% auto, 20% auto, 20% auto;
-    filter: grayscale(1); opacity: 0.35;
+    position: absolute !important; left: 0 !important; bottom: 1.45vh !important; display: flex !important; width: 100% !important;
+    height: 4.9vh !important; margin: 0 !important; overflow: visible !important; font-size: 0 !important; line-height: 1 !important;
+    align-items: center !important; justify-content: center !important; gap: 0.9vw !important;
+    background-image: none !important; filter: none !important; opacity: 1 !important;
+  }
+  .result-screen .result-stat:last-child strong img {
+    display: block !important; width: 5.2vh !important; height: 5.2vh !important; object-fit: contain !important;
+    flex: 0 0 5.2vh !important; filter: none !important; opacity: 1 !important;
+  }
+  .result-screen .result-stat:last-child strong img.is-muted {
+    filter: grayscale(1) !important; opacity: 0.35 !important;
   }
 
   .result-card > #again {
@@ -82,7 +88,6 @@
     display: block !important; visibility: visible !important; opacity: 1 !important; pointer-events: none !important;
   }
   #close-app-status { display: none !important; }
-  .school-highscore-choice { display: none !important; }
 }
 
 @keyframes highscore-submit-shake {
