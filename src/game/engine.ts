@@ -6,7 +6,7 @@ import { pointsForCorrectAnswer } from "./scoring";
 import { multiply, type Task } from "./tasks";
 import type { RandomSource } from "./shuffle";
 
-export const GAME_DURATION_MS = 20 * 1000;
+export const GAME_DURATION_MS = 10 * 60 * 1000;
 
 export type GamePhase =
   | "ready"
@@ -31,6 +31,8 @@ export interface GameState {
   elapsedMs: number;
   taskElapsedMs: number;
   completedTasks: number;
+  stern1: boolean;
+  stern3: boolean;
 }
 
 export interface AnswerResult {
@@ -60,7 +62,9 @@ function initialState(): GameState {
     streak: 0,
     elapsedMs: 0,
     taskElapsedMs: 0,
-    completedTasks: 0
+    completedTasks: 0,
+    stern1: false,
+    stern3: false
   };
 }
 
@@ -156,6 +160,7 @@ export class GameEngine {
       score: this.state.score + points,
       streak: nextStreak,
       completedTasks: this.state.completedTasks + 1,
+      stern1: this.state.stern1 || nextStreak >= 20,
       remainingTasks: this.state.remainingTasks.filter(
         (remainingTask) =>
           remainingTask[0] !== task[0] ||
@@ -311,6 +316,7 @@ export class GameEngine {
     this.state = {
       ...this.state,
       phase: "won",
+      stern3: true,
       currentTask: null
     };
 
