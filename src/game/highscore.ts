@@ -47,6 +47,7 @@ const PROFILE_KEY = "einmaleins.student.profile.v1";
 const HIGHSCORE_KEY = "einmaleins.student.highscore.v1";
 const COMPLETED_GAMES_KEY = "einmaleins.student.completed-games.v1";
 const SYNC_QUEUE_KEY = "einmaleins.highscore.sync-queue.v1";
+const STAR_UNLOCKS_KEY = "einmaleins.student.star-unlocks.v1";
 
 const PERSONAL_BACKGROUND_THRESHOLDS = [
   { games: 10000, asset: "10000.png" },
@@ -165,6 +166,39 @@ export function saveStudentIdentity(identity: StudentIdentity): void {
   });
 }
 
+interface StarUnlockRecord {
+  studentId: string;
+  stern2: boolean;
+}
+
+function loadStarUnlocks(): StarUnlockRecord[] {
+  return readJson<StarUnlockRecord[]>(STAR_UNLOCKS_KEY) ?? [];
+}
+
+function hasSecondStarUnlock(studentId: string): boolean {
+  return loadStarUnlocks().some((entry) => entry.studentId === studentId && entry.stern2 === true);
+}
+
+export function unlockSecondStar(studentId: string): HighscoreRecord | null {
+  const unlocks = loadStarUnlocks();
+  const existingUnlock = unlocks.find((entry) => entry.studentId === studentId);
+  if (existingUnlock) {
+    existingUnlock.stern2 = true;
+  } else {
+    unlocks.push({ studentId, stern2: true });
+  }
+  writeJson(STAR_UNLOCKS_KEY, unlocks);
+
+  const personalBest = loadPersonalHighscore(studentId);
+  if (!personalBest || personalBest.stern2 === true) {
+    return personalBest;
+  }
+
+  const updatedRecord = { ...personalBest, stern2: true };
+  writeJson(HIGHSCORE_KEY, updatedRecord);
+  return updatedRecord;
+}
+
 export function loadPersonalHighscore(studentId = loadStudentIdentity().studentId): HighscoreRecord | null {
   const record = readJson<HighscoreRecord>(HIGHSCORE_KEY);
 
@@ -175,7 +209,7 @@ export function loadPersonalHighscore(studentId = loadStudentIdentity().studentI
   const sanitizedRecord: HighscoreRecord = {
     ...record,
     stern1: record.stern1 === true,
-    stern2: record.stern2 === true,
+    stern2: record.stern2 === true || hasSecondStarUnlock(studentId),
     stern3: record.stern3 === true
   };
 
@@ -212,7 +246,7 @@ export function evaluateResult(
 
   const mergedStars: EarnedStars = {
     stern1: previousBest?.stern1 === true || earnedStars.stern1 === true,
-    stern2: previousBest?.stern2 === true || earnedStars.stern2 === true,
+    stern2: previousBest?.stern2 === true || earnedStars.stern2 === true || hasSecondStarUnlock(student.studentId),
     stern3: previousBest?.stern3 === true || earnedStars.stern3 === true
   };
 
