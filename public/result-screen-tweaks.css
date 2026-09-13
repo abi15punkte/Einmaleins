@@ -174,6 +174,22 @@
 /* Der dritte Stern sitzt konstruktionsbedingt 3px tiefer; global 3px anheben. */
 .result-screen .result-stat:last-child strong img:nth-child(3) { transform: translateY(-3px) !important; }
 
+/* FUNCTION TEST: absurd Alien values — this must be unmistakably visible. */
+@media (orientation: landscape) {
+  .game-screen::after,
+  .start-screen::after,
+  .result-screen::after,
+  .school-highscore-overlay::after {
+    left: 11vw !important;
+    bottom: 14vh !important;
+    width: 41vw !important;
+    height: 41vw !important;
+    transform: rotate(137deg) scale(1.8) !important;
+    transform-origin: 50% 100% !important;
+    z-index: 99999 !important;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .mode-actions .mode-card,
   .result-card > #again,
