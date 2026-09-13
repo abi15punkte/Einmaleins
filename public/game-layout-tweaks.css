@@ -62,11 +62,11 @@
   }
 }
 
-/* Permanent class mascot: 25vh higher and shifted 7vw right from the original right-edge anchor. */
+/* Permanent class mascot: test position starts 10vw farther to the right before crossing the screen. */
 .start-class-overlay {
   position: fixed !important;
   left: auto !important;
-  right: -7vw !important;
+  right: -17vw !important;
   top: calc(50% - 25vh) !important;
   bottom: auto !important;
   width: 18.5vw !important;
