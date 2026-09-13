@@ -169,12 +169,12 @@
   }
 }
 
-/* Die Sternbilder werden im Ergebnis per JS in die Sterne-Box verschoben.
-   Die gespeicherten Bildpfade können je nach Hosting-Basis abweichen; content
-   stellt sicher, dass die drei vorgesehenen Sternbilder trotzdem sichtbar sind. */
+/* Die Sternbilder werden im Ergebnis per JS in die Sterne-Box verschoben. */
 .result-screen .result-stat:last-child strong img:nth-child(1) { content: url("./Stern1.png") !important; }
 .result-screen .result-stat:last-child strong img:nth-child(2) { content: url("./Stern2.png") !important; }
 .result-screen .result-stat:last-child strong img:nth-child(3) { content: url("./Stern3.png") !important; }
+/* Der dritte Stern sitzt konstruktionsbedingt 3px tiefer; global 3px anheben. */
+.result-screen .result-stat:last-child strong img:nth-child(3) { transform: translateY(-3px) !important; }
 
 @media (prefers-reduced-motion: reduce) {
   .mode-actions .mode-card,
