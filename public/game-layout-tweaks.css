@@ -61,14 +61,15 @@
     color: var(--space-text) !important;
   }
 
-  /* Preserve the tablet artwork's own aspect ratio instead of stretching it to the card. */
+  /* The task container remains in place, but is completely invisible. */
   .game-screen .task-card {
     width: 93.75% !important;
     height: auto !important;
     aspect-ratio: 5 / 4 !important;
     min-height: 0 !important;
-    background: url("./Tablet3.png") center / contain no-repeat !important;
-    background-color: transparent !important;
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
     overflow: hidden;
   }
 }
