@@ -13,13 +13,10 @@ type FirestoreSdk = typeof import("firebase/firestore") & {
 let firestoreSdkPromise: Promise<FirestoreSdk> | null = null;
 let latestLeaderboardEntries: LeaderboardEntry[] | null = null;
 let leaderboardPortraitObserver: MutationObserver | null = null;
-let completedGamesSyncObserver: MutationObserver | null = null;
-let lastCompletedGamesSyncKey: string | null = null;
-let inFlightCompletedGamesSyncKey: string | null = null;
-let lastSuccessfulLeaderboardSubmitKey: string | null = null;
 let secondStarChallengeLoadedForGame = false;
 let secondStarChallengeLoading = false;
 let secondStarTargetScore: number | null = null;
+let lastSuccessfulLeaderboardSubmitKey: string | null = null;
 
 async function loadFirestoreSdk(): Promise<FirestoreSdk> {
   if (!firestoreSdkPromise) {
@@ -151,30 +148,6 @@ function installLeaderboardPortraitObserver(): void {
   leaderboardPortraitObserver.observe(document.body, { childList: true, subtree: true });
 }
 
-async function syncCompletedGamesToLeaderboard(): Promise<void> {
-  if (typeof document === "undefined") return;
-
-  const student = loadStudentIdentity();
-  const personalBest = loadPersonalHighscore(student.studentId);
-  if (!personalBest) return;
-
-  const completedGames = loadCompletedGames(student.studentId);
-  const syncKey = `${student.studentId}:${completedGames}:${personalBest.score}:${personalBest.stern1 === true}:${personalBest.stern2 === true}:${personalBest.stern3 === true}`;
-  if (syncKey === lastCompletedGamesSyncKey || syncKey === inFlightCompletedGamesSyncKey) return;
-
-  inFlightCompletedGamesSyncKey = syncKey;
-  try {
-    await createLeaderboardClient().submit(personalBest);
-    lastCompletedGamesSyncKey = syncKey;
-  } catch (error) {
-    console.error("Highscore konnte nicht mit Firestore synchronisiert werden.", error);
-  } finally {
-    if (inFlightCompletedGamesSyncKey === syncKey) {
-      inFlightCompletedGamesSyncKey = null;
-    }
-  }
-}
-
 async function checkSecondStarChallenge(): Promise<void> {
   if (typeof document === "undefined") return;
 
@@ -223,23 +196,20 @@ async function checkSecondStarChallenge(): Promise<void> {
     && currentScore > secondStarTargetScore
   ) {
     unlockSecondStar(student.studentId);
-    secondStarChallengeLoadedForGame = true;
     secondStarTargetScore = null;
   }
 }
 
-function installCompletedGamesSyncObserver(): void {
-  if (typeof document === "undefined" || completedGamesSyncObserver !== null) return;
+function installGameLeaderboardReadObserver(): void {
+  if (typeof document === "undefined") return;
 
   const startObserving = (): void => {
-    if (completedGamesSyncObserver !== null || !document.body) return;
+    if (!document.body) return;
 
-    completedGamesSyncObserver = new MutationObserver(() => {
-      void syncCompletedGamesToLeaderboard();
+    const observer = new MutationObserver(() => {
       void checkSecondStarChallenge();
     });
-    completedGamesSyncObserver.observe(document.body, { childList: true, subtree: true });
-    void syncCompletedGamesToLeaderboard();
+    observer.observe(document.body, { childList: true, subtree: true });
     void checkSecondStarChallenge();
   };
 
@@ -461,4 +431,4 @@ function validateLegacyEntry(value: unknown): LeaderboardEntry {
   };
 }
 
-installCompletedGamesSyncObserver();
+installGameLeaderboardReadObserver();

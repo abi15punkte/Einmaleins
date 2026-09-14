@@ -77,13 +77,14 @@ describe("school leaderboard client", () => {
     );
   });
 
-  it("propagates Firestore permission-denied write failures", async () => {
+  it("treats Firestore permission-denied write failures as an unpublished highscore", async () => {
     setDoc.mockRejectedValue({ code: "permission-denied" });
 
     const client = createLeaderboardClient();
     const failingRecord = { ...record, score: 501 };
 
-    await expect(client.submit(failingRecord)).rejects.toMatchObject({ code: "permission-denied" });
+    await expect(client.submit(failingRecord)).resolves.toBeUndefined();
+    expect(setDoc).toHaveBeenCalledTimes(1);
   });
 
   it("propagates other Firestore write failures", async () => {
