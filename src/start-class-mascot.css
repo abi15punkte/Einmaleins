@@ -4,6 +4,14 @@
   will-change: transform;
 }
 
+.start-class-overlay.highscore-visible {
+  z-index: 20003 !important;
+}
+
+.school-highscore-overlay::after {
+  display: none !important;
+}
+
 @keyframes class-mascot-peek {
   0%, 25% {
     transform: translateY(-50%) translateX(-1vw);
