@@ -72,6 +72,18 @@
   72% { transform: translateX(-0.14vw) scale(1.006); }
 }
 
+/* Regelmäßiger, kurzer Aufmerksamkeitshinweis für Start und Neustart. */
+.mode-actions .mode-card,
+.result-card > #again,
+.result-highscore-action {
+  animation: attention-cue 3s ease-in-out infinite;
+  transform-origin: center;
+  will-change: transform;
+}
+
+.mode-actions .mode-card[data-mode="free"],
+.result-highscore-action { animation-delay: 1s !important; }
+
 .personal-best strong {
   margin-top: 5px !important;
   font-size: clamp(1.35rem, 2.8vw, 2rem) !important;
@@ -84,6 +96,13 @@
   font-size: clamp(1.15rem, 2.5vh, 1.65rem) !important;
   line-height: 1.15 !important;
   font-weight: 850 !important;
+}
+
+@keyframes attention-cue {
+  0%, 25%, 100% { transform: translateY(0) scale(1); }
+  29% { transform: translateY(-4px) scale(1.018); }
+  33% { transform: translateY(1px) scale(0.996); }
+  37% { transform: translateY(0) scale(1); }
 }
 
 .keypad-key:active {
@@ -196,6 +215,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .mode-actions .mode-card,
   .result-card > #again,
   .result-highscore-action,
   .keypad-key:active,
