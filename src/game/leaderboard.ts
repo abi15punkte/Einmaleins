@@ -288,17 +288,25 @@ function createFirestoreClient(): LeaderboardClient {
       const { doc, setDoc, Timestamp, db } = await loadFirestoreSdk();
       const studentDoc = doc(db, HIGHSCORE_COLLECTION, studentId);
 
-      await setDoc(studentDoc, {
-        studentId,
-        name,
-        klasse: record.className?.trim() || null,
-        punkte: record.score,
-        completedGames,
-        stern1: recordWithStars.stern1 === true,
-        stern2: recordWithStars.stern2 === true,
-        stern3: recordWithStars.stern3 === true,
-        timestamp: Timestamp.fromDate(timestamp)
-      });
+      try {
+        await setDoc(studentDoc, {
+          studentId,
+          name,
+          klasse: record.className?.trim() || null,
+          punkte: record.score,
+          completedGames,
+          stern1: recordWithStars.stern1 === true,
+          stern2: recordWithStars.stern2 === true,
+          stern3: recordWithStars.stern3 === true,
+          timestamp: Timestamp.fromDate(timestamp)
+        });
+      } catch (error) {
+        const code = error && typeof error === "object" && "code" in error
+          ? String((error as { code?: unknown }).code)
+          : "";
+        if (code === "permission-denied") return;
+        throw error;
+      }
 
       markLeaderboardSubmitted(record, completedGames);
       updateCachedLeaderboardEntry(record, completedGames);
