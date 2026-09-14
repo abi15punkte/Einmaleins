@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - development
   workflow_dispatch:
 
 permissions:
@@ -20,25 +21,50 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
+      - name: Checkout production source
         uses: actions/checkout@v5
+        with:
+          ref: main
+          path: production-source
+
+      - name: Checkout development source
+        uses: actions/checkout@v5
+        with:
+          ref: development
+          path: development-source
 
       - name: Setup Node
         uses: actions/setup-node@v5
         with:
           node-version: 22
 
-      - name: Install dependencies
-        run: npm install
+      - name: Install production dependencies
+        run: npm install --prefix production-source
 
-      - name: Build
-        run: npm run build
+      - name: Install development dependencies
+        run: npm install --prefix development-source
 
-      - name: Version build assets
+      - name: Build production version
+        env:
+          DEPLOY_BASE: /Einmaleins/
+          BUILD_COMMIT: ${{ github.sha }}
+        run: npm --prefix production-source run build
+
+      - name: Build development version
+        env:
+          DEPLOY_BASE: /Einmaleins/test/
+          BUILD_COMMIT: ${{ github.sha }}
+        run: npm --prefix development-source run build
+
+      - name: Assemble Pages site
         run: |
-          BUILD_ID="${GITHUB_RUN_NUMBER}"
-          sed -i "s/__BUILD_ID__/${BUILD_ID}/g" dist/index.html dist/sw.js
-          printf '{"buildId":"%s"}\n' "$BUILD_ID" > dist/version.json
+          rm -rf site
+          mkdir -p site/test
+          cp -R production-source/dist/. site/
+          cp -R development-source/dist/. site/test/
+          printf '{"productionCommit":"%s","developmentCommit":"%s"}\n' \
+            "$(git -C production-source rev-parse HEAD)" \
+            "$(git -C development-source rev-parse HEAD)" > site/deployment-info.json
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
@@ -46,7 +72,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v4
         with:
-          path: ./dist
+          path: ./site
 
   deploy:
     environment:
