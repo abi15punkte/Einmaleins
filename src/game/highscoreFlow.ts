@@ -179,7 +179,7 @@ function renderOverlay(entries: LeaderboardEntry[], studentName: string): void {
       }
       .achievement-stars img { width: 48px !important; height: 48px !important; object-fit: contain !important; }
       .achievement-stars img.is-muted { opacity: .22 !important; filter: grayscale(1) !important; }
-      .achievement-stars img:nth-child(3) { transform: translateY(-3px) !important; }
+      .achievement-stars img:nth-child(3) { position: relative !important; top: -3px !important; }
 
       @keyframes highscore-star-hop {
         0%, 100% { transform: translateY(0) scale(1); }
