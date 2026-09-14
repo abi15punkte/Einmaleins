@@ -61,8 +61,9 @@
     color: var(--space-text) !important;
   }
 
-  /* The task container remains in place, but is completely invisible. */
+  /* Keep the functional task container invisible while showing Tablet3 as a separate visual layer. */
   .game-screen .task-card {
+    position: relative !important;
     width: 93.75% !important;
     height: auto !important;
     aspect-ratio: 5 / 4 !important;
@@ -71,6 +72,21 @@
     border: 0 !important;
     box-shadow: none !important;
     overflow: hidden;
+    isolation: isolate;
+  }
+
+  .game-screen .task-card::before {
+    content: "";
+    position: absolute !important;
+    inset: 0 !important;
+    background: url("./Tablet3.png") center / contain no-repeat !important;
+    pointer-events: none !important;
+    z-index: 0 !important;
+  }
+
+  .game-screen .task-card > * {
+    position: relative !important;
+    z-index: 1 !important;
   }
 }
 
