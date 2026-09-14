@@ -79,12 +79,13 @@
     grid-template-columns: minmax(0, 625px) minmax(300px, 1fr) !important;
   }
 
-  /* Test: taller task box; tablet image is scaled to 55vh. */
+  /* Test: move the whole task area upward, make the card taller, and keep Tablet3 at 52vh. */
   .game-screen .task-card {
     position: relative !important;
+    top: -10vh !important;
     width: min(625px, 100%) !important;
-    height: 600px !important;
-    min-height: 600px !important;
+    height: 70vh !important;
+    min-height: 70vh !important;
     aspect-ratio: auto !important;
     background: transparent !important;
     border: 0 !important;
@@ -97,9 +98,18 @@
     content: "";
     position: absolute !important;
     inset: 0 !important;
-    background: url("./Tablet3.png") center / auto 55vh no-repeat !important;
+    background: url("./Tablet3.png") center / auto 52vh no-repeat !important;
     pointer-events: none !important;
     z-index: 0 !important;
+  }
+
+  /* Reduce all visible text in the task box by 20%. */
+  .game-screen .task-card .task-caption {
+    font-size: 80% !important;
+  }
+
+  .game-screen .task-card .task-equation {
+    font-size: clamp(2.56rem, 8vw, 5.36rem) !important;
   }
 
   .game-screen .task-card > * {
