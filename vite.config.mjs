@@ -1,7 +1,16 @@
 import { defineConfig } from "vite";
+import { resolve } from "node:path";
 
 export default defineConfig({
   base: "/Einmaleins/",
+  build: {
+    rollupOptions: {
+      input: {
+        main: resolve(__dirname, "index.html"),
+        highscore: resolve(__dirname, "highscore.html"),
+      },
+    },
+  },
   plugins: [
     {
       name: "build-version-injection",
