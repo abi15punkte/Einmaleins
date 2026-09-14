@@ -95,12 +95,12 @@
     isolation: isolate;
   }
 
-  /* Tablet3 at exactly 52vh, centered in a dedicated layer and shifted 15vh downward. */
+  /* Tablet3 at exactly 52vh, centered in a dedicated layer so the full image stays visible. */
   .game-screen .task-card::before {
     content: "";
     position: absolute !important;
     left: 0 !important;
-    top: calc(50% + 15vh) !important;
+    top: 50% !important;
     bottom: auto !important;
     width: 100% !important;
     height: 52vh !important;
