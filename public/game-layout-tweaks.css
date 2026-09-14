@@ -61,13 +61,13 @@
     color: var(--space-text) !important;
   }
 
-  /* Keep the task card at 5:4 so the tablet image keeps its intended proportions. */
+  /* Preserve the tablet artwork's own aspect ratio instead of stretching it to the card. */
   .game-screen .task-card {
     width: 93.75% !important;
     height: auto !important;
     aspect-ratio: 5 / 4 !important;
     min-height: 0 !important;
-    background: url("./Tablet3.png") center / 100% 100% no-repeat !important;
+    background: url("./Tablet3.png") center / contain no-repeat !important;
     background-color: transparent !important;
     overflow: hidden;
   }
