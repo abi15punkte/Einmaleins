@@ -37,7 +37,7 @@ body:has(.school-highscore-overlay) .start-class-overlay {
   height: var(--highscore-alien-size);
   max-width: var(--highscore-alien-max-size);
   max-height: var(--highscore-alien-max-size);
-  background: url("./Alien.png") center/contain no-repeat;
+  background: url("/Alien.png") center/contain no-repeat;
   pointer-events: none;
   z-index: 20003 !important;
 }
