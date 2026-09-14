@@ -40,10 +40,25 @@ body:has(.school-highscore-overlay) .start-class-overlay {
   background: url("/Alien.png") center/contain no-repeat;
   pointer-events: none;
   z-index: 20003 !important;
+  transform-origin: 50% 100%;
+  animation: highscore-alien-peek 8s ease-in-out infinite;
+  will-change: transform;
 }
 
 .school-highscore-overlay::after {
   display: none !important;
+}
+
+@keyframes highscore-alien-peek {
+  0%, 25% {
+    transform: translateX(-1vw);
+  }
+  55% {
+    transform: translateX(-5vw);
+  }
+  70%, 100% {
+    transform: translateX(-1vw);
+  }
 }
 
 @keyframes class-mascot-peek {
@@ -62,5 +77,10 @@ body:has(.school-highscore-overlay) .start-class-overlay {
   .start-class-overlay {
     animation: none !important;
     transform: translateY(-50%) translateX(-1vw) !important;
+  }
+
+  .school-highscore-overlay::before {
+    animation: none !important;
+    transform: translateX(-1vw) !important;
   }
 }
