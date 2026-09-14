@@ -1,4 +1,15 @@
 .start-class-overlay {
+  position: fixed;
+  left: -4vw;
+  bottom: 3vh;
+  width: 24vw;
+  height: 24vw;
+  max-width: 360px;
+  max-height: 360px;
+  object-fit: contain;
+  display: block;
+  pointer-events: none;
+  z-index: 1000;
   animation: class-mascot-peek 8s ease-in-out infinite;
   transform-origin: 50% 100%;
   will-change: transform;
@@ -6,7 +17,6 @@
 
 .start-class-overlay.highscore-visible,
 body:has(.school-highscore-overlay) .start-class-overlay {
-  position: relative;
   z-index: 20003 !important;
 }
 
