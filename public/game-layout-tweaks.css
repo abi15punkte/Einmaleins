@@ -60,6 +60,17 @@
   .game-screen .task-equation .operator {
     color: var(--space-text) !important;
   }
+
+  /* The iPad 9 is 2160×1620 px (4:3 in landscape), so the task skin
+     gets the same aspect ratio instead of stretching the PNG. */
+  .game-screen .task-card {
+    width: min(100%, 720px) !important;
+    aspect-ratio: 4 / 3 !important;
+    min-height: 0 !important;
+    background: url("./Tablet.png") center / 100% 100% no-repeat !important;
+    background-color: transparent !important;
+    overflow: hidden;
+  }
 }
 
 /* Permanent class mascot: closer test start position and a short 8s peek. */
@@ -106,10 +117,4 @@
   0% { transform: translateY(10vh) scale(1); }
   45% { transform: translateY(10vh) scale(1.035); }
   100% { transform: translateY(10vh) scale(1); }
-}
-
-/* Tablet skin for the task area. */
-.game-screen .task-card {
-  background: #ffffff url("./Tablet.png") center / 100% 100% no-repeat !important;
-  background-color: transparent !important;
 }
