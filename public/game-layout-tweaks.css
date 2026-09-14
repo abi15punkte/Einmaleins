@@ -117,10 +117,10 @@
     translate: 0 -10vh !important;
   }
 
-  /* Move all text inside the tablet by exactly 2px right and 3px down. */
+  /* Move all text inside the tablet by exactly 2px right and 5px down. */
   .game-screen .task-card > p,
   .game-screen .task-card .task-equation {
-    translate: 2px 3px !important;
+    translate: 2px 5px !important;
   }
 
   /* Reduce all visible text in the task box by 20%. */
