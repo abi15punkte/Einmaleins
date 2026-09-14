@@ -57,8 +57,22 @@
     display: none !important;
   }
 
+  .game-screen .task-equation,
+  .game-screen .task-equation .operator,
+  .game-screen .task-equation .factor-a,
+  .game-screen .task-equation .factor-b,
+  .game-screen .task-equation #factor-a,
+  .game-screen .task-equation #factor-b {
+    color: #172033 !important;
+  }
+
   .game-screen .task-equation .operator {
-    color: var(--space-text) !important;
+    color: #172033 !important;
+  }
+
+  .game-screen .answer-box {
+    color: #172033 !important;
+    border-bottom-color: #172033 !important;
   }
 
   /* Reserve a 625px left lane and a separate lane for the number pad. */
