@@ -1,6 +1,6 @@
 :root {
   --highscore-alien-left: -4vw;
-  --highscore-alien-bottom: 3vh;
+  --highscore-alien-bottom: 0vh;
   --highscore-alien-size: 24vw;
   --highscore-alien-max-size: 360px;
 }
