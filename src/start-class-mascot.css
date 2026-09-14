@@ -4,7 +4,8 @@
   will-change: transform;
 }
 
-.start-class-overlay.highscore-visible {
+.start-class-overlay.highscore-visible,
+body:has(.school-highscore-overlay) .start-class-overlay {
   z-index: 20003 !important;
 }
 
