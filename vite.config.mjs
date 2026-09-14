@@ -19,7 +19,7 @@ export default defineConfig({
         if (!code.includes(original)) return null;
 
         const replacement = `if (typeof document !== "undefined") {
-  const startLeaderboardSyncWhenGameAppears = (): void => {
+  const startLeaderboardSyncWhenGameAppears = () => {
     if (document.querySelector(".game-screen")) {
       installCompletedGamesSyncObserver();
       return;
