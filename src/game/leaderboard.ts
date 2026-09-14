@@ -1,4 +1,4 @@
-import { getPersonalBackgroundAsset, loadPersonalHighscore, loadStudentIdentity, unlockSecondStar, type HighscoreRecord } from "./highscore";
+import { getPersonalBackgroundAsset, loadCompletedGames, loadPersonalHighscore, loadStudentIdentity, unlockSecondStar, type HighscoreRecord } from "./highscore";
 
 type HighscoreRecordWithStars = HighscoreRecord & {
   stern1?: boolean;
@@ -16,6 +16,7 @@ let leaderboardPortraitObserver: MutationObserver | null = null;
 let secondStarChallengeLoadedForGame = false;
 let secondStarChallengeLoading = false;
 let secondStarTargetScore: number | null = null;
+let lastSuccessfulLeaderboardSubmitKey: string | null = null;
 
 async function loadFirestoreSdk(): Promise<FirestoreSdk> {
   if (!firestoreSdkPromise) {
@@ -77,8 +78,6 @@ function leaderboardSubmitKey(record: HighscoreRecord, completedGames: number): 
     recordWithStars.stern3 === true
   ]);
 }
-
-let lastSuccessfulLeaderboardSubmitKey: string | null = null;
 
 function hasAlreadySubmitted(record: HighscoreRecord, completedGames: number): boolean {
   return lastSuccessfulLeaderboardSubmitKey === leaderboardSubmitKey(record, completedGames);
@@ -197,7 +196,6 @@ async function checkSecondStarChallenge(): Promise<void> {
     && currentScore > secondStarTargetScore
   ) {
     unlockSecondStar(student.studentId);
-    secondStarChallengeLoadedForGame = true;
     secondStarTargetScore = null;
   }
 }
@@ -254,7 +252,7 @@ function createFirestoreClient(): LeaderboardClient {
       const timestamp = new Date(record.achievedAt);
       if (Number.isNaN(timestamp.getTime())) throw new Error("Leaderboard timestamp is invalid.");
 
-      const completedGames = 0;
+      const completedGames = loadCompletedGames(studentId);
       if (hasAlreadySubmitted(record, completedGames)) return;
 
       const { doc, setDoc, Timestamp, db } = await loadFirestoreSdk();
@@ -308,7 +306,7 @@ function createFirestoreClient(): LeaderboardClient {
 function createLegacyHttpClient(endpoint: string, fetcher: typeof fetch): LeaderboardClient {
   return {
     async submit(record) {
-      const completedGames = 0;
+      const completedGames = loadCompletedGames(record.studentId);
       if (hasAlreadySubmitted(record, completedGames)) return;
 
       const response = await fetcher(`${endpoint}/scores`, {
