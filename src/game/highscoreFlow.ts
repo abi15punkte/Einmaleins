@@ -180,6 +180,21 @@ function renderOverlay(entries: LeaderboardEntry[], studentName: string): void {
       .achievement-stars img { width: 48px !important; height: 48px !important; object-fit: contain !important; }
       .achievement-stars img.is-muted { opacity: .22 !important; filter: grayscale(1) !important; }
       .achievement-stars img:nth-child(3) { transform: translateY(-3px) !important; }
+
+      @keyframes highscore-star-hop {
+        0%, 100% { transform: translateY(0) scale(1); }
+        25% { transform: translateY(-8px) scale(1.08); }
+        45% { transform: translateY(0) scale(.98); }
+        65% { transform: translateY(-3px) scale(1.02); }
+      }
+      .school-highscore-overlay .school-highscore-me .achievement-stars img:not(.is-muted) {
+        animation: highscore-star-hop 3s ease-in-out infinite;
+        will-change: transform;
+      }
+      .school-highscore-overlay .school-highscore-me .achievement-stars img:nth-child(1):not(.is-muted) { animation-delay: 0s; }
+      .school-highscore-overlay .school-highscore-me .achievement-stars img:nth-child(2):not(.is-muted) { animation-delay: 1s; }
+      .school-highscore-overlay .school-highscore-me .achievement-stars img:nth-child(3):not(.is-muted) { animation-delay: 2s; }
+
       .school-highscore-score {
         text-align: right !important;
         color: #000 !important;
@@ -212,6 +227,11 @@ function renderOverlay(entries: LeaderboardEntry[], studentName: string): void {
         .achievement-stars { grid-template-columns: repeat(3,30px) !important; width: 96px !important; gap: 2px !important; transform: translateX(calc(3vw - 16px)) !important; }
         .achievement-stars img { width: 30px !important; height: 30px !important; }
         .school-highscore-score { font-size: 1.5rem !important; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .school-highscore-overlay .school-highscore-me .achievement-stars img:not(.is-muted) {
+          animation: none !important;
+        }
       }
     </style>
     <button type="button" class="school-highscore-close" aria-label="Highscoreliste verlassen">×</button>
