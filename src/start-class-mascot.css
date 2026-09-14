@@ -6,6 +6,7 @@
 
 .start-class-overlay.highscore-visible,
 body:has(.school-highscore-overlay) .start-class-overlay {
+  position: relative;
   z-index: 20003 !important;
 }
 
