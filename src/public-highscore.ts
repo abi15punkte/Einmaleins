@@ -1,4 +1,5 @@
 import { createLeaderboardClient, type LeaderboardEntry } from "./game/leaderboard";
+import { getPersonalBackgroundAsset } from "./game/highscore";
 import "./style.css";
 import "./responsive.css";
 import "./laptop.css";
@@ -15,10 +16,15 @@ function escapeHtml(value: unknown): string {
     .replaceAll("'", "&#039;");
 }
 
-function classMascot(className: string | null): string {
-  return /^(M(?:[1-9]|1[0-6]))$/i.test(className ?? "")
-    ? `./${String(className).toUpperCase()}.png`
-    : "./M1.png";
+function classPortrait(className: string | null): string {
+  const normalized = String(className ?? "").trim().toUpperCase();
+  const match = normalized.match(/^M([1-9]|1[0-6])$/);
+  return match ? `./P${match[1]}.png` : "./P1.png";
+}
+
+function portraitBackground(completedGames: number): string | null {
+  const asset = getPersonalBackgroundAsset(completedGames);
+  return asset ? `./${asset}` : null;
 }
 
 function firstNameOnly(value: string): string {
@@ -99,7 +105,10 @@ function installStyles(root: HTMLElement): void {
       display: grid !important;
       place-items: center !important;
       border: 1px solid rgba(23,32,51,.08) !important;
-      background: #f3f5f8 !important;
+      background-color: #f3f5f8 !important;
+      background-position: center !important;
+      background-repeat: no-repeat !important;
+      background-size: cover !important;
       overflow: hidden !important;
     }
     .school-highscore-mascot img { width: 100% !important; height: 100% !important; object-fit: contain !important; }
@@ -187,11 +196,15 @@ function rowHtml(entry: LeaderboardEntry): string {
   const className = entry.className ?? "–";
   const rankClass = entry.rank === 1 ? "rank-gold" : entry.rank === 2 ? "rank-silver" : entry.rank === 3 ? "rank-bronze" : "";
   const firstName = firstNameOnly(entry.name);
+  const backgroundAsset = portraitBackground(entry.completedGames);
+  const backgroundStyle = backgroundAsset
+    ? ` style="background-image:url('${backgroundAsset}')"`
+    : "";
 
   return `<div class="school-highscore-row ${rankClass}" role="listitem">
     <div class="school-highscore-rank">${entry.rank}</div>
     <div class="school-highscore-entry-meta">
-      <span class="school-highscore-mascot"><img src="${classMascot(entry.className)}" alt="Klasse ${escapeHtml(className)}"></span>
+      <span class="school-highscore-mascot"${backgroundStyle}><img src="${classPortrait(entry.className)}" alt="Klasse ${escapeHtml(className)}"></span>
       <div class="school-highscore-name-wrap">
         <div class="school-highscore-name">${escapeHtml(firstName)}</div>
         <div class="school-highscore-class">Klasse ${escapeHtml(className)}</div>
