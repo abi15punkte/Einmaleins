@@ -95,16 +95,11 @@
     isolation: isolate;
   }
 
-  /* Tablet3 is its own centered layer and is intentionally not clipped by the task card. */
+  /* Tablet3 restored to the centered full-card background layer. */
   .game-screen .task-card::before {
     content: "";
     position: absolute !important;
-    left: 50% !important;
-    top: 50% !important;
-    width: auto !important;
-    height: 52vh !important;
-    inset: auto !important;
-    transform: translate(-50%, -50%) !important;
+    inset: 0 !important;
     background: url("./Tablet3.png") center / contain no-repeat !important;
     pointer-events: none !important;
     z-index: 0 !important;
