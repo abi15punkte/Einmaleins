@@ -61,13 +61,14 @@
     color: var(--space-text) !important;
   }
 
-  /* The iPad 9 is 2160×1620 px (4:3 in landscape), so the task skin
-     gets the same aspect ratio instead of stretching the PNG. */
+  /* Keep the current task-card height and center it while changing 4:3 to 5:4.
+     Width becomes 15/16 (= 93.75%) of the previous 4:3 width, so the
+     left edge moves right by half of the removed width. */
   .game-screen .task-card {
-    width: min(100%, 720px) !important;
-    aspect-ratio: 4 / 3 !important;
+    width: 93.75% !important;
+    aspect-ratio: 5 / 4 !important;
     min-height: 0 !important;
-    background: url("./Tablet.png") center / 100% 100% no-repeat !important;
+    background: url("./Tablet2.png") center / 100% 100% no-repeat !important;
     background-color: transparent !important;
     overflow: hidden;
   }
