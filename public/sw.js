@@ -78,6 +78,7 @@ self.addEventListener("fetch", (event) => {
 
   const requestUrl = new URL(event.request.url);
   const isNavigation = event.request.mode === "navigate" || requestUrl.pathname.endsWith("/index.html");
+  const isHighscoreNavigation = event.request.mode === "navigate" && requestUrl.pathname.endsWith("/highscore.html");
   const isHighscoreAsset = requestUrl.origin === self.location.origin && HIGHSCORE_ASSETS.some((asset) => {
     const assetUrl = new URL(asset, self.location.href);
     return requestUrl.pathname === assetUrl.pathname;
@@ -94,6 +95,21 @@ self.addEventListener("fetch", (event) => {
           return response;
         })
         .catch(() => caches.match(event.request))
+    );
+    return;
+  }
+
+  if (isHighscoreNavigation) {
+    event.respondWith(
+      fetch(event.request, { cache: "no-store" })
+        .then((response) => {
+          if (response.ok) {
+            const copy = response.clone();
+            void caches.open(CACHE_NAME).then((cache) => cache.put("./highscore.html", copy));
+          }
+          return response;
+        })
+        .catch(() => caches.match("./highscore.html"))
     );
     return;
   }
