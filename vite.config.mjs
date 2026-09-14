@@ -10,17 +10,6 @@ export default defineConfig({
         return html.replaceAll("__BUILD_ID__", buildId);
       },
     },
-    {
-      name: "disable-automatic-leaderboard-sync",
-      transform(code, id) {
-        if (!id.endsWith("/src/game/leaderboard.ts")) return null;
-
-        const original = "installCompletedGamesSyncObserver();";
-        if (!code.includes(original)) return null;
-
-        return { code: code.replace(original, "void 0;"), map: null };
-      },
-    },
   ],
   build: {
     rollupOptions: {
