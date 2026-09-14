@@ -27,6 +27,8 @@
   animation: class-mascot-float 5.8s ease-in-out infinite;
   transform-origin: 50% 100%;
   will-change: transform;
+  pointer-events: none;
+  user-select: none;
 }
 
 @keyframes class-mascot-float {
