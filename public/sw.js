@@ -52,12 +52,16 @@ async function enhanceNavigationResponse(response) {
   if (!contentType.includes("text/html")) return response;
 
   const html = await response.text();
-  if (html.includes("start-class-mascot.js")) return new Response(html, response);
+  if (html.includes("id=\"startup-splash\"")) return new Response(html, response);
 
   const enhanced = html
     .replace(
       "</head>",
-      "  <link rel=\"stylesheet\" href=\"./start-class-mascot.css\">\n  </head>"
+      "      <style id=\"startup-splash-style\">#startup-splash{position:fixed;inset:0;z-index:2147483646;background:#fff;pointer-events:auto}html.startup-splash-active{background:#fff!important}</style>\n  </head>"
+    )
+    .replace(
+      "<body>",
+      "<body><div id=\"startup-splash\" aria-hidden=\"true\"></div><script>document.documentElement.classList.add('startup-splash-active');setTimeout(function(){document.getElementById('startup-splash')?.remove();document.documentElement.classList.remove('startup-splash-active')},5000);</script>"
     )
     .replace(
       "</body>",
@@ -132,9 +136,11 @@ self.addEventListener("fetch", (event) => {
         return finalResponse;
       })
       .catch(() =>
-        caches.match(event.request).then((cached) =>
-          cached ?? caches.match("./index.html")
-        )
+        caches.match(event.request).then(async (cached) => {
+          if (cached) return isNavigation ? enhanceNavigationResponse(cached) : cached;
+          const indexCached = await caches.match("./index.html");
+          return indexCached ? enhanceNavigationResponse(indexCached) : indexCached;
+        })
       )
   );
 });
