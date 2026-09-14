@@ -107,3 +107,9 @@
   45% { transform: translateY(10vh) scale(1.035); }
   100% { transform: translateY(10vh) scale(1); }
 }
+
+/* Tablet skin for the task area. */
+.game-screen .task-card {
+  background: #ffffff url("./Tablet.png") center / 100% 100% no-repeat !important;
+  background-color: transparent !important;
+}
