@@ -61,6 +61,11 @@
     color: var(--space-text) !important;
   }
 
+  /* Reserve a 625px left lane and a separate lane for the number pad. */
+  .game-screen {
+    grid-template-columns: minmax(0, 625px) minmax(300px, 1fr) !important;
+  }
+
   /* Fixed 625x500 visual tablet area; the surrounding card stays transparent. */
   .game-screen .task-card {
     position: relative !important;
