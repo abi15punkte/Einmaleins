@@ -95,12 +95,12 @@
     isolation: isolate;
   }
 
-  /* Tablet3 restored to the centered full-card background layer. */
+  /* Tablet3 restored to the centered full-card background layer, at 52vh. */
   .game-screen .task-card::before {
     content: "";
     position: absolute !important;
     inset: 0 !important;
-    background: url("./Tablet3.png") center / contain no-repeat !important;
+    background: url("./Tablet3.png") center / auto 52vh no-repeat !important;
     pointer-events: none !important;
     z-index: 0 !important;
   }
