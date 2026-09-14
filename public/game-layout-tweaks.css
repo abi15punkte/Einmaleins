@@ -61,13 +61,13 @@
     color: var(--space-text) !important;
   }
 
-  /* Keep the functional task container invisible while showing Tablet3 as a separate visual layer. */
+  /* Fixed 625x500 visual tablet area; the surrounding card stays transparent. */
   .game-screen .task-card {
     position: relative !important;
-    width: 93.75% !important;
-    height: auto !important;
-    aspect-ratio: 5 / 4 !important;
-    min-height: 0 !important;
+    width: min(625px, 100%) !important;
+    height: 500px !important;
+    min-height: 500px !important;
+    aspect-ratio: auto !important;
     background: transparent !important;
     border: 0 !important;
     box-shadow: none !important;
