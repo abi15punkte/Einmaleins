@@ -43,6 +43,17 @@ function ensurePermanentClassMascot(): void {
   mascot.alt = `Klassentier ${student.className ?? "M1"}`;
 }
 
+function setHighscoreMascotLayer(active: boolean): void {
+  const mascot = document.querySelector<HTMLImageElement>(".start-class-overlay");
+  if (!mascot) return;
+
+  if (active) {
+    mascot.classList.add("highscore-visible");
+  } else {
+    mascot.classList.remove("highscore-visible");
+  }
+}
+
 function renderOverlay(entries: LeaderboardEntry[], studentName: string): void {
   document.querySelector<HTMLElement>(".school-highscore-overlay")?.remove();
 
@@ -73,16 +84,9 @@ function renderOverlay(entries: LeaderboardEntry[], studentName: string): void {
         color: #172033 !important;
         padding: 20px 24px 30px !important;
       }
-      .school-highscore-overlay::after {
-        content: "" !important;
-        position: fixed !important;
-        left: -4vw !important;
-        bottom: 3vh !important;
-        width: 24vw !important;
-        height: 24vw !important;
-        background: url("./Alien.png") center/contain no-repeat !important;
-        pointer-events: none !important;
-        z-index: 20002 !important;
+      .school-highscore-overlay::after { display: none !important; }
+      .start-class-overlay.highscore-visible {
+        z-index: 20003 !important;
       }
       .school-highscore-close {
         position: fixed !important;
@@ -216,12 +220,16 @@ function renderOverlay(entries: LeaderboardEntry[], studentName: string): void {
   `;
 
   document.body.appendChild(overlay);
+  setHighscoreMascotLayer(true);
+
   overlay.querySelector<HTMLButtonElement>(".school-highscore-close")?.addEventListener("click", () => {
+    setHighscoreMascotLayer(false);
     overlay.remove();
     document.querySelector<HTMLButtonElement>(".result-highscore-action button")?.removeAttribute("disabled");
   });
   overlay.querySelector<HTMLElement>(".school-highscore-me")?.scrollIntoView({ block: "nearest" });
   ensurePermanentClassMascot();
+  setHighscoreMascotLayer(true);
 }
 
 function triggerHighscoreSubmitErrorShake(action: HTMLDivElement): void {
