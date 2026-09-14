@@ -58,7 +58,6 @@
   }
 
   .game-screen .task-equation,
-  .game-screen .task-equation .operator,
   .game-screen .task-equation .factor-a,
   .game-screen .task-equation .factor-b,
   .game-screen .task-equation #factor-a,
@@ -67,7 +66,7 @@
   }
 
   .game-screen .task-equation .operator {
-    color: #172033 !important;
+    color: #667085 !important;
   }
 
   .game-screen .answer-box {
