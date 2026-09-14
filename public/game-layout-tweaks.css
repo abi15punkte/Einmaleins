@@ -79,10 +79,11 @@
     grid-template-columns: minmax(0, 625px) minmax(300px, 1fr) !important;
   }
 
-  /* Test: move the whole task area upward, make the card taller, and keep Tablet3 at 52vh. */
+  /* Test: move the whole task area upward without interfering with task animations. */
   .game-screen .task-card {
     position: relative !important;
-    top: -10vh !important;
+    top: auto !important;
+    translate: 0 -10vh !important;
     width: min(625px, 100%) !important;
     height: 70vh !important;
     min-height: 70vh !important;
@@ -101,6 +102,12 @@
     background: url("./Tablet3.png") center / auto 52vh no-repeat !important;
     pointer-events: none !important;
     z-index: 0 !important;
+  }
+
+  /* Move the complete flying-points animation upward by the same amount. */
+  .game-screen .points-fly {
+    position: relative !important;
+    translate: 0 -10vh !important;
   }
 
   /* Reduce all visible text in the task box by 20%. */
@@ -146,20 +153,20 @@
 }
 
 @keyframes task-card-shake {
-  0%, 100% { transform: translateX(0) translateY(10vh) rotate(0deg) scale(1); }
-  7% { transform: translateX(-1.8vw) translateY(10vh) rotate(-2.2deg) scale(1.02); }
-  14% { transform: translateX(1.6vw) translateY(10vh) rotate(2deg) scale(1.015); }
-  22% { transform: translateX(-1.35vw) translateY(10vh) rotate(-1.7deg) scale(1.01); }
-  30% { transform: translateX(1.15vw) translateY(10vh) rotate(1.4deg) scale(1.008); }
-  38% { transform: translateX(-0.95vw) translateY(10vh) rotate(-1.1deg) scale(1.004); }
-  46% { transform: translateX(0.7vw) translateY(10vh) rotate(0.8deg) scale(1.002); }
-  56% { transform: translateX(-0.45vw) translateY(10vh) rotate(-0.55deg) scale(1.001); }
-  68% { transform: translateX(0.2vw) translateY(10vh) rotate(0.25deg) scale(1); }
-  100% { transform: translateX(0) translateY(10vh) rotate(0deg) scale(1); }
+  0%, 100% { transform: translateX(0) rotate(0deg) scale(1); }
+  7% { transform: translateX(-1.8vw) rotate(-2.2deg) scale(1.02); }
+  14% { transform: translateX(1.6vw) rotate(2deg) scale(1.015); }
+  22% { transform: translateX(-1.35vw) rotate(-1.7deg) scale(1.01); }
+  30% { transform: translateX(1.15vw) rotate(1.4deg) scale(1.008); }
+  38% { transform: translateX(-0.95vw) rotate(-1.1deg) scale(1.004); }
+  46% { transform: translateX(0.7vw) rotate(0.8deg) scale(1.002); }
+  56% { transform: translateX(-0.45vw) rotate(-0.55deg) scale(1.001); }
+  68% { transform: translateX(0.2vw) rotate(0.25deg) scale(1); }
+  100% { transform: translateX(0) rotate(0deg) scale(1); }
 }
 
 @keyframes task-card-correct-pop {
-  0% { transform: translateY(10vh) scale(1); }
-  45% { transform: translateY(10vh) scale(1.035); }
-  100% { transform: translateY(10vh) scale(1); }
+  0% { transform: scale(1); }
+  45% { transform: scale(1.035); }
+  100% { transform: scale(1); }
 }
