@@ -79,12 +79,12 @@
     grid-template-columns: minmax(0, 625px) minmax(300px, 1fr) !important;
   }
 
-  /* Scale the tablet with viewport height; transparent image margins are still clipped inside this lane. */
+  /* Test: scale the tablet directly from viewport height. */
   .game-screen .task-card {
     position: relative !important;
     width: min(625px, 100%) !important;
-    height: max(500px, 69vh) !important;
-    min-height: max(500px, 69vh) !important;
+    height: 50vh !important;
+    min-height: 50vh !important;
     aspect-ratio: auto !important;
     background: transparent !important;
     border: 0 !important;
@@ -97,7 +97,7 @@
     content: "";
     position: absolute !important;
     inset: 0 !important;
-    background: url("./Tablet3.png") center / auto 69vh no-repeat !important;
+    background: url("./Tablet3.png") center / auto 50vh no-repeat !important;
     pointer-events: none !important;
     z-index: 0 !important;
   }
