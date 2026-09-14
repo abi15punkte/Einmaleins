@@ -1,8 +1,28 @@
 (() => {
+  const STARTUP_SPLASH_MS = 5000;
   const isPortrait = () => window.innerHeight > window.innerWidth;
   const isStandalone = () =>
     window.matchMedia?.("(display-mode: standalone)").matches ||
     ("standalone" in navigator && navigator.standalone === true);
+
+  function installStartupSplash() {
+    const existing = document.getElementById("startup-splash");
+    if (existing) return;
+
+    const splash = document.createElement("div");
+    splash.id = "startup-splash";
+    splash.setAttribute("aria-hidden", "true");
+    Object.assign(splash.style, {
+      position: "fixed",
+      inset: "0",
+      zIndex: "2147483646",
+      background: "#fff",
+      pointerEvents: "auto"
+    });
+
+    document.documentElement.appendChild(splash);
+    window.setTimeout(() => splash.remove(), STARTUP_SPLASH_MS);
+  }
 
   function updatePortraitState() {
     const portrait = isPortrait();
@@ -58,6 +78,7 @@
     });
   }
 
+  installStartupSplash();
   updatePortraitState();
   installStandaloneSnapshotGuard();
 
