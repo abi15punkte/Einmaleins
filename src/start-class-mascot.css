@@ -1,3 +1,10 @@
+:root {
+  --highscore-alien-left: -4vw;
+  --highscore-alien-bottom: 3vh;
+  --highscore-alien-size: 24vw;
+  --highscore-alien-max-size: 360px;
+}
+
 .start-class-overlay {
   position: fixed;
   left: -4vw;
@@ -17,6 +24,21 @@
 
 .start-class-overlay.highscore-visible,
 body:has(.school-highscore-overlay) .start-class-overlay {
+  z-index: 20003 !important;
+}
+
+/* Der ursprüngliche Highscore-Alien bleibt als eigene, robuste Ebene sichtbar. */
+.school-highscore-overlay::before {
+  content: "";
+  position: fixed;
+  left: var(--highscore-alien-left);
+  bottom: var(--highscore-alien-bottom);
+  width: var(--highscore-alien-size);
+  height: var(--highscore-alien-size);
+  max-width: var(--highscore-alien-max-size);
+  max-height: var(--highscore-alien-max-size);
+  background: url("./Alien.png") center/contain no-repeat;
+  pointer-events: none;
   z-index: 20003 !important;
 }
 
