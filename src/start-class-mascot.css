@@ -41,24 +41,19 @@ body:has(.school-highscore-overlay) .start-class-overlay {
   pointer-events: none;
   z-index: 20003 !important;
   transform-origin: 50% 100%;
-  animation: highscore-alien-peek 8s ease-in-out infinite;
-  will-change: transform;
+  animation: highscore-alien-float 5.8s ease-in-out infinite;
+  will-change: transform, opacity;
 }
 
 .school-highscore-overlay::after {
   display: none !important;
 }
 
-@keyframes highscore-alien-peek {
-  0%, 25% {
-    transform: translateX(-1vw);
-  }
-  55% {
-    transform: translateX(-5vw);
-  }
-  70%, 100% {
-    transform: translateX(-1vw);
-  }
+@keyframes highscore-alien-float {
+  0%, 100% { transform: translate3d(0, 0, 0) rotate(-1deg) scale(1); }
+  25% { transform: translate3d(0.35vw, -0.7vh, 0) rotate(0.5deg) scale(1.012); }
+  50% { transform: translate3d(0, -1.1vh, 0) rotate(1deg) scale(1.02); }
+  75% { transform: translate3d(-0.35vw, -0.55vh, 0) rotate(0.25deg) scale(1.01); }
 }
 
 @keyframes class-mascot-peek {
@@ -81,6 +76,6 @@ body:has(.school-highscore-overlay) .start-class-overlay {
 
   .school-highscore-overlay::before {
     animation: none !important;
-    transform: translateX(-1vw) !important;
+    transform: none !important;
   }
 }
