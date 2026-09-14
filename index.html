@@ -89,13 +89,6 @@
             .catch(() => {
               // The app remains fully usable when service workers are unavailable.
             });
-
-          let reloadedForControllerChange = false;
-          navigator.serviceWorker.addEventListener("controllerchange", () => {
-            if (reloadedForControllerChange) return;
-            reloadedForControllerChange = true;
-            window.location.reload();
-          });
         });
       }
     </script>
