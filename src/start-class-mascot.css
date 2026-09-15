@@ -56,10 +56,54 @@ body:has(.school-highscore-overlay) .start-class-overlay {
   }
 }
 
-/* Testweise: Inhalte der beiden Übungsmodus-Buttons zentrieren. */
+/* Beide Übungsmodus-Buttons: große, gezielt zweizeilige Beschriftung. */
 .mode-card {
   align-items: center;
   text-align: center;
+  animation: start-mode-button-jump 1.65s ease-in-out infinite !important;
+  will-change: transform;
+}
+
+.mode-card:nth-child(2) {
+  animation-delay: 0.5s !important;
+}
+
+.mode-card .mode-title {
+  font-size: 0 !important;
+  line-height: 1.02;
+  font-weight: 900;
+}
+
+.mode-card[data-mode="highscore"] .mode-title::after {
+  content: "Üben mit\\A Highscore";
+}
+
+.mode-card[data-mode="free"] .mode-title::after {
+  content: "Üben ohne\\A Highscore";
+}
+
+.mode-card .mode-title::after {
+  display: block;
+  white-space: pre;
+  font-size: clamp(2rem, 5vw, 3.25rem);
+  line-height: 1.02;
+  font-weight: 900;
+  letter-spacing: -0.045em;
+}
+
+@keyframes start-mode-button-jump {
+  0%, 18%, 100% {
+    transform: translateY(0) scale(1);
+  }
+  6% {
+    transform: translateY(-30px) scale(1.055);
+  }
+  10% {
+    transform: translateY(4px) scale(0.985);
+  }
+  14% {
+    transform: translateY(-13px) scale(1.02);
+  }
 }
 
 @keyframes highscore-alien-float {
@@ -81,9 +125,19 @@ body:has(.school-highscore-overlay) .start-class-overlay {
   }
 }
 
+@media (max-width: 600px) {
+  .mode-card .mode-title::after {
+    font-size: clamp(2rem, 9vw, 2.8rem);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .start-class-overlay {
+  .start-class-overlay,
+  .mode-card {
     animation: none !important;
+  }
+
+  .start-class-overlay {
     transform: translateY(-50%) translateX(-1vw) !important;
   }
 
