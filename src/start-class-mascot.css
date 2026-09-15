@@ -74,6 +74,11 @@ body:has(.school-highscore-overlay) .start-class-overlay {
   font-weight: 900;
 }
 
+/* Die zusätzliche Beschreibung unter den großen Übungsmodus-Titeln wird nicht angezeigt. */
+.mode-card .mode-copy {
+  display: none !important;
+}
+
 .mode-card[data-mode="highscore"] .mode-title::after {
   content: "Üben mit\A Highscore";
 }
