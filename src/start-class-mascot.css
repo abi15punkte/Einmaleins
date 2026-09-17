@@ -22,9 +22,25 @@
   will-change: transform;
 }
 
+/* Referenz auf den nachweislich verwendeten Deploy-787-Stand:
+   Das Klassentier fährt in derselben vertikalen Position ein/aus und bleibt
+   dabei horizontal nahezu außerhalb des Bildschirms. */
+@keyframes class-mascot-peek {
+  0%, 25% {
+    transform: translateY(-50%) translateX(-1vw);
+  }
+  55% {
+    transform: translateY(-50%) translateX(-5vw);
+  }
+  70%, 100% {
+    transform: translateY(-50%) translateX(-1vw);
+  }
+}
+
 .start-class-overlay.highscore-visible,
 body:has(.school-highscore-overlay) .start-class-overlay {
-  z-index: 20003 !important;
+  /* Das Highscore-Tier bleibt weiterhin über dem Overlay sichtbar. */
+  z-index: 30001 !important;
 }
 
 .school-highscore-overlay::before {
@@ -88,7 +104,7 @@ body:has(.school-highscore-overlay) .start-class-overlay {
   position: absolute !important;
   left: 50% !important;
   bottom: 0 !important;
-  z-index: 1 !important;
+  z-index: 2 !important;
   width: 80% !important;
   height: 80% !important;
   object-fit: contain !important;
@@ -96,6 +112,8 @@ body:has(.school-highscore-overlay) .start-class-overlay {
   transform: translateX(-50%) !important;
   border-radius: 18px !important;
   display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
 }
 
 .school-highscore-overlay .school-highscore-mascot::after {
@@ -108,8 +126,16 @@ body:has(.school-highscore-overlay) .start-class-overlay {
   background-size: contain !important;
   background-image: var(--school-highscore-frame-image, none) !important;
   pointer-events: none !important;
-  z-index: 2 !important;
+  z-index: 3 !important;
   animation: none !important;
+}
+
+/* Der eigene Datensatz wird noch einmal ausdrücklich in die Portrait-Stacking-Reihenfolge
+   eingeordnet, damit P1–P16 nicht durch die aktive Rahmenebene verdrängt werden. */
+.school-highscore-overlay .school-highscore-me .school-highscore-mascot > img.school-highscore-portrait {
+  z-index: 2 !important;
+  visibility: visible !important;
+  opacity: 1 !important;
 }
 
 @media (max-width: 700px) {
