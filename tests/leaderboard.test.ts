@@ -100,7 +100,8 @@ describe("school leaderboard client", () => {
     });
 
     const client = createLeaderboardClient();
-    await client.submit(record);
+    const syncRecord = { ...record, score: 501 };
+    await client.submit(syncRecord);
 
     expect(setDoc).toHaveBeenCalledWith(
       "student-doc-ref",
@@ -116,7 +117,7 @@ describe("school leaderboard client", () => {
     setDoc.mockRejectedValue({ code: "permission-denied" });
 
     const client = createLeaderboardClient();
-    const failingRecord = { ...record, score: 501 };
+    const failingRecord = { ...record, score: 502 };
 
     await expect(client.submit(failingRecord)).resolves.toBeUndefined();
     expect(setDoc).toHaveBeenCalledTimes(1);
@@ -126,7 +127,7 @@ describe("school leaderboard client", () => {
     setDoc.mockRejectedValue(new Error("network-error"));
 
     const client = createLeaderboardClient();
-    const failingRecord = { ...record, score: 502 };
+    const failingRecord = { ...record, score: 503 };
 
     await expect(client.submit(failingRecord)).rejects.toThrow("network-error");
   });
