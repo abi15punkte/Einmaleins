@@ -52,11 +52,11 @@ body:has(.school-highscore-overlay) .start-class-overlay {
   z-index: 30000 !important;
 }
 
-/* Ebenen des aktiven Portraits:
+/* Aktives Highscore-Portrait exakt wie im getesteten Rahmen-Durchschaltstand:
    1. transparenter Außenbereich
-   2. abgerundeter Kachel-Hintergrund aus dem freigeschalteten Profil-Hintergrund
-   3. Portrait P1–P16, 80% der Kachelgröße und am unteren Rand fixiert
-   4. transparenter Rahmen als oberste Ebene
+   2. abgerundeter Kachel-Hintergrund
+   3. Portrait P1–P16 mit 80 % Kachelgröße, mittig und unten fixiert
+   4. transparenter Rahmen als eigene oberste Ebene
 */
 .school-highscore-overlay .school-highscore-me .school-highscore-mascot {
   position: relative !important;
@@ -78,7 +78,13 @@ body:has(.school-highscore-overlay) .start-class-overlay {
   z-index: 0 !important;
 }
 
-.school-highscore-overlay .school-highscore-me .school-highscore-mascot img {
+/* Die bisher zusätzlich eingefügte Rahmen-<img>-Ebene wird bewusst ausgeblendet.
+   Der Rahmen kommt wieder ausschließlich aus ::after, wie im getesteten Stand. */
+.school-highscore-overlay .school-highscore-me .school-highscore-mascot > img.school-highscore-frame {
+  display: none !important;
+}
+
+.school-highscore-overlay .school-highscore-me .school-highscore-mascot > img.school-highscore-portrait {
   position: absolute !important;
   left: 50% !important;
   bottom: 0 !important;
@@ -177,42 +183,4 @@ body:has(.school-highscore-overlay) .start-class-overlay {
   25% { transform: translate3d(0.35vw, -0.7vh, 0) rotate(0.5deg) scale(1.012); }
   50% { transform: translate3d(0, -1.1vh, 0) rotate(1deg) scale(1.02); }
   75% { transform: translate3d(-0.35vw, -0.55vh, 0) rotate(0.25deg) scale(1.01); }
-}
-
-@keyframes class-mascot-peek {
-  0%, 25% {
-    transform: translateY(-50%) translateX(-1vw);
-  }
-  55% {
-    transform: translateY(-50%) translateX(-5vw);
-  }
-  70%, 100% {
-    transform: translateY(-50%) translateX(-1vw);
-  }
-}
-
-@media (max-width: 600px) {
-  .mode-card .mode-title::after {
-    font-size: clamp(1.8rem, 8vw, 2.35rem);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .start-class-overlay,
-  .mode-card {
-    animation: none !important;
-  }
-
-  .start-class-overlay {
-    transform: translateY(-50%) translateX(-1vw) !important;
-  }
-
-  .school-highscore-overlay::before {
-    animation: none !important;
-    transform: none !important;
-  }
-
-  .school-highscore-overlay .school-highscore-me .school-highscore-mascot::after {
-    background-image: var(--school-highscore-frame-image, none) !important;
-  }
 }
