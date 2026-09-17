@@ -17,6 +17,7 @@ interface StorageLike {
 
 const FRAME_UNLOCKS_KEY = "einmaleins.student.frame-unlocks.v1";
 const memoryStorage = new Map<string, string>();
+let latestFrameUnlockDebug: { errorRate: number | null; unlocks: FrameUnlocks } | null = null;
 
 const memoryStorageAdapter: StorageLike = {
   getItem: (key) => memoryStorage.get(key) ?? null,
@@ -94,11 +95,13 @@ export function recordFrameUnlocks(
   }
 
   saveStoredFrameUnlocks(records);
-  return {
+  const unlocks = {
     rahmenB: merged.rahmenB,
     rahmenS: merged.rahmenS,
     rahmenG: merged.rahmenG
   };
+  latestFrameUnlockDebug = { errorRate, unlocks };
+  return unlocks;
 }
 
 export function highestUnlockedFrame(unlocks: FrameUnlocks): FrameId | null {
@@ -107,3 +110,26 @@ export function highestUnlockedFrame(unlocks: FrameUnlocks): FrameId | null {
   if (unlocks.rahmenB) return "B";
   return null;
 }
+
+function installFrameUnlockDebugOutput(): void {
+  if (typeof document === "undefined") return;
+
+  const render = (): void => {
+    if (!latestFrameUnlockDebug) return;
+    const resultCard = document.querySelector<HTMLElement>(".result-screen .result-card");
+    if (!resultCard || resultCard.querySelector(".frame-unlock-debug")) return;
+
+    const { errorRate, unlocks } = latestFrameUnlockDebug;
+    const debug = document.createElement("div");
+    debug.className = "frame-unlock-debug";
+    debug.style.cssText = "margin-bottom:16px;padding:10px 12px;border:1px dashed #777;border-radius:10px;font:600 14px/1.45 monospace;text-align:left;background:#fff;";
+    debug.textContent = `TEST – Fehlerquotient: ${errorRate === null ? "n/a" : `${(errorRate * 100).toFixed(2)}%`} | RahmenB: ${String(unlocks.rahmenB)} | RahmenS: ${String(unlocks.rahmenS)} | RahmenG: ${String(unlocks.rahmenG)}`;
+    resultCard.prepend(debug);
+  };
+
+  const observer = new MutationObserver(render);
+  observer.observe(document.body, { childList: true, subtree: true });
+  render();
+}
+
+installFrameUnlockDebugOutput();
