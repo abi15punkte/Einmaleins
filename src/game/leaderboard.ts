@@ -76,8 +76,8 @@ function frameForEntry(entry: Pick<LeaderboardEntry, "rahmenB" | "rahmenS" | "ra
     rahmenG: entry.rahmenG
   });
   if (frame === "G") return `url("${import.meta.env.BASE_URL}RahmenG.png")`;
-  if (frame === "S") return "url(\"https://raw.githubusercontent.com/abi15punkte/Einmaleins/4a185e987b775ca0c6730a145bcec6a5a040ad68/public/RahmenS.png\")";
-  if (frame === "B") return "url(\"https://raw.githubusercontent.com/abi15punkte/Einmaleins/4a185e987b775ca0c6730a145bcec6a5a040ad68/public/RahmenB.png\")";
+  if (frame === "S") return `url("${import.meta.env.BASE_URL}RahmenS.png")`;
+  if (frame === "B") return `url("${import.meta.env.BASE_URL}RahmenB.png")`;
   return null;
 }
 
