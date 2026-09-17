@@ -282,7 +282,7 @@ function triggerHighscoreSubmitErrorShake(action: HTMLDivElement): void {
 
 async function submitPersonalHighscore(button: HTMLButtonElement, status: HTMLElement, action: HTMLDivElement): Promise<void> {
   button.disabled = true;
-  status.textContent = "Dein persönlicher Rekord wird eingetragen …";
+  status.textContent = "Highscoreliste wird geladen …";
 
   const student = loadStudentIdentity();
   const personalBest = loadPersonalHighscore(student.studentId);
@@ -294,16 +294,32 @@ async function submitPersonalHighscore(button: HTMLButtonElement, status: HTMLEl
     return;
   }
 
+  let entries: LeaderboardEntry[];
   try {
-    await client.submit(personalBest);
-    status.textContent = "Eingetragen – Highscoreliste wird geöffnet …";
-    const entries = await client.top();
+    entries = await client.top(false);
     renderOverlay(entries, student.name);
+    status.textContent = "Highscoreliste geladen. Dein persönlicher Rekord wird synchronisiert …";
   } catch (error) {
     status.textContent = error instanceof Error
       ? error.message
-      : "Der Highscore konnte nicht übertragen werden.";
+      : "Die schulweite Highscoreliste konnte nicht geladen werden.";
     triggerHighscoreSubmitErrorShake(action);
+    button.disabled = false;
+    return;
+  }
+
+  try {
+    await client.submit(personalBest);
+    const refreshedEntries = await client.top(false);
+    if (document.querySelector<HTMLElement>(".school-highscore-overlay")) {
+      renderOverlay(refreshedEntries, student.name);
+    }
+  } catch (error) {
+    console.warn("Persönlicher Highscore konnte nicht synchronisiert werden.", error);
+  } finally {
+    if (document.querySelector<HTMLElement>(".school-highscore-overlay")) {
+      status.textContent = "Highscoreliste geladen. Zum Ergebnis zurück mit „×“.";
+    }
     button.disabled = false;
   }
 }
