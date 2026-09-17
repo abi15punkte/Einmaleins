@@ -287,7 +287,7 @@ async function submitPersonalHighscore(button: HTMLButtonElement, status: HTMLEl
   const student = loadStudentIdentity();
   const personalBest = loadPersonalHighscore(student.studentId);
   const client = createLeaderboardClient();
-  if (!personalBest || !client) {
+  if (!client) {
     status.textContent = "Die schulweite Highscoreliste ist momentan nicht erreichbar.";
     triggerHighscoreSubmitErrorShake(action);
     button.disabled = false;
@@ -298,12 +298,19 @@ async function submitPersonalHighscore(button: HTMLButtonElement, status: HTMLEl
   try {
     entries = await client.top(false);
     renderOverlay(entries, student.name);
-    status.textContent = "Highscoreliste geladen. Dein persönlicher Rekord wird synchronisiert …";
+    status.textContent = personalBest
+      ? "Highscoreliste geladen. Dein persönlicher Rekord wird synchronisiert …"
+      : "Highscoreliste geladen.";
   } catch (error) {
     status.textContent = error instanceof Error
       ? error.message
       : "Die schulweite Highscoreliste konnte nicht geladen werden.";
     triggerHighscoreSubmitErrorShake(action);
+    button.disabled = false;
+    return;
+  }
+
+  if (!personalBest) {
     button.disabled = false;
     return;
   }
