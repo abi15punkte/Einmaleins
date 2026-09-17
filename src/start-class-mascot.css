@@ -27,7 +27,6 @@ body:has(.school-highscore-overlay) .start-class-overlay {
   z-index: 20003 !important;
 }
 
-/* Der ursprüngliche Highscore-Alien bleibt als eigene, robuste Ebene sichtbar. */
 .school-highscore-overlay::before {
   content: "";
   position: fixed;
@@ -49,6 +48,80 @@ body:has(.school-highscore-overlay) .start-class-overlay {
   display: none !important;
 }
 
+.school-highscore-overlay {
+  z-index: 30000 !important;
+}
+
+/* Für jedes Highscore-Portrait exakt dieselbe Darstellung wie im getesteten Rahmen-Stand:
+   1. transparenter Außenbereich
+   2. abgerundeter Kachel-Hintergrund
+   3. Portrait P1–P16 mit 80 % Kachelgröße, mittig und unten fixiert
+   4. transparenter Rahmen als eigene oberste Ebene
+*/
+.school-highscore-overlay .school-highscore-mascot {
+  position: relative !important;
+  z-index: 1 !important;
+  overflow: visible !important;
+  background: transparent !important;
+  border: 0 !important;
+  isolation: isolate !important;
+}
+
+.school-highscore-overlay .school-highscore-mascot::before {
+  content: "";
+  position: absolute;
+  inset: 0 !important;
+  border-radius: 18px !important;
+  border: 1px solid rgba(23,32,51,.08) !important;
+  background: var(--school-highscore-mascot-background, #f3f5f8) center/cover no-repeat !important;
+  pointer-events: none !important;
+  z-index: 0 !important;
+}
+
+/* Die bisher zusätzlich eingefügte Rahmen-<img>-Ebene wird bewusst ausgeblendet.
+   Der Rahmen kommt wieder ausschließlich aus ::after, wie im getesteten Stand. */
+.school-highscore-overlay .school-highscore-mascot > img.school-highscore-frame {
+  display: none !important;
+}
+
+.school-highscore-overlay .school-highscore-mascot > img.school-highscore-portrait {
+  position: absolute !important;
+  left: 50% !important;
+  bottom: 0 !important;
+  z-index: 1 !important;
+  width: 80% !important;
+  height: 80% !important;
+  object-fit: contain !important;
+  object-position: center bottom !important;
+  transform: translateX(-50%) !important;
+  border-radius: 18px !important;
+  display: block !important;
+}
+
+.school-highscore-overlay .school-highscore-mascot::after {
+  content: "";
+  position: absolute;
+  inset: -8% !important;
+  display: block !important;
+  background-repeat: no-repeat !important;
+  background-position: center !important;
+  background-size: contain !important;
+  background-image: var(--school-highscore-frame-image, none) !important;
+  pointer-events: none !important;
+  z-index: 2 !important;
+  animation: none !important;
+}
+
+@media (max-width: 700px) {
+  .school-highscore-overlay .school-highscore-mascot::before {
+    border-radius: 14px !important;
+  }
+
+  .school-highscore-overlay .school-highscore-mascot img {
+    border-radius: 14px !important;
+  }
+}
+
 @media (min-width: 601px) {
   .welcome-copy {
     max-width: none;
@@ -56,7 +129,6 @@ body:has(.school-highscore-overlay) .start-class-overlay {
   }
 }
 
-/* Beide Übungsmodus-Buttons: kompakt, sauber zweizeilig und nur moderat animiert. */
 .mode-card {
   align-items: center;
   text-align: center;
@@ -72,11 +144,6 @@ body:has(.school-highscore-overlay) .start-class-overlay {
   font-size: 0 !important;
   line-height: 1.02;
   font-weight: 900;
-}
-
-/* Die zusätzliche Beschreibung unter den großen Übungsmodus-Titeln wird nicht angezeigt. */
-.mode-card .mode-copy {
-  display: none !important;
 }
 
 .mode-card[data-mode="highscore"] .mode-title::after {
@@ -116,38 +183,4 @@ body:has(.school-highscore-overlay) .start-class-overlay {
   25% { transform: translate3d(0.35vw, -0.7vh, 0) rotate(0.5deg) scale(1.012); }
   50% { transform: translate3d(0, -1.1vh, 0) rotate(1deg) scale(1.02); }
   75% { transform: translate3d(-0.35vw, -0.55vh, 0) rotate(0.25deg) scale(1.01); }
-}
-
-@keyframes class-mascot-peek {
-  0%, 25% {
-    transform: translateY(-50%) translateX(-1vw);
-  }
-  55% {
-    transform: translateY(-50%) translateX(-5vw);
-  }
-  70%, 100% {
-    transform: translateY(-50%) translateX(-1vw);
-  }
-}
-
-@media (max-width: 600px) {
-  .mode-card .mode-title::after {
-    font-size: clamp(1.8rem, 8vw, 2.35rem);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .start-class-overlay,
-  .mode-card {
-    animation: none !important;
-  }
-
-  .start-class-overlay {
-    transform: translateY(-50%) translateX(-1vw) !important;
-  }
-
-  .school-highscore-overlay::before {
-    animation: none !important;
-    transform: none !important;
-  }
 }

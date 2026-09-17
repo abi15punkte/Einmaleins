@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const {
   doc,
+  getDoc,
   setDoc,
   collection,
   getDocs,
@@ -10,6 +11,7 @@ const {
   fromDate
 } = vi.hoisted(() => ({
   doc: vi.fn(),
+  getDoc: vi.fn(),
   setDoc: vi.fn(),
   collection: vi.fn(),
   getDocs: vi.fn(),
@@ -20,6 +22,7 @@ const {
 
 vi.mock("firebase/firestore", () => ({
   doc,
+  getDoc,
   setDoc,
   collection,
   getDocs,
@@ -47,6 +50,10 @@ describe("school leaderboard client", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     doc.mockReturnValue("student-doc-ref");
+    getDoc.mockResolvedValue({
+      exists: () => false,
+      data: () => undefined
+    });
     collection.mockReturnValue("highscores-ref");
     orderBy.mockReturnValue("order-by-ref");
     query.mockReturnValue("query-ref");
@@ -60,6 +67,7 @@ describe("school leaderboard client", () => {
     await client.submit(record);
 
     expect(doc).toHaveBeenCalledWith({}, "highscores", "student-1");
+    expect(getDoc).toHaveBeenCalledWith("student-doc-ref");
     expect(fromDate).toHaveBeenCalledWith(new Date(record.achievedAt));
     expect(setDoc).toHaveBeenCalledWith(
       "student-doc-ref",
@@ -72,8 +80,36 @@ describe("school leaderboard client", () => {
         stern1: true,
         stern2: false,
         stern3: true,
+        RahmenB: false,
+        RahmenS: false,
+        RahmenG: false,
         timestamp: new Date(record.achievedAt)
       }
+    );
+  });
+
+  it("preserves remote frame unlocks when synchronizing the highscore", async () => {
+    getDoc.mockResolvedValue({
+      exists: () => true,
+      data: () => ({
+        studentId: "student-1",
+        RahmenB: true,
+        RahmenS: false,
+        RahmenG: true
+      })
+    });
+
+    const client = createLeaderboardClient();
+    const syncRecord = { ...record, score: 501 };
+    await client.submit(syncRecord);
+
+    expect(setDoc).toHaveBeenCalledWith(
+      "student-doc-ref",
+      expect.objectContaining({
+        RahmenB: true,
+        RahmenS: false,
+        RahmenG: true
+      })
     );
   });
 
@@ -81,7 +117,7 @@ describe("school leaderboard client", () => {
     setDoc.mockRejectedValue({ code: "permission-denied" });
 
     const client = createLeaderboardClient();
-    const failingRecord = { ...record, score: 501 };
+    const failingRecord = { ...record, score: 502 };
 
     await expect(client.submit(failingRecord)).resolves.toBeUndefined();
     expect(setDoc).toHaveBeenCalledTimes(1);
@@ -91,7 +127,7 @@ describe("school leaderboard client", () => {
     setDoc.mockRejectedValue(new Error("network-error"));
 
     const client = createLeaderboardClient();
-    const failingRecord = { ...record, score: 502 };
+    const failingRecord = { ...record, score: 503 };
 
     await expect(client.submit(failingRecord)).rejects.toThrow("network-error");
   });
@@ -108,7 +144,10 @@ describe("school leaderboard client", () => {
             completedGames: 50,
             stern1: true,
             stern2: true,
-            stern3: false
+            stern3: false,
+            RahmenB: true,
+            RahmenS: false,
+            RahmenG: true
           })
         },
         {
@@ -120,7 +159,10 @@ describe("school leaderboard client", () => {
             completedGames: 10,
             stern1: true,
             stern2: false,
-            stern3: false
+            stern3: false,
+            RahmenB: false,
+            RahmenS: true,
+            RahmenG: false
           })
         }
       ]
@@ -142,7 +184,10 @@ describe("school leaderboard client", () => {
         stern1: true,
         stern2: true,
         stern3: false,
-        completedGames: 50
+        completedGames: 50,
+        rahmenB: true,
+        rahmenS: false,
+        rahmenG: true
       },
       {
         rank: 2,
@@ -153,12 +198,15 @@ describe("school leaderboard client", () => {
         stern1: true,
         stern2: false,
         stern3: false,
-        completedGames: 10
+        completedGames: 10,
+        rahmenB: false,
+        rahmenS: true,
+        rahmenG: false
       }
     ]);
   });
 
-  it("treats missing completed games and star fields as fallback values", async () => {
+  it("treats missing completed games, star fields, and frame fields as fallback values", async () => {
     getDocs.mockResolvedValue({
       docs: [
         {
@@ -184,7 +232,10 @@ describe("school leaderboard client", () => {
         stern1: false,
         stern2: false,
         stern3: false,
-        completedGames: 0
+        completedGames: 0,
+        rahmenB: false,
+        rahmenS: false,
+        rahmenG: false
       }
     ]);
   });

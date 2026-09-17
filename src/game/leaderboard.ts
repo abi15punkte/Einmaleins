@@ -1,4 +1,5 @@
 import { getPersonalBackgroundAsset, loadCompletedGames, loadPersonalHighscore, loadStudentIdentity, unlockSecondStar, type HighscoreRecord } from "./highscore";
+import { highestUnlockedFrame, loadFrameUnlocks, mergeFrameUnlocks, type FrameUnlocks } from "./frameUnlocks";
 
 type HighscoreRecordWithStars = HighscoreRecord & {
   stern1?: boolean;
@@ -41,6 +42,9 @@ export interface LeaderboardEntry {
   stern2: boolean;
   stern3: boolean;
   completedGames: number;
+  rahmenB: boolean;
+  rahmenS: boolean;
+  rahmenG: boolean;
 }
 
 export interface LeaderboardClient {
@@ -62,10 +66,26 @@ function portraitForClassName(className: string | null): string {
 
 function backgroundForCompletedGames(completedGames: number): string | null {
   const asset = getPersonalBackgroundAsset(completedGames);
-  return asset ? `url("./${asset}")` : null;
+  return asset ? `url("${import.meta.env.BASE_URL}${asset}")` : null;
 }
 
-function leaderboardSubmitKey(record: HighscoreRecord, completedGames: number): string {
+function frameForEntry(entry: Pick<LeaderboardEntry, "rahmenB" | "rahmenS" | "rahmenG">): string | null {
+  const frame = highestUnlockedFrame({
+    rahmenB: entry.rahmenB,
+    rahmenS: entry.rahmenS,
+    rahmenG: entry.rahmenG
+  });
+  if (frame === "G") return `url("${import.meta.env.BASE_URL}RahmenG.png")`;
+  if (frame === "S") return `url("${import.meta.env.BASE_URL}RahmenS.png")`;
+  if (frame === "B") return `url("${import.meta.env.BASE_URL}RahmenB.png")`;
+  return null;
+}
+
+function leaderboardSubmitKey(
+  record: HighscoreRecord,
+  completedGames: number,
+  frameUnlocks: FrameUnlocks = loadFrameUnlocks(record.studentId)
+): string {
   const recordWithStars = record as HighscoreRecordWithStars;
   return JSON.stringify([
     record.studentId.trim(),
@@ -75,19 +95,34 @@ function leaderboardSubmitKey(record: HighscoreRecord, completedGames: number): 
     completedGames,
     recordWithStars.stern1 === true,
     recordWithStars.stern2 === true,
-    recordWithStars.stern3 === true
+    recordWithStars.stern3 === true,
+    frameUnlocks.rahmenB === true,
+    frameUnlocks.rahmenS === true,
+    frameUnlocks.rahmenG === true
   ]);
 }
 
-function hasAlreadySubmitted(record: HighscoreRecord, completedGames: number): boolean {
-  return lastSuccessfulLeaderboardSubmitKey === leaderboardSubmitKey(record, completedGames);
+function hasAlreadySubmitted(
+  record: HighscoreRecord,
+  completedGames: number,
+  frameUnlocks: FrameUnlocks = loadFrameUnlocks(record.studentId)
+): boolean {
+  return lastSuccessfulLeaderboardSubmitKey === leaderboardSubmitKey(record, completedGames, frameUnlocks);
 }
 
-function markLeaderboardSubmitted(record: HighscoreRecord, completedGames: number): void {
-  lastSuccessfulLeaderboardSubmitKey = leaderboardSubmitKey(record, completedGames);
+function markLeaderboardSubmitted(
+  record: HighscoreRecord,
+  completedGames: number,
+  frameUnlocks: FrameUnlocks = loadFrameUnlocks(record.studentId)
+): void {
+  lastSuccessfulLeaderboardSubmitKey = leaderboardSubmitKey(record, completedGames, frameUnlocks);
 }
 
-function updateCachedLeaderboardEntry(record: HighscoreRecord, completedGames: number): void {
+function updateCachedLeaderboardEntry(
+  record: HighscoreRecord,
+  completedGames: number,
+  frameUnlocks: FrameUnlocks
+): void {
   if (!latestLeaderboardEntries) return;
 
   const recordWithStars = record as HighscoreRecordWithStars;
@@ -100,7 +135,10 @@ function updateCachedLeaderboardEntry(record: HighscoreRecord, completedGames: n
     stern1: recordWithStars.stern1 === true,
     stern2: recordWithStars.stern2 === true,
     stern3: recordWithStars.stern3 === true,
-    completedGames
+    completedGames,
+    rahmenB: frameUnlocks.rahmenB,
+    rahmenS: frameUnlocks.rahmenS,
+    rahmenG: frameUnlocks.rahmenG
   };
 
   const remainingEntries = latestLeaderboardEntries.filter(
@@ -130,6 +168,11 @@ function applyLeaderboardPortraits(): void {
     const backgroundValue = backgroundForCompletedGames(entry.completedGames) ?? "#ffffff";
     if (mascot.style.getPropertyValue("--school-highscore-mascot-background") !== backgroundValue) {
       mascot.style.setProperty("--school-highscore-mascot-background", backgroundValue);
+    }
+
+    const frameValue = frameForEntry(entry) ?? "none";
+    if (mascot.style.getPropertyValue("--school-highscore-frame-image") !== frameValue) {
+      mascot.style.setProperty("--school-highscore-frame-image", frameValue);
     }
 
     const portraitSrc = `./${portraitForClassName(entry.className)}`;
@@ -253,12 +296,24 @@ function createFirestoreClient(): LeaderboardClient {
       if (Number.isNaN(timestamp.getTime())) throw new Error("Leaderboard timestamp is invalid.");
 
       const completedGames = loadCompletedGames(studentId);
-      if (hasAlreadySubmitted(record, completedGames)) return;
+      const localFrameUnlocks = loadFrameUnlocks(studentId);
+      if (hasAlreadySubmitted(record, completedGames, localFrameUnlocks)) return;
 
-      const { doc, setDoc, Timestamp, db } = await loadFirestoreSdk();
+      const { doc, getDoc, setDoc, Timestamp, db } = await loadFirestoreSdk();
       const studentDoc = doc(db, HIGHSCORE_COLLECTION, studentId);
 
       try {
+        const existingSnapshot = await getDoc(studentDoc);
+        const existingData = existingSnapshot.exists()
+          ? existingSnapshot.data() as Record<string, unknown>
+          : null;
+
+        const mergedFrameUnlocks = mergeFrameUnlocks(studentId, {
+          rahmenB: existingData?.RahmenB === true || localFrameUnlocks.rahmenB,
+          rahmenS: existingData?.RahmenS === true || localFrameUnlocks.rahmenS,
+          rahmenG: existingData?.RahmenG === true || localFrameUnlocks.rahmenG
+        });
+
         await setDoc(studentDoc, {
           studentId,
           name,
@@ -268,8 +323,14 @@ function createFirestoreClient(): LeaderboardClient {
           stern1: recordWithStars.stern1 === true,
           stern2: recordWithStars.stern2 === true,
           stern3: recordWithStars.stern3 === true,
+          RahmenB: mergedFrameUnlocks.rahmenB,
+          RahmenS: mergedFrameUnlocks.rahmenS,
+          RahmenG: mergedFrameUnlocks.rahmenG,
           timestamp: Timestamp.fromDate(timestamp)
         });
+
+        markLeaderboardSubmitted(record, completedGames, mergedFrameUnlocks);
+        updateCachedLeaderboardEntry(record, completedGames, mergedFrameUnlocks);
       } catch (error) {
         const code = error && typeof error === "object" && "code" in error
           ? String((error as { code?: unknown }).code)
@@ -277,9 +338,6 @@ function createFirestoreClient(): LeaderboardClient {
         if (code === "permission-denied") return;
         throw error;
       }
-
-      markLeaderboardSubmitted(record, completedGames);
-      updateCachedLeaderboardEntry(record, completedGames);
     },
 
     async top(useCache = true) {
@@ -290,10 +348,23 @@ function createFirestoreClient(): LeaderboardClient {
       const { getDocs, collection, orderBy, query, db } = await loadFirestoreSdk();
       const snapshot = await getDocs(query(collection(db, HIGHSCORE_COLLECTION), orderBy("punkte", "desc")));
 
+      const studentId = loadStudentIdentity().studentId;
       const entries = snapshot.docs
         .map((document, index) => validateFirestoreEntry(document.data() as Record<string, unknown>, index + 1))
         .sort((a, b) => b.score - a.score)
         .map((entry, index) => ({ ...entry, rank: index + 1 }));
+
+      const ownEntry = entries.find((entry) => entry.studentId === studentId);
+      if (ownEntry) {
+        const mergedLocal = mergeFrameUnlocks(studentId, {
+          rahmenB: ownEntry.rahmenB,
+          rahmenS: ownEntry.rahmenS,
+          rahmenG: ownEntry.rahmenG
+        });
+        ownEntry.rahmenB = mergedLocal.rahmenB;
+        ownEntry.rahmenS = mergedLocal.rahmenS;
+        ownEntry.rahmenG = mergedLocal.rahmenG;
+      }
 
       latestLeaderboardEntries = entries;
       installLeaderboardPortraitObserver();
@@ -307,16 +378,17 @@ function createLegacyHttpClient(endpoint: string, fetcher: typeof fetch): Leader
   return {
     async submit(record) {
       const completedGames = loadCompletedGames(record.studentId);
-      if (hasAlreadySubmitted(record, completedGames)) return;
+      const frameUnlocks = loadFrameUnlocks(record.studentId);
+      if (hasAlreadySubmitted(record, completedGames, frameUnlocks)) return;
 
       const response = await fetcher(`${endpoint}/scores`, {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ ...record, completedGames })
+        body: JSON.stringify({ ...record, completedGames, RahmenB: frameUnlocks.rahmenB, RahmenS: frameUnlocks.rahmenS, RahmenG: frameUnlocks.rahmenG })
       });
       if (!response.ok) throw new Error(`Leaderboard submit failed: ${response.status}`);
-      markLeaderboardSubmitted(record, completedGames);
-      updateCachedLeaderboardEntry(record, completedGames);
+      markLeaderboardSubmitted(record, completedGames, frameUnlocks);
+      updateCachedLeaderboardEntry(record, completedGames, frameUnlocks);
     },
 
     async top(useCache = true) {
@@ -356,6 +428,9 @@ function validateFirestoreEntry(
   const stern1Value = value.stern1;
   const stern2Value = value.stern2;
   const stern3Value = value.stern3;
+  const rahmenBValue = value.RahmenB;
+  const rahmenSValue = value.RahmenS;
+  const rahmenGValue = value.RahmenG;
 
   if (
     typeof studentIdValue !== "string" ||
@@ -369,7 +444,10 @@ function validateFirestoreEntry(
     (completedGamesValue !== undefined && (typeof completedGamesValue !== "number" || !Number.isFinite(completedGamesValue))) ||
     (stern1Value !== undefined && typeof stern1Value !== "boolean") ||
     (stern2Value !== undefined && typeof stern2Value !== "boolean") ||
-    (stern3Value !== undefined && typeof stern3Value !== "boolean")
+    (stern3Value !== undefined && typeof stern3Value !== "boolean") ||
+    (rahmenBValue !== undefined && typeof rahmenBValue !== "boolean") ||
+    (rahmenSValue !== undefined && typeof rahmenSValue !== "boolean") ||
+    (rahmenGValue !== undefined && typeof rahmenGValue !== "boolean")
   ) throw new Error("Invalid leaderboard entry.");
 
   return {
@@ -383,7 +461,10 @@ function validateFirestoreEntry(
     stern3: stern3Value === true,
     completedGames: typeof completedGamesValue === "number" && Number.isFinite(completedGamesValue)
       ? Math.max(0, Math.floor(completedGamesValue))
-      : 0
+      : 0,
+    rahmenB: rahmenBValue === true,
+    rahmenS: rahmenSValue === true,
+    rahmenG: rahmenGValue === true
   };
 }
 
@@ -399,6 +480,9 @@ function validateLegacyEntry(value: unknown): LeaderboardEntry {
   const stern1Value = entry.stern1;
   const stern2Value = entry.stern2;
   const stern3Value = entry.stern3;
+  const rahmenBValue = entry.RahmenB;
+  const rahmenSValue = entry.RahmenS;
+  const rahmenGValue = entry.RahmenG;
 
   if (
     typeof rankValue !== "number" ||
@@ -413,7 +497,10 @@ function validateLegacyEntry(value: unknown): LeaderboardEntry {
     (completedGamesValue !== undefined && (typeof completedGamesValue !== "number" || !Number.isFinite(completedGamesValue))) ||
     (stern1Value !== undefined && typeof stern1Value !== "boolean") ||
     (stern2Value !== undefined && typeof stern2Value !== "boolean") ||
-    (stern3Value !== undefined && typeof stern3Value !== "boolean")
+    (stern3Value !== undefined && typeof stern3Value !== "boolean") ||
+    (rahmenBValue !== undefined && typeof rahmenBValue !== "boolean") ||
+    (rahmenSValue !== undefined && typeof rahmenSValue !== "boolean") ||
+    (rahmenGValue !== undefined && typeof rahmenGValue !== "boolean")
   ) throw new Error("Invalid leaderboard entry.");
 
   return {
@@ -427,7 +514,10 @@ function validateLegacyEntry(value: unknown): LeaderboardEntry {
     stern3: stern3Value === true,
     completedGames: typeof completedGamesValue === "number" && Number.isFinite(completedGamesValue)
       ? Math.max(0, Math.floor(completedGamesValue))
-      : 0
+      : 0,
+    rahmenB: rahmenBValue === true,
+    rahmenS: rahmenSValue === true,
+    rahmenG: rahmenGValue === true
   };
 }
 

@@ -6,7 +6,7 @@ import { pointsForCorrectAnswer } from "./scoring";
 import { multiply, type Task } from "./tasks";
 import type { RandomSource } from "./shuffle";
 
-export const GAME_DURATION_MS = 60 * 1000;
+export const GAME_DURATION_MS = 20 * 1000;
 
 export type GamePhase =
   | "ready"
@@ -29,6 +29,9 @@ export interface GameState {
   elapsedMs: number;
   taskElapsedMs: number;
   completedTasks: number;
+  errorCount: number;
+  answeredQuestions: number;
+  errorRate: number | null;
   stern1: boolean;
   stern3: boolean;
 }
@@ -43,8 +46,28 @@ export interface AnswerResult {
 export type RoundCompletionHandler = (round: RoundNumber, state: GameState) => void;
 const systemClock: Clock = { now: () => Date.now() };
 
+function calculateErrorRate(errorCount: number, answeredQuestions: number): number | null {
+  return answeredQuestions > 0 ? errorCount / answeredQuestions : null;
+}
+
 function initialState(): GameState {
-  return { phase: "ready", round: 1, poolIndex: 0, remainingTasks: [], currentTask: null, score: 0, streak: 0, elapsedMs: 0, taskElapsedMs: 0, completedTasks: 0, stern1: false, stern3: false };
+  return {
+    phase: "ready",
+    round: 1,
+    poolIndex: 0,
+    remainingTasks: [],
+    currentTask: null,
+    score: 0,
+    streak: 0,
+    elapsedMs: 0,
+    taskElapsedMs: 0,
+    completedTasks: 0,
+    errorCount: 0,
+    answeredQuestions: 0,
+    errorRate: null,
+    stern1: false,
+    stern3: false
+  };
 }
 
 export class GameEngine {
@@ -86,7 +109,12 @@ export class GameEngine {
     const task = this.state.currentTask;
     const expectedAnswer = multiply(task);
     if (answer !== expectedAnswer) {
-      this.state = { ...this.state, streak: 0 };
+      this.state = {
+        ...this.state,
+        streak: 0,
+        errorCount: this.state.errorCount + 1,
+        answeredQuestions: this.state.answeredQuestions + 1
+      };
       return { correct: false, points: 0, expectedAnswer, state: this.getState() };
     }
 
@@ -97,6 +125,7 @@ export class GameEngine {
       score: this.state.score + points,
       streak: nextStreak,
       completedTasks: this.state.completedTasks + 1,
+      answeredQuestions: this.state.answeredQuestions + 1,
       stern1: this.state.stern1 || nextStreak >= 20,
       remainingTasks: this.state.remainingTasks.filter((remainingTask) => remainingTask[0] !== task[0] || remainingTask[1] !== task[1]),
       currentTask: null
@@ -121,13 +150,24 @@ export class GameEngine {
 
   tick(): GameState { this.updateTime(); return this.getState(); }
 
+  private finalize(phase: "won" | "timeUp", stern3 = false): void {
+    this.state = {
+      ...this.state,
+      phase,
+      currentTask: null,
+      stern3: this.state.stern3 || stern3,
+      errorRate: calculateErrorRate(this.state.errorCount, this.state.answeredQuestions)
+    };
+    this.taskStartedAt = null;
+  }
+
   private updateTime(): void {
     if (this.state.phase !== "playing" || this.startedAt === null) return;
     const now = this.clock.now();
     const elapsedMs = Math.max(0, Math.min(now - this.startedAt, GAME_DURATION_MS));
     const taskElapsedMs = this.taskStartedAt === null ? 0 : Math.max(0, now - this.taskStartedAt);
     this.state = { ...this.state, elapsedMs, taskElapsedMs };
-    if (elapsedMs >= GAME_DURATION_MS) this.state = { ...this.state, phase: "timeUp", currentTask: null };
+    if (elapsedMs >= GAME_DURATION_MS) this.finalize("timeUp");
   }
 
   private loadPool(round: RoundNumber, poolIndex: number): void {
@@ -138,7 +178,7 @@ export class GameEngine {
 
   private advanceAfterCorrectAnswer(): void {
     if (this.state.elapsedMs >= GAME_DURATION_MS) {
-      this.state = { ...this.state, phase: "timeUp", currentTask: null };
+      this.finalize("timeUp");
       return;
     }
     if (this.state.remainingTasks.length > 0) { this.setNextTask(); return; }
@@ -156,8 +196,7 @@ export class GameEngine {
       return;
     }
     this.onRoundComplete?.(completedRound, this.getState());
-    this.state = { ...this.state, phase: "won", stern3: true, currentTask: null };
-    this.taskStartedAt = null;
+    this.finalize("won", true);
   }
 
   private setNextTask(): void {
