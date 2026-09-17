@@ -87,8 +87,12 @@ body:has(.school-highscore-overlay) .start-class-overlay {
   background-repeat: no-repeat !important;
   background-position: center !important;
   background-size: contain !important;
+  background-color: transparent !important;
   pointer-events: none !important;
   z-index: 32000 !important;
+  /* Weißer Innenbereich der Rahmen-Assets lässt die Portraitfläche durchscheinen,
+     während der farbige Rahmen selbst oberste Ebene bleibt. */
+  mix-blend-mode: multiply !important;
   animation: active-highscore-frame-cycle 9s steps(1, end) infinite !important;
 }
 
