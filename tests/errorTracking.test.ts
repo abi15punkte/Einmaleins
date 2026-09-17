@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { GameEngine, type Clock } from "../src/game/engine";
+import { GAME_DURATION_MS, GameEngine, type Clock } from "../src/game/engine";
 
 function createTestClock(initial = 0): { clock: Clock; advance: (milliseconds: number) => void } {
   let current = initial;
@@ -39,7 +39,7 @@ describe("Fehler- und Antwortzähler", () => {
     const second = game.getState().currentTask!;
     game.answer(second[0] * second[1] + 1);
 
-    testClock.advance(20_000);
+    testClock.advance(GAME_DURATION_MS);
     const finished = game.tick();
 
     expect(finished.phase).toBe("timeUp");
@@ -47,7 +47,7 @@ describe("Fehler- und Antwortzähler", () => {
     expect(finished.errorCount).toBe(1);
     expect(finished.errorRate).toBe(0.5);
 
-    testClock.advance(20_000);
+    testClock.advance(GAME_DURATION_MS);
     expect(game.tick().errorRate).toBe(0.5);
   });
 });
