@@ -157,3 +157,5 @@ function installFrameUnlockDebugOutput(): void {
 }
 
 installFrameUnlockDebugOutput();
+
+export type LeaderboardEntry = import("./leaderboard").LeaderboardEntry;
