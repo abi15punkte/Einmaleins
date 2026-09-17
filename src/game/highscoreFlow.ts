@@ -151,13 +151,13 @@ function renderOverlay(entries: LeaderboardEntry[], studentName: string): void {
         position: relative !important;
         border: 1px solid rgba(23,32,51,.08) !important;
         background: var(--school-highscore-mascot-background, #ffffff) center / cover no-repeat !important;
-        overflow: visible !important;
+        overflow: hidden !important;
         isolation: isolate !important;
       }
       .school-highscore-mascot::after {
         content: "" !important;
         position: absolute !important;
-        inset: -8px !important;
+        inset: 0 !important;
         z-index: 2 !important;
         background-image: var(--school-highscore-frame-image, none) !important;
         background-position: center !important;
