@@ -91,7 +91,7 @@ body:has(.school-highscore-overlay) .start-class-overlay {
   position: absolute !important;
   left: 50% !important;
   bottom: 0 !important;
-  z-index: 1 !important;
+  z-index: 2 !important;
   width: 80% !important;
   height: 80% !important;
   object-fit: contain !important;
@@ -99,6 +99,8 @@ body:has(.school-highscore-overlay) .start-class-overlay {
   transform: translateX(-50%) !important;
   border-radius: 18px !important;
   display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
 }
 
 .school-highscore-overlay .school-highscore-mascot::after {
@@ -111,8 +113,16 @@ body:has(.school-highscore-overlay) .start-class-overlay {
   background-size: contain !important;
   background-image: var(--school-highscore-frame-image, none) !important;
   pointer-events: none !important;
-  z-index: 2 !important;
+  z-index: 3 !important;
   animation: none !important;
+}
+
+/* Der eigene Datensatz wird noch einmal ausdrücklich in die Portrait-Stacking-Reihenfolge
+   eingeordnet, damit P1–P16 nicht durch die aktive Rahmenebene verdrängt werden. */
+.school-highscore-overlay .school-highscore-me .school-highscore-mascot > img.school-highscore-portrait {
+  z-index: 2 !important;
+  visibility: visible !important;
+  opacity: 1 !important;
 }
 
 @media (max-width: 700px) {
