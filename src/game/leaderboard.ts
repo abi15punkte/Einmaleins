@@ -1,4 +1,5 @@
 import { getPersonalBackgroundAsset, loadCompletedGames, loadPersonalHighscore, loadStudentIdentity, unlockSecondStar, type HighscoreRecord } from "./highscore";
+import { highestUnlockedFrame, loadFrameUnlocks } from "./frameUnlocks";
 
 type HighscoreRecordWithStars = HighscoreRecord & {
   stern1?: boolean;
@@ -63,6 +64,14 @@ function portraitForClassName(className: string | null): string {
 function backgroundForCompletedGames(completedGames: number): string | null {
   const asset = getPersonalBackgroundAsset(completedGames);
   return asset ? `url("${import.meta.env.BASE_URL}${asset}")` : null;
+}
+
+function frameForStudent(studentId: string): string | null {
+  const frame = highestUnlockedFrame(loadFrameUnlocks(studentId));
+  if (frame === "G") return `url("${import.meta.env.BASE_URL}RahmenG.png")`;
+  if (frame === "S") return "url(\"https://raw.githubusercontent.com/abi15punkte/Einmaleins/4a185e987b775ca0c6730a145bcec6a5a040ad68/public/RahmenS.png\")";
+  if (frame === "B") return "url(\"https://raw.githubusercontent.com/abi15punkte/Einmaleins/4a185e987b775ca0c6730a145bcec6a5a040ad68/public/RahmenB.png\")";
+  return null;
 }
 
 function leaderboardSubmitKey(record: HighscoreRecord, completedGames: number): string {
@@ -130,6 +139,11 @@ function applyLeaderboardPortraits(): void {
     const backgroundValue = backgroundForCompletedGames(entry.completedGames) ?? "#ffffff";
     if (mascot.style.getPropertyValue("--school-highscore-mascot-background") !== backgroundValue) {
       mascot.style.setProperty("--school-highscore-mascot-background", backgroundValue);
+    }
+
+    const frameValue = frameForStudent(entry.studentId) ?? "none";
+    if (mascot.style.getPropertyValue("--school-highscore-frame-image") !== frameValue) {
+      mascot.style.setProperty("--school-highscore-frame-image", frameValue);
     }
 
     const portraitSrc = `./${portraitForClassName(entry.className)}`;

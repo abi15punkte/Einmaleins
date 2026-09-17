@@ -100,21 +100,10 @@ body:has(.school-highscore-overlay) .start-class-overlay {
   background-repeat: no-repeat !important;
   background-position: center !important;
   background-size: contain !important;
+  background-image: var(--school-highscore-frame-image, none) !important;
   pointer-events: none !important;
   z-index: 2 !important;
-  animation: active-highscore-frame-cycle 9s steps(1, end) infinite !important;
-}
-
-@keyframes active-highscore-frame-cycle {
-  0%, 33.333% {
-    background-image: url("/Einmaleins/RahmenG.png");
-  }
-  33.334%, 66.666% {
-    background-image: url("https://raw.githubusercontent.com/abi15punkte/Einmaleins/4a185e987b775ca0c6730a145bcec6a5a040ad68/public/RahmenS.png");
-  }
-  66.667%, 100% {
-    background-image: url("https://raw.githubusercontent.com/abi15punkte/Einmaleins/4a185e987b775ca0c6730a145bcec6a5a040ad68/public/RahmenB.png");
-  }
+  animation: none !important;
 }
 
 @media (max-width: 700px) {
@@ -124,13 +113,6 @@ body:has(.school-highscore-overlay) .start-class-overlay {
 
   .school-highscore-overlay .school-highscore-me .school-highscore-mascot img {
     border-radius: 14px !important;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .school-highscore-overlay .school-highscore-me .school-highscore-mascot::after {
-    animation: none !important;
-    background-image: url("/Einmaleins/RahmenG.png") !important;
   }
 }
 
@@ -228,5 +210,9 @@ body:has(.school-highscore-overlay) .start-class-overlay {
   .school-highscore-overlay::before {
     animation: none !important;
     transform: none !important;
+  }
+
+  .school-highscore-overlay .school-highscore-me .school-highscore-mascot::after {
+    background-image: var(--school-highscore-frame-image, none) !important;
   }
 }
