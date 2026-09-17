@@ -151,13 +151,13 @@ function renderOverlay(entries: LeaderboardEntry[], studentName: string): void {
         position: relative !important;
         border: 1px solid rgba(23,32,51,.08) !important;
         background: var(--school-highscore-mascot-background, #ffffff) center / cover no-repeat !important;
-        overflow: hidden !important;
+        overflow: visible !important;
         isolation: isolate !important;
       }
       .school-highscore-mascot::after {
         content: "" !important;
         position: absolute !important;
-        inset: 0 !important;
+        inset: -8px !important;
         z-index: 2 !important;
         background-image: var(--school-highscore-frame-image, none) !important;
         background-position: center !important;
@@ -318,83 +318,49 @@ async function submitPersonalHighscore(button: HTMLButtonElement, status: HTMLEl
   let entries: LeaderboardEntry[];
   try {
     entries = await client.top(false);
-    renderOverlay(entries, student.name);
-    status.textContent = personalBest
-      ? "Highscoreliste geladen. Dein persönlicher Rekord wird synchronisiert …"
-      : "Highscoreliste geladen.";
   } catch (error) {
-    status.textContent = error instanceof Error
-      ? error.message
-      : "Die schulweite Highscoreliste konnte nicht geladen werden.";
+    console.error(error);
+    status.textContent = "Die schulweite Highscoreliste ist momentan nicht erreichbar.";
     triggerHighscoreSubmitErrorShake(action);
     button.disabled = false;
     return;
   }
 
-  if (!personalBest) {
-    button.disabled = false;
-    return;
-  }
-
   try {
-    await client.submit(personalBest);
-    const refreshedEntries = await client.top(false);
-    if (document.querySelector<HTMLElement>(".school-highscore-overlay")) {
-      renderOverlay(refreshedEntries, student.name);
+    if (personalBest) {
+      await client.submit(personalBest);
     }
   } catch (error) {
-    console.warn("Persönlicher Highscore konnte nicht synchronisiert werden.", error);
-  } finally {
-    if (document.querySelector<HTMLElement>(".school-highscore-overlay")) {
-      status.textContent = "Highscoreliste geladen. Zum Ergebnis zurück mit „×“.";
-    }
-    button.disabled = false;
+    console.error("Persönlicher Highscore konnte nicht synchronisiert werden.", error);
   }
-}
 
-function installOnResult(result: HTMLElement): void {
-  const card = result.querySelector<HTMLElement>(".result-card");
-  if (!card || card.querySelector(".result-highscore-action")) return;
-
-  result.querySelector<HTMLElement>(".school-entry")?.remove();
-
-  const action = document.createElement("div");
-  action.className = "result-highscore-action";
-  action.innerHTML = `
-    <button type="button" aria-label="Highscore eintragen">
-      <span class="result-highscore-title">Highscore</span>
-      <span class="result-highscore-subtitle">eintragen</span>
-    </button>
-    <p class="result-highscore-status" aria-live="polite"></p>
-  `;
-
-  const button = action.querySelector<HTMLButtonElement>("button");
-  if (!button) return;
-  button.addEventListener("click", () => {
-    const status = action.querySelector<HTMLElement>(".result-highscore-status");
-    if (status) void submitPersonalHighscore(button, status, action);
-  });
-
-  const personalBest = card.querySelector<HTMLElement>(".result-highscore");
-  const row = document.createElement("div");
-  row.className = "result-action-row";
-  if (personalBest) personalBest.replaceWith(row);
-  else card.appendChild(row);
-  if (personalBest) row.appendChild(personalBest);
-  row.appendChild(action);
+  entries = await client.top(false);
+  const effectiveStudentName = loadStudentIdentity().name;
+  renderOverlay(entries, effectiveStudentName);
+  status.textContent = "Highscoreliste geladen.";
+  button.disabled = false;
 }
 
 export function initHighscoreFlow(): void {
-  const app = document.getElementById("app");
-  if (!app) return;
+  const renderTrigger = (): void => {
+    ensurePermanentClassMascot();
+  };
 
-  ensurePermanentClassMascot();
+  renderTrigger();
 
   const observer = new MutationObserver(() => {
-    const result = app.querySelector<HTMLElement>(".result-screen");
-    if (result) installOnResult(result);
     ensurePermanentClassMascot();
   });
-  observer.observe(app, { childList: true, subtree: true });
-  installOnResult(app.querySelector<HTMLElement>(".result-screen") ?? document.createElement("div"));
+  observer.observe(document.body, { childList: true, subtree: true });
+
+  document.addEventListener("click", (event) => {
+    const target = event.target;
+    if (!(target instanceof Element)) return;
+    const button = target.closest<HTMLButtonElement>("#school-highscore-submit");
+    if (!button) return;
+    const status = document.querySelector<HTMLElement>("#school-status");
+    const action = button.closest<HTMLDivElement>(".result-highscore-action");
+    if (!status || !action) return;
+    void submitPersonalHighscore(button, status, action);
+  });
 }
