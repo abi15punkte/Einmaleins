@@ -1,5 +1,6 @@
 import { loadPersonalHighscore, loadStudentIdentity } from "./highscore";
-import { createLeaderboardClient, type LeaderboardEntry } from "./leaderboard";
+import { highestUnlockedFrame, type LeaderboardEntry } from "./frameUnlocks";
+import { createLeaderboardClient } from "./leaderboard";
 
 const CLASS_MASCOT = (className: string | null): string =>
   /^(M(?:[1-9]|1[0-6]))$/i.test(className ?? "")
@@ -26,6 +27,18 @@ function starHtml(entry: LeaderboardEntry): string {
   const count = stars.filter(Boolean).length;
 
   return `<span class="achievement-stars" aria-label="${count} von 3 Errungenschaften">${STAR_ASSETS.map((asset, index) => `<img src="${asset}" class="${stars[index] ? "" : "is-muted"}" alt="">`).join("")}</span>`;
+}
+
+function frameAssetForEntry(entry: LeaderboardEntry): string | null {
+  const frame = highestUnlockedFrame({
+    rahmenB: entry.rahmenB,
+    rahmenS: entry.rahmenS,
+    rahmenG: entry.rahmenG
+  });
+  if (frame === "G") return `${import.meta.env.BASE_URL}RahmenG.png`;
+  if (frame === "S") return `${import.meta.env.BASE_URL}RahmenS.png`;
+  if (frame === "B") return `${import.meta.env.BASE_URL}RahmenB.png`;
+  return null;
 }
 
 function ensurePermanentClassMascot(): void {
@@ -65,6 +78,7 @@ function renderOverlay(entries: LeaderboardEntry[], studentName: string): void {
     const isMe = entry.name === studentName || firstNameOnly(entry.name) === firstNameOnly(studentName);
     const firstName = firstNameOnly(entry.name);
     const className = entry.className ?? "–";
+    const frameAsset = frameAssetForEntry(entry);
     const rankClass = entry.rank === 1
       ? "rank-gold"
       : entry.rank === 2
@@ -73,7 +87,7 @@ function renderOverlay(entries: LeaderboardEntry[], studentName: string): void {
           ? "rank-bronze"
           : "";
 
-    return `<div class="school-highscore-row ${isMe ? "school-highscore-me" : ""} ${rankClass}"><div class="school-highscore-rank">${entry.rank}</div><div class="school-highscore-entry-meta"><span class="school-highscore-mascot"><img src="${CLASS_MASCOT(entry.className)}" alt="Klasse ${escapeHtml(className)}"></span><div class="school-highscore-name-wrap"><div class="school-highscore-name">${escapeHtml(firstName)}${isMe ? " · Du" : ""}</div><div class="school-highscore-class">Klasse ${escapeHtml(className)}</div></div></div>${starHtml(entry)}<div class="school-highscore-score">${entry.score}</div></div>`;
+    return `<div class="school-highscore-row ${isMe ? "school-highscore-me" : ""} ${rankClass}"><div class="school-highscore-rank">${entry.rank}</div><div class="school-highscore-entry-meta"><span class="school-highscore-mascot"><img src="${CLASS_MASCOT(entry.className)}" class="school-highscore-portrait" alt="Klasse ${escapeHtml(className)}">${frameAsset ? `<img src="${frameAsset}" class="school-highscore-frame" aria-hidden="true" alt="">` : ""}</span><div class="school-highscore-name-wrap"><div class="school-highscore-name">${escapeHtml(firstName)}${isMe ? " · Du" : ""}</div><div class="school-highscore-class">Klasse ${escapeHtml(className)}</div></div></div>${starHtml(entry)}<div class="school-highscore-score">${entry.score}</div></div>`;
   }).join("");
 
   overlay.innerHTML = `
@@ -154,18 +168,7 @@ function renderOverlay(entries: LeaderboardEntry[], studentName: string): void {
         overflow: hidden !important;
         isolation: isolate !important;
       }
-      .school-highscore-mascot::after {
-        content: "" !important;
-        position: absolute !important;
-        inset: 0 !important;
-        z-index: 2 !important;
-        background-image: var(--school-highscore-frame-image, none) !important;
-        background-position: center !important;
-        background-size: 100% 100% !important;
-        background-repeat: no-repeat !important;
-        pointer-events: none !important;
-      }
-      .school-highscore-mascot img {
+      .school-highscore-mascot > img.school-highscore-portrait {
         position: absolute !important;
         left: 10% !important;
         bottom: 0 !important;
@@ -173,6 +176,15 @@ function renderOverlay(entries: LeaderboardEntry[], studentName: string): void {
         height: 80% !important;
         z-index: 1 !important;
         object-fit: contain !important;
+      }
+      .school-highscore-mascot > img.school-highscore-frame {
+        position: absolute !important;
+        inset: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+        z-index: 2 !important;
+        object-fit: fill !important;
+        pointer-events: none !important;
       }
       .school-highscore-name-wrap { min-width: 0 !important; }
       .school-highscore-name {
