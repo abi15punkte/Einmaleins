@@ -27,7 +27,6 @@ body:has(.school-highscore-overlay) .start-class-overlay {
   z-index: 20003 !important;
 }
 
-/* Der ursprüngliche Highscore-Alien bleibt als eigene, robuste Ebene sichtbar. */
 .school-highscore-overlay::before {
   content: "";
   position: fixed;
@@ -49,7 +48,6 @@ body:has(.school-highscore-overlay) .start-class-overlay {
   display: none !important;
 }
 
-/* Der Test-Overlay liegt oberhalb des dauerhaften Klassentiers. */
 .school-highscore-overlay {
   z-index: 30000 !important;
 }
@@ -109,7 +107,7 @@ body:has(.school-highscore-overlay) .start-class-overlay {
 
 @keyframes active-highscore-frame-cycle {
   0%, 33.333% {
-    background-image: url("https://raw.githubusercontent.com/abi15punkte/Einmaleins/4a185e987b775ca0c6730a145bcec6a5a040ad68/public/RahmenG.png");
+    background-image: url("/Einmaleins/RahmenG.png");
   }
   33.334%, 66.666% {
     background-image: url("https://raw.githubusercontent.com/abi15punkte/Einmaleins/4a185e987b775ca0c6730a145bcec6a5a040ad68/public/RahmenS.png");
@@ -132,7 +130,7 @@ body:has(.school-highscore-overlay) .start-class-overlay {
 @media (prefers-reduced-motion: reduce) {
   .school-highscore-overlay .school-highscore-me .school-highscore-mascot::after {
     animation: none !important;
-    background-image: url("https://raw.githubusercontent.com/abi15punkte/Einmaleins/4a185e987b775ca0c6730a145bcec6a5a040ad68/public/RahmenG.png") !important;
+    background-image: url("/Einmaleins/RahmenG.png") !important;
   }
 }
 
@@ -143,7 +141,6 @@ body:has(.school-highscore-overlay) .start-class-overlay {
   }
 }
 
-/* Beide Übungsmodus-Buttons: kompakt, sauber zweizeilig und nur moderat animiert. */
 .mode-card {
   align-items: center;
   text-align: center;
