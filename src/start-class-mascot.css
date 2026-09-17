@@ -52,13 +52,13 @@ body:has(.school-highscore-overlay) .start-class-overlay {
   z-index: 30000 !important;
 }
 
-/* Aktives Highscore-Portrait exakt wie im getesteten Rahmen-Durchschaltstand:
+/* Für jedes Highscore-Portrait exakt dieselbe Darstellung wie im getesteten Rahmen-Stand:
    1. transparenter Außenbereich
    2. abgerundeter Kachel-Hintergrund
    3. Portrait P1–P16 mit 80 % Kachelgröße, mittig und unten fixiert
    4. transparenter Rahmen als eigene oberste Ebene
 */
-.school-highscore-overlay .school-highscore-me .school-highscore-mascot {
+.school-highscore-overlay .school-highscore-mascot {
   position: relative !important;
   z-index: 1 !important;
   overflow: visible !important;
@@ -67,7 +67,7 @@ body:has(.school-highscore-overlay) .start-class-overlay {
   isolation: isolate !important;
 }
 
-.school-highscore-overlay .school-highscore-me .school-highscore-mascot::before {
+.school-highscore-overlay .school-highscore-mascot::before {
   content: "";
   position: absolute;
   inset: 0 !important;
@@ -80,11 +80,11 @@ body:has(.school-highscore-overlay) .start-class-overlay {
 
 /* Die bisher zusätzlich eingefügte Rahmen-<img>-Ebene wird bewusst ausgeblendet.
    Der Rahmen kommt wieder ausschließlich aus ::after, wie im getesteten Stand. */
-.school-highscore-overlay .school-highscore-me .school-highscore-mascot > img.school-highscore-frame {
+.school-highscore-overlay .school-highscore-mascot > img.school-highscore-frame {
   display: none !important;
 }
 
-.school-highscore-overlay .school-highscore-me .school-highscore-mascot > img.school-highscore-portrait {
+.school-highscore-overlay .school-highscore-mascot > img.school-highscore-portrait {
   position: absolute !important;
   left: 50% !important;
   bottom: 0 !important;
@@ -98,7 +98,7 @@ body:has(.school-highscore-overlay) .start-class-overlay {
   display: block !important;
 }
 
-.school-highscore-overlay .school-highscore-me .school-highscore-mascot::after {
+.school-highscore-overlay .school-highscore-mascot::after {
   content: "";
   position: absolute;
   inset: -8% !important;
@@ -113,11 +113,11 @@ body:has(.school-highscore-overlay) .start-class-overlay {
 }
 
 @media (max-width: 700px) {
-  .school-highscore-overlay .school-highscore-me .school-highscore-mascot::before {
+  .school-highscore-overlay .school-highscore-mascot::before {
     border-radius: 14px !important;
   }
 
-  .school-highscore-overlay .school-highscore-me .school-highscore-mascot img {
+  .school-highscore-overlay .school-highscore-mascot img {
     border-radius: 14px !important;
   }
 }
