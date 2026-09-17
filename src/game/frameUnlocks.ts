@@ -73,6 +73,30 @@ export function loadFrameUnlocks(studentId: string): FrameUnlocks {
   };
 }
 
+export function mergeFrameUnlocks(studentId: string, remoteUnlocks: Partial<FrameUnlocks>): FrameUnlocks {
+  const records = loadStoredFrameUnlocks();
+  const existing = records.find((entry) => entry.studentId === studentId);
+  const merged: StoredFrameUnlocks = {
+    studentId,
+    rahmenB: existing?.rahmenB === true || remoteUnlocks.rahmenB === true,
+    rahmenS: existing?.rahmenS === true || remoteUnlocks.rahmenS === true,
+    rahmenG: existing?.rahmenG === true || remoteUnlocks.rahmenG === true
+  };
+
+  if (existing) {
+    Object.assign(existing, merged);
+  } else {
+    records.push(merged);
+  }
+
+  saveStoredFrameUnlocks(records);
+  return {
+    rahmenB: merged.rahmenB,
+    rahmenS: merged.rahmenS,
+    rahmenG: merged.rahmenG
+  };
+}
+
 export function recordFrameUnlocks(
   studentId: string,
   errorRate: number | null,
