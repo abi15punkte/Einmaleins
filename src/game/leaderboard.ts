@@ -62,7 +62,7 @@ function portraitForClassName(className: string | null): string {
 
 function backgroundForCompletedGames(completedGames: number): string | null {
   const asset = getPersonalBackgroundAsset(completedGames);
-  return asset ? `url("./${asset}")` : null;
+  return asset ? `url("${import.meta.env.BASE_URL}${asset}")` : null;
 }
 
 function leaderboardSubmitKey(record: HighscoreRecord, completedGames: number): string {
