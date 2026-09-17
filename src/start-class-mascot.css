@@ -22,6 +22,25 @@
   will-change: transform;
 }
 
+/* Die bisher verwendete Animation class-mascot-peek war nur referenziert,
+   aber in keiner geladenen CSS-Datei definiert. Dadurch blieb M1–M16 statisch.
+   Die Bewegung bleibt an derselben Stelle und nutzt die bisherige sanfte
+   Schwebe-Bewegung des Klassentiers ohne die Positionierung zu verändern. */
+@keyframes class-mascot-peek {
+  0%, 100% {
+    transform: translate3d(0, 0, 0) rotate(1deg) scale(1);
+  }
+  25% {
+    transform: translate3d(-0.7vw, 1.4vh, 0) rotate(-0.5deg) scale(1.012);
+  }
+  50% {
+    transform: translate3d(0, 2.2vh, 0) rotate(-1deg) scale(1.02);
+  }
+  75% {
+    transform: translate3d(0.7vw, 1.1vh, 0) rotate(-0.25deg) scale(1.01);
+  }
+}
+
 .start-class-overlay.highscore-visible,
 body:has(.school-highscore-overlay) .start-class-overlay {
   /* Das Highscore-Overlay selbst liegt auf z-index 30000. Das Klassentier
