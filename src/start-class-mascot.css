@@ -49,6 +49,50 @@ body:has(.school-highscore-overlay) .start-class-overlay {
   display: none !important;
 }
 
+/* Der Test-Overlay liegt oberhalb des dauerhaften Klassentiers, damit der aktive Rahmen wirklich die oberste Ebene bildet. */
+.school-highscore-overlay {
+  z-index: 30000 !important;
+}
+
+/* Testmodus: Beim eigenen Highscore-Portrait werden die drei Rahmen jeweils 3 Sekunden angezeigt. */
+.school-highscore-overlay .school-highscore-me .school-highscore-mascot {
+  position: relative !important;
+  overflow: visible !important;
+  z-index: 31000 !important;
+}
+
+.school-highscore-overlay .school-highscore-me .school-highscore-mascot::after {
+  content: "";
+  position: absolute;
+  inset: -8% !important;
+  display: block !important;
+  background-repeat: no-repeat !important;
+  background-position: center !important;
+  background-size: contain !important;
+  pointer-events: none !important;
+  z-index: 32000 !important;
+  animation: active-highscore-frame-cycle 9s steps(1, end) infinite !important;
+}
+
+@keyframes active-highscore-frame-cycle {
+  0%, 33.333% {
+    background-image: url("https://raw.githubusercontent.com/abi15punkte/Einmaleins/4a185e987b775ca0c6730a145bcec6a5a040ad68/public/RahmenG.png");
+  }
+  33.334%, 66.666% {
+    background-image: url("https://raw.githubusercontent.com/abi15punkte/Einmaleins/4a185e987b775ca0c6730a145bcec6a5a040ad68/public/RahmenS.png");
+  }
+  66.667%, 100% {
+    background-image: url("https://raw.githubusercontent.com/abi15punkte/Einmaleins/4a185e987b775ca0c6730a145bcec6a5a040ad68/public/RahmenB.png");
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .school-highscore-overlay .school-highscore-me .school-highscore-mascot::after {
+    animation: none !important;
+    background-image: url("https://raw.githubusercontent.com/abi15punkte/Einmaleins/4a185e987b775ca0c6730a145bcec6a5a040ad68/public/RahmenG.png") !important;
+  }
+}
+
 @media (min-width: 601px) {
   .welcome-copy {
     max-width: none;
