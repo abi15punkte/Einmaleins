@@ -24,7 +24,10 @@
 
 .start-class-overlay.highscore-visible,
 body:has(.school-highscore-overlay) .start-class-overlay {
-  z-index: 20003 !important;
+  /* Das Highscore-Overlay selbst liegt auf z-index 30000. Das Klassentier
+     muss darüber liegen, damit es exakt an derselben Stelle und mit derselben
+     bestehenden class-mascot-peek-Animation sichtbar bleibt. */
+  z-index: 30001 !important;
 }
 
 .school-highscore-overlay::before {
