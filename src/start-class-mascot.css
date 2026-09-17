@@ -49,22 +49,40 @@ body:has(.school-highscore-overlay) .start-class-overlay {
   display: none !important;
 }
 
-/* Der Test-Overlay liegt oberhalb des dauerhaften Klassentiers, damit der aktive Rahmen wirklich die oberste Ebene bildet. */
+/* Der Test-Overlay liegt oberhalb des dauerhaften Klassentiers. */
 .school-highscore-overlay {
   z-index: 30000 !important;
 }
 
-/* Testmodus: Beim eigenen Highscore-Portrait werden die drei Rahmen jeweils 3 Sekunden angezeigt. */
-.school-highscore-overlay .school-highscore-me .school-highscore-mascot {
+/* Layer-Aufbau des aktiven Portraits:
+   1. Hintergrund + Portraitkachel (niedrig)
+   2. Portraitbild im Container
+   3. Rahmen als absolut höchste Ebene außerhalb des Clippings
+*/
+.school-highscore-overlay .school-highscore-me .school-highscore-entry-meta {
   position: relative !important;
-  overflow: visible !important;
   z-index: 31000 !important;
 }
 
-.school-highscore-overlay .school-highscore-me .school-highscore-mascot::after {
+.school-highscore-overlay .school-highscore-me .school-highscore-mascot {
+  position: relative !important;
+  z-index: 1 !important;
+  overflow: hidden !important;
+}
+
+.school-highscore-overlay .school-highscore-me .school-highscore-mascot img {
+  position: relative !important;
+  z-index: 1 !important;
+}
+
+.school-highscore-overlay .school-highscore-me .school-highscore-entry-meta::after {
   content: "";
   position: absolute;
-  inset: -8% !important;
+  left: -8px !important;
+  top: 50% !important;
+  width: 104px !important;
+  height: 104px !important;
+  transform: translateY(-50%) !important;
   display: block !important;
   background-repeat: no-repeat !important;
   background-position: center !important;
@@ -86,8 +104,16 @@ body:has(.school-highscore-overlay) .start-class-overlay {
   }
 }
 
+@media (max-width: 700px) {
+  .school-highscore-overlay .school-highscore-me .school-highscore-entry-meta::after {
+    left: -7px !important;
+    width: 76px !important;
+    height: 76px !important;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .school-highscore-overlay .school-highscore-me .school-highscore-mascot::after {
+  .school-highscore-overlay .school-highscore-me .school-highscore-entry-meta::after {
     animation: none !important;
     background-image: url("https://raw.githubusercontent.com/abi15punkte/Einmaleins/4a185e987b775ca0c6730a145bcec6a5a040ad68/public/RahmenG.png") !important;
   }
