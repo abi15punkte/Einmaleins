@@ -148,11 +148,32 @@ function renderOverlay(entries: LeaderboardEntry[], studentName: string): void {
         border-radius: 18px !important;
         display: grid !important;
         place-items: center !important;
+        position: relative !important;
         border: 1px solid rgba(23,32,51,.08) !important;
-        background: #f3f5f8 !important;
+        background: var(--school-highscore-mascot-background, #ffffff) center / cover no-repeat !important;
         overflow: hidden !important;
+        isolation: isolate !important;
       }
-      .school-highscore-mascot img { width: 100% !important; height: 100% !important; object-fit: contain !important; }
+      .school-highscore-mascot::after {
+        content: "" !important;
+        position: absolute !important;
+        inset: 0 !important;
+        z-index: 2 !important;
+        background-image: var(--school-highscore-frame-image, none) !important;
+        background-position: center !important;
+        background-size: 100% 100% !important;
+        background-repeat: no-repeat !important;
+        pointer-events: none !important;
+      }
+      .school-highscore-mascot img {
+        position: absolute !important;
+        left: 10% !important;
+        bottom: 0 !important;
+        width: 80% !important;
+        height: 80% !important;
+        z-index: 1 !important;
+        object-fit: contain !important;
+      }
       .school-highscore-name-wrap { min-width: 0 !important; }
       .school-highscore-name {
         font-size: 1.55rem !important;
