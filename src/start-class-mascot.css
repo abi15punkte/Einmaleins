@@ -56,7 +56,7 @@ body:has(.school-highscore-overlay) .start-class-overlay {
 
 /* Ebenen des aktiven Portraits:
    1. transparenter Außenbereich
-   2. abgerundeter Kachel-Hintergrund, zum Test fest auf 50.png gesetzt
+   2. abgerundeter Kachel-Hintergrund aus dem freigeschalteten Profil-Hintergrund
    3. Portrait P1–P16, 80% der Kachelgröße und am unteren Rand fixiert
    4. transparenter Rahmen als oberste Ebene
 */
@@ -75,7 +75,7 @@ body:has(.school-highscore-overlay) .start-class-overlay {
   inset: 0 !important;
   border-radius: 18px !important;
   border: 1px solid rgba(23,32,51,.08) !important;
-  background: url("/50.png") center/cover no-repeat !important;
+  background: var(--school-highscore-mascot-background, #f3f5f8) center/cover no-repeat !important;
   pointer-events: none !important;
   z-index: 0 !important;
 }
