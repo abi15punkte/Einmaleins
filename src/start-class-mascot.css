@@ -56,8 +56,8 @@ body:has(.school-highscore-overlay) .start-class-overlay {
 
 /* Ebenen des aktiven Portraits:
    1. transparenter Außenbereich
-   2. abgerundeter Kachel-Hintergrund
-   3. Portrait P1–P16
+   2. abgerundeter Kachel-Hintergrund aus dem freigeschalteten Profil-Hintergrund
+   3. Portrait P1–P16, 80% der Kachelgröße und am unteren Rand fixiert
    4. transparenter Rahmen als oberste Ebene
 */
 .school-highscore-overlay .school-highscore-me .school-highscore-mascot {
@@ -75,7 +75,7 @@ body:has(.school-highscore-overlay) .start-class-overlay {
   inset: 0 !important;
   border-radius: 18px !important;
   border: 1px solid rgba(23,32,51,.08) !important;
-  background: #f3f5f8 !important;
+  background: var(--school-highscore-mascot-background, #f3f5f8) center/cover no-repeat !important;
   pointer-events: none !important;
   z-index: 0 !important;
 }
@@ -83,9 +83,12 @@ body:has(.school-highscore-overlay) .start-class-overlay {
 .school-highscore-overlay .school-highscore-me .school-highscore-mascot img {
   position: relative !important;
   z-index: 1 !important;
-  width: 100% !important;
-  height: 100% !important;
+  width: 80% !important;
+  height: 80% !important;
   object-fit: contain !important;
+  object-position: center bottom !important;
+  align-self: end !important;
+  justify-self: center !important;
   border-radius: 18px !important;
   display: block !important;
 }
