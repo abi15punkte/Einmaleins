@@ -195,7 +195,7 @@
 .school-highscore-overlay .school-highscore-mascot img[alt="Klasse M16"] { content: url("./P16.png") !important; }
 
 /* Highscore-Portraitgröße: 80 % der Kachel, weiterhin unten bündig. */
-.school-highscore-overlay .school-highscore-mascot img {
+.school-highscore-overlay .school-highscore-mascot img.school-highscore-portrait {
   width: auto !important;
   height: 80% !important;
   position: absolute !important;
