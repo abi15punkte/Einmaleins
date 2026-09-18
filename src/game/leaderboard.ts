@@ -256,7 +256,7 @@ export function createLeaderboardClient(
 
 function createFirestoreClient(): LeaderboardClient {
   return {
-    async submit(record) {
+    async submit(record, publicly = false) {
       if (!Number.isInteger(record.score) || record.score < 0) {
         throw new Error("Leaderboard score must be a non-negative integer.");
       }
