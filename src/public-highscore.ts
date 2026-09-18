@@ -117,7 +117,7 @@ function installStyles(root: HTMLElement): void {
       position: relative !important;
       border: 1px solid rgba(23,32,51,.08) !important;
       background: var(--school-highscore-mascot-background, #ffffff) center / cover no-repeat !important;
-      overflow: hidden !important;
+      overflow: visible !important;
       isolation: isolate !important;
     }
     .school-highscore-mascot > img.school-highscore-portrait {
@@ -131,13 +131,15 @@ function installStyles(root: HTMLElement): void {
     }
     .school-highscore-mascot > img.school-highscore-frame {
       position: absolute !important;
-      inset: 0 !important;
-      width: 100% !important;
-      height: 100% !important;
+      left: -8% !important;
+      top: -8% !important;
+      width: 116% !important;
+      height: 116% !important;
       max-width: none !important;
       max-height: none !important;
       z-index: 2 !important;
-      object-fit: fill !important;
+      object-fit: contain !important;
+      object-position: center !important;
       transform: none !important;
       pointer-events: none !important;
     }
