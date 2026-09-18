@@ -272,10 +272,11 @@ async function main(): Promise<void> {
   if (!list || !status) throw new Error("Public highscore UI could not be initialized.");
 
   const client = createLeaderboardClient();
+  const includePrivateEntries = root.dataset.highscoreScope === "teacher";
 
   const refresh = async (initial: boolean): Promise<void> => {
     try {
-      const entries = await client.top(false);
+      const entries = await client.top(false, !includePrivateEntries);
       renderList(list, entries);
       list.setAttribute("aria-busy", "false");
       status.classList.remove("error");
