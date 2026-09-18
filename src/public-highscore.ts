@@ -1,4 +1,5 @@
 import { createLeaderboardClient, type LeaderboardEntry } from "./game/leaderboard";
+import { highestUnlockedFrame } from "./game/frameUnlocks";
 import { getPersonalBackgroundAsset } from "./game/highscore";
 import "./style.css";
 import "./responsive.css";
@@ -29,6 +30,15 @@ function portraitBackground(completedGames: number): string | null {
 
 function firstNameOnly(value: string): string {
   return value.trim().split(/\s+/)[0] || "Schüler";
+}
+
+function frameAsset(entry: LeaderboardEntry): string | null {
+  const frame = highestUnlockedFrame({
+    rahmenB: entry.rahmenB,
+    rahmenS: entry.rahmenS,
+    rahmenG: entry.rahmenG
+  });
+  return frame ? `./Rahmen${frame}.png` : null;
 }
 
 function starHtml(entry: LeaderboardEntry): string {
@@ -99,6 +109,7 @@ function installStyles(root: HTMLElement): void {
       transform: translateX(-1vw) !important;
     }
     .school-highscore-mascot {
+      position: relative !important;
       width: 88px !important;
       height: 88px !important;
       border-radius: 18px !important;
@@ -112,6 +123,7 @@ function installStyles(root: HTMLElement): void {
       overflow: hidden !important;
     }
     .school-highscore-mascot img { width: 100% !important; height: 100% !important; object-fit: contain !important; }
+    .school-highscore-mascot::after { content: ""; position: absolute; inset: 0; background-image: var(--school-highscore-frame-image, none); background-position: center; background-repeat: no-repeat; background-size: 100% 100%; pointer-events: none; z-index: 2; }
     .school-highscore-name-wrap { min-width: 0 !important; }
     .school-highscore-name {
       font-size: 1.55rem !important;
@@ -197,14 +209,17 @@ function rowHtml(entry: LeaderboardEntry): string {
   const rankClass = entry.rank === 1 ? "rank-gold" : entry.rank === 2 ? "rank-silver" : entry.rank === 3 ? "rank-bronze" : "";
   const firstName = firstNameOnly(entry.name);
   const backgroundAsset = portraitBackground(entry.completedGames);
-  const backgroundStyle = backgroundAsset
-    ? ` style="background-image:url('${backgroundAsset}')"`
-    : "";
+  const frameAssetPath = frameAsset(entry);
+  const inlineStyleParts = [
+    backgroundAsset ? `background-image:url('${backgroundAsset}')` : "",
+    frameAssetPath ? `--school-highscore-frame-image:url('${frameAssetPath}')` : ""
+  ].filter(Boolean);
+  const inlineStyle = inlineStyleParts.length ? ` style="${inlineStyleParts.join(";")}"` : "";
 
   return `<div class="school-highscore-row ${rankClass}" role="listitem">
     <div class="school-highscore-rank">${entry.rank}</div>
     <div class="school-highscore-entry-meta">
-      <span class="school-highscore-mascot"${backgroundStyle}><img src="${classPortrait(entry.className)}" alt="Klasse ${escapeHtml(className)}"></span>
+      <span class="school-highscore-mascot"${inlineStyle}><img src="${classPortrait(entry.className)}" alt="Klasse ${escapeHtml(className)}"></span>
       <div class="school-highscore-name-wrap">
         <div class="school-highscore-name">${escapeHtml(firstName)}</div>
         <div class="school-highscore-class">Klasse ${escapeHtml(className)}</div>
