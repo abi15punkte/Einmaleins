@@ -115,7 +115,7 @@ function installStyles(root: HTMLElement): void {
       border-radius: 18px !important;
       display: grid !important;
       place-items: center !important;
-      border: 1px solid rgba(23,32,51,.08) !important;
+      border: 0 !important;
       background-color: #f3f5f8 !important;
       background-position: center !important;
       background-repeat: no-repeat !important;
@@ -123,7 +123,7 @@ function installStyles(root: HTMLElement): void {
       overflow: hidden !important;
     }
     .school-highscore-mascot img { width: 100% !important; height: 100% !important; object-fit: contain !important; }
-    .school-highscore-mascot::after { content: ""; position: absolute; inset: 0; background-image: var(--school-highscore-frame-image, none); background-position: center; background-repeat: no-repeat; background-size: 100% 100%; pointer-events: none; z-index: 2; }
+    .school-highscore-mascot::after { content: ""; position: absolute; inset: -6%; background-image: var(--school-highscore-frame-image, none); background-position: center; background-repeat: no-repeat; background-size: 112% 112%; pointer-events: none; z-index: 2; }
     .school-highscore-name-wrap { min-width: 0 !important; }
     .school-highscore-name {
       font-size: 1.55rem !important;
