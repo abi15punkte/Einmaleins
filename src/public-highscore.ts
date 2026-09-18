@@ -272,7 +272,7 @@ async function main(): Promise<void> {
   if (!list || !status) throw new Error("Public highscore UI could not be initialized.");
 
   const client = createLeaderboardClient();
-  const includePrivateEntries = root.dataset.highscoreScope === "teacher";
+  const includePrivateEntries = new URLSearchParams(window.location.search).get("teacher") === "1";
 
   const refresh = async (initial: boolean): Promise<void> => {
     try {
