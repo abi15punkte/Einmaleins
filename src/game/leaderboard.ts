@@ -13,6 +13,7 @@ type FirestoreSdk = typeof import("firebase/firestore") & {
 
 let firestoreSdkPromise: Promise<FirestoreSdk> | null = null;
 let latestLeaderboardEntries: LeaderboardEntry[] | null = null;
+let latestAllLeaderboardEntries: LeaderboardEntry[] | null = null;
 let leaderboardPortraitObserver: MutationObserver | null = null;
 let secondStarChallengeLoadedForGame = false;
 let secondStarChallengeLoading = false;
@@ -45,11 +46,12 @@ export interface LeaderboardEntry {
   rahmenB: boolean;
   rahmenS: boolean;
   rahmenG: boolean;
+  öffentlich: boolean;
 }
 
 export interface LeaderboardClient {
-  submit(record: HighscoreRecord): Promise<void>;
-  top(useCache?: boolean): Promise<LeaderboardEntry[]>;
+  submit(record: HighscoreRecord, publicly?: boolean): Promise<void>;
+  top(useCache?: boolean, publishedOnly?: boolean): Promise<LeaderboardEntry[]>;
 }
 
 export interface LeaderboardConfig {
@@ -84,6 +86,7 @@ function frameForEntry(entry: Pick<LeaderboardEntry, "rahmenB" | "rahmenS" | "ra
 function leaderboardSubmitKey(
   record: HighscoreRecord,
   completedGames: number,
+  publicly: boolean,
   frameUnlocks: FrameUnlocks = loadFrameUnlocks(record.studentId)
 ): string {
   const recordWithStars = record as HighscoreRecordWithStars;
@@ -93,6 +96,7 @@ function leaderboardSubmitKey(
     record.className?.trim() || null,
     record.score,
     completedGames,
+    publicly,
     recordWithStars.stern1 === true,
     recordWithStars.stern2 === true,
     recordWithStars.stern3 === true,
@@ -105,52 +109,24 @@ function leaderboardSubmitKey(
 function hasAlreadySubmitted(
   record: HighscoreRecord,
   completedGames: number,
+  publicly: boolean,
   frameUnlocks: FrameUnlocks = loadFrameUnlocks(record.studentId)
 ): boolean {
-  return lastSuccessfulLeaderboardSubmitKey === leaderboardSubmitKey(record, completedGames, frameUnlocks);
+  return lastSuccessfulLeaderboardSubmitKey === leaderboardSubmitKey(record, completedGames, publicly, frameUnlocks);
 }
 
 function markLeaderboardSubmitted(
   record: HighscoreRecord,
   completedGames: number,
+  publicly: boolean,
   frameUnlocks: FrameUnlocks = loadFrameUnlocks(record.studentId)
 ): void {
-  lastSuccessfulLeaderboardSubmitKey = leaderboardSubmitKey(record, completedGames, frameUnlocks);
+  lastSuccessfulLeaderboardSubmitKey = leaderboardSubmitKey(record, completedGames, publicly, frameUnlocks);
 }
 
-function updateCachedLeaderboardEntry(
-  record: HighscoreRecord,
-  completedGames: number,
-  frameUnlocks: FrameUnlocks
-): void {
-  if (!latestLeaderboardEntries) return;
-
-  const recordWithStars = record as HighscoreRecordWithStars;
-  const updatedEntry: LeaderboardEntry = {
-    rank: 0,
-    studentId: record.studentId.trim(),
-    name: record.name.trim(),
-    className: record.className?.trim() || null,
-    score: record.score,
-    stern1: recordWithStars.stern1 === true,
-    stern2: recordWithStars.stern2 === true,
-    stern3: recordWithStars.stern3 === true,
-    completedGames,
-    rahmenB: frameUnlocks.rahmenB,
-    rahmenS: frameUnlocks.rahmenS,
-    rahmenG: frameUnlocks.rahmenG
-  };
-
-  const remainingEntries = latestLeaderboardEntries.filter(
-    (entry) => entry.studentId !== updatedEntry.studentId
-  );
-  remainingEntries.push(updatedEntry);
-
-  latestLeaderboardEntries = remainingEntries
-    .sort((a, b) => b.score - a.score)
-    .map((entry, index) => ({ ...entry, rank: index + 1 }));
-
-  applyLeaderboardPortraits();
+function invalidateLeaderboardCaches(): void {
+  latestLeaderboardEntries = null;
+  latestAllLeaderboardEntries = null;
 }
 
 function applyLeaderboardPortraits(): void {
@@ -297,7 +273,7 @@ function createFirestoreClient(): LeaderboardClient {
 
       const completedGames = loadCompletedGames(studentId);
       const localFrameUnlocks = loadFrameUnlocks(studentId);
-      if (hasAlreadySubmitted(record, completedGames, localFrameUnlocks)) return;
+      if (hasAlreadySubmitted(record, completedGames, publicly, localFrameUnlocks)) return;
 
       const { doc, getDoc, setDoc, Timestamp, db } = await loadFirestoreSdk();
       const studentDoc = doc(db, HIGHSCORE_COLLECTION, studentId);
@@ -326,11 +302,12 @@ function createFirestoreClient(): LeaderboardClient {
           RahmenB: mergedFrameUnlocks.rahmenB,
           RahmenS: mergedFrameUnlocks.rahmenS,
           RahmenG: mergedFrameUnlocks.rahmenG,
+          öffentlich: publicly,
           timestamp: Timestamp.fromDate(timestamp)
         });
 
-        markLeaderboardSubmitted(record, completedGames, mergedFrameUnlocks);
-        updateCachedLeaderboardEntry(record, completedGames, mergedFrameUnlocks);
+        markLeaderboardSubmitted(record, completedGames, publicly, mergedFrameUnlocks);
+        invalidateLeaderboardCaches();
       } catch (error) {
         const code = error && typeof error === "object" && "code" in error
           ? String((error as { code?: unknown }).code)
@@ -340,19 +317,26 @@ function createFirestoreClient(): LeaderboardClient {
       }
     },
 
-    async top(useCache = true) {
-      if (useCache && latestLeaderboardEntries) {
-        return latestLeaderboardEntries;
+    async top(useCache = true, publishedOnly = true) {
+      const cachedEntries = publishedOnly ? latestLeaderboardEntries : latestAllLeaderboardEntries;
+      if (useCache && cachedEntries) {
+        return cachedEntries;
       }
 
       const { getDocs, collection, orderBy, query, db } = await loadFirestoreSdk();
       const snapshot = await getDocs(query(collection(db, HIGHSCORE_COLLECTION), orderBy("punkte", "desc")));
 
       const studentId = loadStudentIdentity().studentId;
-      const entries = snapshot.docs
+      const allEntries = snapshot.docs
         .map((document, index) => validateFirestoreEntry(document.data() as Record<string, unknown>, index + 1))
         .sort((a, b) => b.score - a.score)
         .map((entry, index) => ({ ...entry, rank: index + 1 }));
+
+      const filteredEntries = publishedOnly
+        ? allEntries.filter((entry) => entry.öffentlich)
+        : allEntries;
+
+      const entries = filteredEntries.map((entry, index) => ({ ...entry, rank: index + 1 }));
 
       const ownEntry = entries.find((entry) => entry.studentId === studentId);
       if (ownEntry) {
@@ -366,7 +350,11 @@ function createFirestoreClient(): LeaderboardClient {
         ownEntry.rahmenG = mergedLocal.rahmenG;
       }
 
-      latestLeaderboardEntries = entries;
+      if (publishedOnly) {
+        latestLeaderboardEntries = entries;
+      } else {
+        latestAllLeaderboardEntries = entries;
+      }
       installLeaderboardPortraitObserver();
       applyLeaderboardPortraits();
       return entries;
@@ -376,24 +364,32 @@ function createFirestoreClient(): LeaderboardClient {
 
 function createLegacyHttpClient(endpoint: string, fetcher: typeof fetch): LeaderboardClient {
   return {
-    async submit(record) {
+    async submit(record, publicly = false) {
       const completedGames = loadCompletedGames(record.studentId);
       const frameUnlocks = loadFrameUnlocks(record.studentId);
-      if (hasAlreadySubmitted(record, completedGames, frameUnlocks)) return;
+      if (hasAlreadySubmitted(record, completedGames, publicly, frameUnlocks)) return;
 
       const response = await fetcher(`${endpoint}/scores`, {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ ...record, completedGames, RahmenB: frameUnlocks.rahmenB, RahmenS: frameUnlocks.rahmenS, RahmenG: frameUnlocks.rahmenG })
+        body: JSON.stringify({
+          ...record,
+          completedGames,
+          RahmenB: frameUnlocks.rahmenB,
+          RahmenS: frameUnlocks.rahmenS,
+          RahmenG: frameUnlocks.rahmenG,
+          öffentlich: publicly
+        })
       });
       if (!response.ok) throw new Error(`Leaderboard submit failed: ${response.status}`);
-      markLeaderboardSubmitted(record, completedGames, frameUnlocks);
-      updateCachedLeaderboardEntry(record, completedGames, frameUnlocks);
+      markLeaderboardSubmitted(record, completedGames, publicly, frameUnlocks);
+      invalidateLeaderboardCaches();
     },
 
-    async top(useCache = true) {
-      if (useCache && latestLeaderboardEntries) {
-        return latestLeaderboardEntries;
+    async top(useCache = true, publishedOnly = true) {
+      const cachedEntries = publishedOnly ? latestLeaderboardEntries : latestAllLeaderboardEntries;
+      if (useCache && cachedEntries) {
+        return cachedEntries;
       }
 
       const response = await fetcher(`${endpoint}/scores`, {
@@ -404,11 +400,17 @@ function createLegacyHttpClient(endpoint: string, fetcher: typeof fetch): Leader
       const payload: unknown = await response.json();
       if (!Array.isArray(payload)) throw new Error("Leaderboard response must be an array.");
 
-      const entries = payload
+      const allEntries = payload
         .map(validateLegacyEntry)
         .sort((a, b) => b.score - a.score)
         .map((entry, index) => ({ ...entry, rank: index + 1 }));
-      latestLeaderboardEntries = entries;
+      const entries = (publishedOnly ? allEntries.filter((entry) => entry.öffentlich) : allEntries)
+        .map((entry, index) => ({ ...entry, rank: index + 1 }));
+      if (publishedOnly) {
+        latestLeaderboardEntries = entries;
+      } else {
+        latestAllLeaderboardEntries = entries;
+      }
       installLeaderboardPortraitObserver();
       applyLeaderboardPortraits();
       return entries;
@@ -431,6 +433,7 @@ function validateFirestoreEntry(
   const rahmenBValue = value.RahmenB;
   const rahmenSValue = value.RahmenS;
   const rahmenGValue = value.RahmenG;
+  const öffentlichValue = value.öffentlich;
 
   if (
     typeof studentIdValue !== "string" ||
@@ -464,7 +467,8 @@ function validateFirestoreEntry(
       : 0,
     rahmenB: rahmenBValue === true,
     rahmenS: rahmenSValue === true,
-    rahmenG: rahmenGValue === true
+    rahmenG: rahmenGValue === true,
+    öffentlich: öffentlichValue !== false
   };
 }
 
@@ -483,6 +487,7 @@ function validateLegacyEntry(value: unknown): LeaderboardEntry {
   const rahmenBValue = entry.RahmenB;
   const rahmenSValue = entry.RahmenS;
   const rahmenGValue = entry.RahmenG;
+  const öffentlichValue = entry.öffentlich;
 
   if (
     typeof rankValue !== "number" ||
@@ -517,7 +522,8 @@ function validateLegacyEntry(value: unknown): LeaderboardEntry {
       : 0,
     rahmenB: rahmenBValue === true,
     rahmenS: rahmenSValue === true,
-    rahmenG: rahmenGValue === true
+    rahmenG: rahmenGValue === true,
+    öffentlich: öffentlichValue !== false
   };
 }
 
