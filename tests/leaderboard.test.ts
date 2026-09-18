@@ -83,6 +83,7 @@ describe("school leaderboard client", () => {
         RahmenB: false,
         RahmenS: false,
         RahmenG: false,
+        öffentlich: false,
         timestamp: new Date(record.achievedAt)
       }
     );
@@ -201,7 +202,8 @@ describe("school leaderboard client", () => {
         completedGames: 10,
         rahmenB: false,
         rahmenS: true,
-        rahmenG: false
+        rahmenG: false,
+        öffentlich: true
       }
     ]);
   });
