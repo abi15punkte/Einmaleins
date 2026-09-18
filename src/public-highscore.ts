@@ -1,4 +1,5 @@
 import { createLeaderboardClient, type LeaderboardEntry } from "./game/leaderboard";
+import { highestUnlockedFrame } from "./game/frameUnlocks";
 import { getPersonalBackgroundAsset } from "./game/highscore";
 import "./style.css";
 import "./responsive.css";
@@ -29,6 +30,15 @@ function portraitBackground(completedGames: number): string | null {
 
 function firstNameOnly(value: string): string {
   return value.trim().split(/\s+/)[0] || "Schüler";
+}
+
+function frameAsset(entry: LeaderboardEntry): string | null {
+  const frame = highestUnlockedFrame({
+    rahmenB: entry.rahmenB,
+    rahmenS: entry.rahmenS,
+    rahmenG: entry.rahmenG
+  });
+  return frame ? `./Rahmen${frame}.png` : null;
 }
 
 function starHtml(entry: LeaderboardEntry): string {
@@ -104,14 +114,35 @@ function installStyles(root: HTMLElement): void {
       border-radius: 18px !important;
       display: grid !important;
       place-items: center !important;
+      position: relative !important;
       border: 1px solid rgba(23,32,51,.08) !important;
-      background-color: #f3f5f8 !important;
-      background-position: center !important;
-      background-repeat: no-repeat !important;
-      background-size: cover !important;
-      overflow: hidden !important;
+      background: var(--school-highscore-mascot-background, #ffffff) center / cover no-repeat !important;
+      overflow: visible !important;
+      isolation: isolate !important;
     }
-    .school-highscore-mascot img { width: 100% !important; height: 100% !important; object-fit: contain !important; }
+    .school-highscore-mascot > img.school-highscore-portrait {
+      position: absolute !important;
+      left: 10% !important;
+      bottom: 0 !important;
+      width: 80% !important;
+      height: 80% !important;
+      z-index: 1 !important;
+      object-fit: contain !important;
+    }
+    .school-highscore-mascot > img.school-highscore-frame {
+      position: absolute !important;
+      left: -8% !important;
+      top: -8% !important;
+      width: 116% !important;
+      height: 116% !important;
+      max-width: none !important;
+      max-height: none !important;
+      z-index: 2 !important;
+      object-fit: contain !important;
+      object-position: center !important;
+      transform: none !important;
+      pointer-events: none !important;
+    }
     .school-highscore-name-wrap { min-width: 0 !important; }
     .school-highscore-name {
       font-size: 1.55rem !important;
@@ -197,14 +228,15 @@ function rowHtml(entry: LeaderboardEntry): string {
   const rankClass = entry.rank === 1 ? "rank-gold" : entry.rank === 2 ? "rank-silver" : entry.rank === 3 ? "rank-bronze" : "";
   const firstName = firstNameOnly(entry.name);
   const backgroundAsset = portraitBackground(entry.completedGames);
+  const frameAssetPath = frameAsset(entry);
   const backgroundStyle = backgroundAsset
-    ? ` style="background-image:url('${backgroundAsset}')"`
+    ? ` style="--school-highscore-mascot-background:url('${backgroundAsset}')"`
     : "";
 
   return `<div class="school-highscore-row ${rankClass}" role="listitem">
     <div class="school-highscore-rank">${entry.rank}</div>
     <div class="school-highscore-entry-meta">
-      <span class="school-highscore-mascot"${backgroundStyle}><img src="${classPortrait(entry.className)}" alt="Klasse ${escapeHtml(className)}"></span>
+      <span class="school-highscore-mascot"${backgroundStyle}><img src="${classPortrait(entry.className)}" class="school-highscore-portrait" alt="Klasse ${escapeHtml(className)}">${frameAssetPath ? `<img src="${frameAssetPath}" class="school-highscore-frame" aria-hidden="true" alt="">` : ""}</span>
       <div class="school-highscore-name-wrap">
         <div class="school-highscore-name">${escapeHtml(firstName)}</div>
         <div class="school-highscore-class">Klasse ${escapeHtml(className)}</div>
@@ -240,10 +272,11 @@ async function main(): Promise<void> {
   if (!list || !status) throw new Error("Public highscore UI could not be initialized.");
 
   const client = createLeaderboardClient();
+  const includePrivateEntries = new URLSearchParams(window.location.search).get("teacher") === "1";
 
   const refresh = async (initial: boolean): Promise<void> => {
     try {
-      const entries = await client.top(false);
+      const entries = await client.top(false, !includePrivateEntries);
       renderList(list, entries);
       list.setAttribute("aria-busy", "false");
       status.classList.remove("error");

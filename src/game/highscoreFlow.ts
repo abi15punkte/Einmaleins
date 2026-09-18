@@ -349,7 +349,7 @@ async function submitPersonalHighscore(button: HTMLButtonElement, status: HTMLEl
   }
 
   try {
-    await client.submit(personalBest);
+    await client.submit(personalBest, true);
     const refreshedEntries = await client.top(false);
     if (document.querySelector<HTMLElement>(".school-highscore-overlay")) {
       renderOverlay(refreshedEntries, student.name);

@@ -83,6 +83,7 @@ describe("school leaderboard client", () => {
         RahmenB: false,
         RahmenS: false,
         RahmenG: false,
+        öffentlich: false,
         timestamp: new Date(record.achievedAt)
       }
     );
@@ -110,6 +111,17 @@ describe("school leaderboard client", () => {
         RahmenS: false,
         RahmenG: true
       })
+    );
+  });
+
+  it("publishes the current highscore only when explicitly requested", async () => {
+    const client = createLeaderboardClient();
+
+    await client.submit(record, true);
+
+    expect(setDoc).toHaveBeenCalledWith(
+      "student-doc-ref",
+      expect.objectContaining({ öffentlich: true })
     );
   });
 
@@ -147,7 +159,8 @@ describe("school leaderboard client", () => {
             stern3: false,
             RahmenB: true,
             RahmenS: false,
-            RahmenG: true
+            RahmenG: true,
+            öffentlich: true
           })
         },
         {
@@ -162,7 +175,8 @@ describe("school leaderboard client", () => {
             stern3: false,
             RahmenB: false,
             RahmenS: true,
-            RahmenG: false
+            RahmenG: false,
+            öffentlich: true
           })
         }
       ]
@@ -187,7 +201,8 @@ describe("school leaderboard client", () => {
         completedGames: 50,
         rahmenB: true,
         rahmenS: false,
-        rahmenG: true
+        rahmenG: true,
+        öffentlich: true
       },
       {
         rank: 2,
@@ -201,9 +216,48 @@ describe("school leaderboard client", () => {
         completedGames: 10,
         rahmenB: false,
         rahmenS: true,
-        rahmenG: false
+        rahmenG: false,
+        öffentlich: true
       }
     ]);
+  });
+
+  it("hides unpublished entries from the public list but keeps them in the complete list", async () => {
+    getDocs.mockResolvedValue({
+      docs: [
+        {
+          data: () => ({
+            studentId: "student-public",
+            name: "Sophie",
+            klasse: "M2",
+            punkte: 700,
+            RahmenB: true,
+            RahmenS: false,
+            RahmenG: true,
+            öffentlich: true
+          })
+        },
+        {
+          data: () => ({
+            studentId: "student-private",
+            name: "Max",
+            klasse: "M1",
+            punkte: 650,
+            RahmenB: false,
+            RahmenS: true,
+            RahmenG: false,
+            öffentlich: false
+          })
+        }
+      ]
+    });
+
+    const client = createLeaderboardClient();
+    const publicEntries = await client.top(false);
+    expect(publicEntries.map((entry) => entry.studentId)).toEqual(["student-public"]);
+
+    const allEntries = await client.top(false, false);
+    expect(allEntries.map((entry) => entry.studentId)).toEqual(["student-public", "student-private"]);
   });
 
   it("treats missing completed games, star fields, and frame fields as fallback values", async () => {
@@ -235,7 +289,8 @@ describe("school leaderboard client", () => {
         completedGames: 0,
         rahmenB: false,
         rahmenS: false,
-        rahmenG: false
+        rahmenG: false,
+        öffentlich: true
       }
     ]);
   });
