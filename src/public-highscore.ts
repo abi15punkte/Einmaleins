@@ -134,8 +134,11 @@ function installStyles(root: HTMLElement): void {
       inset: 0 !important;
       width: 100% !important;
       height: 100% !important;
+      max-width: none !important;
+      max-height: none !important;
       z-index: 2 !important;
       object-fit: fill !important;
+      transform: none !important;
       pointer-events: none !important;
     }
     .school-highscore-name-wrap { min-width: 0 !important; }
