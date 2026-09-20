@@ -1,0 +1,74 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    match /highscores/{entryId} {
+
+      function validScoreFields(data) {
+        return data.studentId is string
+          && data.studentId != ""
+          && data.punkte is int
+          && data.punkte >= 0
+          && data.completedGames is int
+          && data.completedGames >= 0
+          && data.RahmenB is bool
+          && data.RahmenS is bool
+          && data.RahmenG is bool
+          && data.öffentlich is bool
+          && data.timestamp is timestamp;
+      }
+
+      function validEntryId(data) {
+        return entryId == data.studentId
+          || entryId == data.studentId + "__private"
+          || entryId == data.studentId + "__public";
+      }
+
+      function validVisibilityForNewEntry(data) {
+        return entryId == data.studentId
+          || (entryId == data.studentId + "__private" && data.öffentlich == false)
+          || (entryId == data.studentId + "__public" && data.öffentlich == true);
+      }
+
+      function validVisibilityForExistingEntry(resourceData, requestData) {
+        return entryId == resourceData.studentId
+          || (entryId == resourceData.studentId + "__private"
+              && resourceData.öffentlich == false
+              && requestData.öffentlich == false)
+          || (entryId == resourceData.studentId + "__public"
+              && resourceData.öffentlich == true
+              && requestData.öffentlich == true);
+      }
+
+      allow read: if true;
+
+      allow create: if
+        validScoreFields(request.resource.data)
+        && validEntryId(request.resource.data)
+        && validVisibilityForNewEntry(request.resource.data);
+
+      allow update: if
+        resource.data.studentId == request.resource.data.studentId
+        && validScoreFields(request.resource.data)
+        && validEntryId(request.resource.data)
+        && validVisibilityForExistingEntry(resource.data, request.resource.data)
+        && request.resource.data.punkte >= resource.data.punkte
+        && request.resource.data.completedGames >= resource.data.completedGames
+        && (
+          request.resource.data.RahmenB == true
+          || resource.data.get('RahmenB', false) == false
+        )
+        && (
+          request.resource.data.RahmenS == true
+          || resource.data.get('RahmenS', false) == false
+        )
+        && (
+          request.resource.data.RahmenG == true
+          || resource.data.get('RahmenG', false) == false
+        );
+
+      allow delete: if false;
+    }
+  }
+}
