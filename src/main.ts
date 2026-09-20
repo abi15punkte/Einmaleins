@@ -57,7 +57,7 @@ function formatTime(elapsedMs: number): string { const totalSeconds = Math.max(0
 function getCurrentBuildId(): string { const manifestLink = document.querySelector<HTMLLinkElement>('link[rel="manifest"]'); if (!manifestLink) return "dev"; const buildId = new URL(manifestLink.href, document.baseURI).searchParams.get("build"); if (!buildId || buildId === "__BUILD_ID__") return "dev"; return buildId; }
 function getGreetingName(name: string): string { return name.trim().split(/\s+/)[0] || name; }
 const CURRENT_BUILD_ID = getCurrentBuildId();
-let buildCheckPromise: Promise<void> | null = null;
+let buildCheckPromise: Promise<boolean> | null = null;
 async function checkForLatestBuild(): Promise<boolean> {
   if (CURRENT_BUILD_ID === "dev") return true;
   if (buildCheckPromise !== null) return buildCheckPromise;
