@@ -6,7 +6,7 @@ import { applyManagedStudentIdentity, loadManagedStudentIdentity } from "./game/
 import { recordFrameUnlocks } from "./game/frameUnlocks";
 import { evaluateResult, loadPersonalHighscore, loadStudentIdentity, saveStudentIdentity, type HighscoreEvaluation, type StudentIdentity } from "./game/highscore";
 import { createLeaderboardClient, type LeaderboardClient } from "./game/leaderboard";
-import { initHighscoreFlow } from "./game/highscoreFlow";
+import { initHighscoreFlow } from "./game/highscoreFlow";\nimport { prepareStartupImages } from "./startupImages";
 import "./start-class-mascot.css";
 const TOTAL_TASKS = 136;
 const ANSWER_FEEDBACK_RED_MS = 750;

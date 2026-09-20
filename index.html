@@ -17,6 +17,18 @@
     <link rel="stylesheet" href="./result-screen-tweaks.css?build=__BUILD_ID__" />
     <title>Einmaleins</title>
     <style>
+      html, body {
+        background: #ffffff !important;
+      }
+
+      #startup-loading-screen {
+        position: fixed;
+        inset: 0;
+        z-index: 2147483647;
+        background: #ffffff;
+      }
+    </style>
+    <style>
       .school-highscore-choice{margin-top:18px;padding:18px;border-radius:18px;background:rgba(255,255,255,.72);text-align:center}
       .school-highscore-choice p{margin:0 0 10px}
       .school-highscore-choice .choice-actions{display:flex;justify-content:center;gap:10px;flex-wrap:wrap}
@@ -50,7 +62,7 @@
     <div id="portrait-guard" aria-live="assertive" aria-label="Bitte Gerät ins Querformat drehen">
       <img src="./Querformathinweis.png" alt="Bitte ins Querformat wechseln" />
     </div>
-    <div id="app"></div>
+    <div id="startup-loading-screen" aria-hidden="true"></div>\n    <div id="app"></div>
 
     <script src="./src/orientation-lock.js?build=__BUILD_ID__"></script>
     <script>
