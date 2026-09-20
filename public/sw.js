@@ -1,5 +1,28 @@
 const BUILD_ID = new URL(self.location.href).searchParams.get("v") || "dev";
 const CACHE_NAME = `einmaleins-reset-${BUILD_ID}`;
+const IMAGE_CACHE_NAME = `einmaleins-startup-images-${BUILD_ID.replace(/[^a-zA-Z0-9._-]/g, "_")}`;
+
+const STARTUP_IMAGE_ASSETS = [
+  "./Ladebildschirm.png",
+  "./einmaleins-icon.svg",
+  "./10.png",
+  "./50.png",
+  "./100.png",
+  "./200.png",
+  "./10000.png",
+  "./Querformathinweis.png",
+  "./Background.png",
+  "./Alien.png",
+  ...Array.from({ length: 16 }, (_, index) => `./P${index + 1}.png`),
+  ...Array.from({ length: 16 }, (_, index) => `./M${index + 1}.png`),
+  "./Stern1.png",
+  "./Stern2.png",
+  "./Stern3.png",
+  "./RahmenB.png",
+  "./RahmenS.png",
+  "./RahmenG.png",
+  "./Tablet3.png",
+];
 
 const APP_SHELL = [
   "./",
@@ -16,7 +39,7 @@ const APP_SHELL = [
   "./Alien.png",
   "./src/responsive.css",
   "./src/laptop.css",
-  ...Array.from({ length: 16 }, (_, index) => `./P${index + 1}.png`),
+  ...Array.from({ length: 15 }, (_, index) => `./P${index + 1}.png`),
 ];
 
 const HIGHSCORE_ASSETS = [
@@ -66,7 +89,11 @@ self.addEventListener("activate", (event) => {
       caches.keys().then((keys) =>
         Promise.all(
           keys
-            .filter((key) => key.startsWith("einmaleins-") && key !== CACHE_NAME)
+            .filter((key) =>
+              key.startsWith("einmaleins-")
+              && key !== CACHE_NAME
+              && key !== IMAGE_CACHE_NAME
+            )
             .map((key) => caches.delete(key))
         )
       ),
@@ -85,6 +112,29 @@ self.addEventListener("fetch", (event) => {
 
   const requestUrl = new URL(event.request.url);
   const isNavigation = event.request.mode === "navigate" || requestUrl.pathname.endsWith("/index.html");
+  const isStartupImage = requestUrl.origin === self.location.origin && STARTUP_IMAGE_ASSETS.some((asset) => {
+    const assetUrl = new URL(asset, self.location.href);
+    return requestUrl.pathname === assetUrl.pathname;
+  });
+
+  if (isStartupImage) {
+    event.respondWith(
+      caches.open(IMAGE_CACHE_NAME).then((cache) =>
+        cache.match(event.request).then((cached) => {
+          if (cached) return cached;
+
+          return fetch(event.request, { cache: "no-store" }).then((response) => {
+            if (response.ok) {
+              void cache.put(event.request, response.clone());
+            }
+            return response;
+          });
+        })
+      )
+    );
+    return;
+  }
+
   const isHighscoreAsset = requestUrl.origin === self.location.origin && HIGHSCORE_ASSETS.some((asset) => {
     const assetUrl = new URL(asset, self.location.href);
     return requestUrl.pathname === assetUrl.pathname;
