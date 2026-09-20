@@ -1,4 +1,7 @@
+export const STARTUP_LOADING_ASSET = "Ladebildschirm.png";
+
 export const STARTUP_IMAGE_ASSETS = [
+  STARTUP_LOADING_ASSET,
   "einmaleins-icon.svg",
   "10.png",
   "50.png",
@@ -102,9 +105,14 @@ export async function prepareStartupImages(): Promise<void> {
   }
 
   const urls = getStartupImageUrls();
+  const loadingScreenUrl = urls[0];
+
+  // The loading image is always fetched/cached before any other startup image.
+  await cacheImage(cache, loadingScreenUrl);
+
   const cachedRequests = await cache.keys();
   const cachedUrls = new Set(cachedRequests.map((request) => request.url));
-  const missingUrls = urls.filter((url) => !cachedUrls.has(url));
+  const missingUrls = urls.filter((url, index) => index !== 0 && !cachedUrls.has(url));
 
   if (missingUrls.length === 0 && cachedBuildId === buildId) {
     return;
