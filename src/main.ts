@@ -54,13 +54,50 @@ function clearWrongAnswerTimer(): void { if (wrongAnswerTimer !== null) { window
 function clearGameTimer(): void { if (gameTimer !== null) { window.clearInterval(gameTimer); gameTimer = null; } }
 window.addEventListener("keydown", handleKeyboardInput);
 
+async function activateSpaceTheme(): Promise<void> {
+  const stylesheet = document.getElementById("space-theme-stylesheet");
+  if (!(stylesheet instanceof HTMLLinkElement)) {
+    throw new Error("Space-Theme-Stylesheet nicht gefunden.");
+  }
+
+  await new Promise<void>((resolve, reject) => {
+    let settled = false;
+
+    const cleanup = () => {
+      stylesheet.removeEventListener("load", onLoad);
+      stylesheet.removeEventListener("error", onError);
+    };
+
+    const onLoad = () => {
+      if (settled) return;
+      settled = true;
+      cleanup();
+      resolve();
+    };
+
+    const onError = () => {
+      if (settled) return;
+      settled = true;
+      cleanup();
+      reject(new Error("Das Space-Theme konnte nicht geladen werden."));
+    };
+
+    stylesheet.addEventListener("load", onLoad, { once: true });
+    stylesheet.addEventListener("error", onError, { once: true });
+    stylesheet.media = "all";
+
+    if (stylesheet.sheet) onLoad();
+  });
+}
+
 async function bootstrapApp(): Promise<void> {
   while (true) {
     try {
       await prepareStartupImages();
+      await activateSpaceTheme();
       break;
     } catch (error) {
-      console.error("Startbilder konnten noch nicht vollständig lokal gespeichert werden. Neuer Versuch folgt.", error);
+      console.error("Startvorbereitung ist noch nicht vollständig abgeschlossen. Neuer Versuch folgt.", error);
       await new Promise((resolve) => window.setTimeout(resolve, 3000));
     }
   }
