@@ -20,7 +20,7 @@ export const STARTUP_IMAGE_ASSETS = [
 ] as const;
 
 const IMAGE_CACHE_NAME = "einmaleins-startup-images";
-const IMAGE_CACHE_VERSION_URL = "https://einmaleins.invalid/__startup-version__";
+const IMAGE_CACHE_VERSION_URL = "./__startup-version__";
 const MAX_CONCURRENT_DOWNLOADS = 4;
 const MAX_ATTEMPTS_PER_IMAGE = 4;
 const IMAGE_FETCH_TIMEOUT_MS = 30_000;
