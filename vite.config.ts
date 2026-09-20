@@ -1,11 +1,14 @@
-import { defineConfig } from "vitest/config";
+import { defineConfig, loadEnv } from "vite";
 
-export default defineConfig({
-  base: "/Einmaleins/",
+export default defineConfig(({ mode }) => {
+  const env = loadEnv(mode, ".", "");
 
-  test: {
-    environment: "node",
-    globals: true
-  }
+  return {
+    base: env.DEPLOY_BASE || "/Einmaleins/",
+
+    test: {
+      environment: "node",
+      globals: true
+    }
+  };
 });
-
