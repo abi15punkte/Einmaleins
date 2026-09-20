@@ -1,14 +1,10 @@
-import { defineConfig, loadEnv } from "vite";
+import { defineConfig } from "vite";
 
-export default defineConfig(({ mode }) => {
-  const env = loadEnv(mode, ".", "");
+export default defineConfig({
+  base: process.env.DEPLOY_BASE || "/Einmaleins/",
 
-  return {
-    base: env.DEPLOY_BASE || "/Einmaleins/",
-
-    test: {
-      environment: "node",
-      globals: true
-    }
-  };
+  test: {
+    environment: "node",
+    globals: true
+  }
 });
