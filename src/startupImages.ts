@@ -102,22 +102,32 @@ export async function prepareStartupImages(): Promise<void> {
   }
 
   const urls = getStartupImageUrls();
+  const cachedRequests = await cache.keys();
+  const cachedUrls = new Set(cachedRequests.map((request) => request.url));
+  const missingUrls = urls.filter((url) => !cachedUrls.has(url));
+
+  if (missingUrls.length === 0 && cachedBuildId === buildId) {
+    return;
+  }
+
   let nextIndex = 0;
 
   const worker = async (): Promise<void> => {
     while (true) {
       const index = nextIndex;
       nextIndex += 1;
-      if (index >= urls.length) return;
-      await cacheImage(cache, urls[index]);
+      if (index >= missingUrls.length) return;
+      await cacheImage(cache, missingUrls[index]);
     }
   };
 
-  const workerCount = Math.min(MAX_CONCURRENT_DOWNLOADS, urls.length);
+  const workerCount = Math.min(MAX_CONCURRENT_DOWNLOADS, missingUrls.length);
   await Promise.all(Array.from({ length: workerCount }, () => worker()));
 
+  const finalCachedRequests = await cache.keys();
+  const finalCachedUrls = new Set(finalCachedRequests.map((request) => request.url));
   for (const url of urls) {
-    if (!await cache.match(url)) {
+    if (!finalCachedUrls.has(url)) {
       throw new Error(`Startbild fehlt im lokalen Cache: ${url}`);
     }
   }
