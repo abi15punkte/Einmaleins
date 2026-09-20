@@ -88,16 +88,11 @@ self.addEventListener("activate", (event) => {
       caches.keys().then((keys) =>
         Promise.all(
           keys
-            .filter((key) => key.startsWith("einmaleins-") && key !== CACHE_NAME && !(
-              key.startsWith("einmaleins-startup-images-") && key === IMAGE_CACHE_NAME
-            ))
-            .map((key) => caches.delete(key))
-        )
-      ),
-      caches.keys().then((keys) =>
-        Promise.all(
-          keys
-            .filter((key) => key.startsWith("einmaleins-startup-images-") && key !== IMAGE_CACHE_NAME)
+            .filter((key) =>
+              key.startsWith("einmaleins-")
+              && key !== CACHE_NAME
+              && key !== IMAGE_CACHE_NAME
+            )
             .map((key) => caches.delete(key))
         )
       ),

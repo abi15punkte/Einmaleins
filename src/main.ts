@@ -6,7 +6,8 @@ import { applyManagedStudentIdentity, loadManagedStudentIdentity } from "./game/
 import { recordFrameUnlocks } from "./game/frameUnlocks";
 import { evaluateResult, loadPersonalHighscore, loadStudentIdentity, saveStudentIdentity, type HighscoreEvaluation, type StudentIdentity } from "./game/highscore";
 import { createLeaderboardClient, type LeaderboardClient } from "./game/leaderboard";
-import { initHighscoreFlow } from "./game/highscoreFlow";\nimport { prepareStartupImages } from "./startupImages";
+import { initHighscoreFlow } from "./game/highscoreFlow";
+import { prepareStartupImages } from "./startupImages";
 import "./start-class-mascot.css";
 const TOTAL_TASKS = 136;
 const ANSWER_FEEDBACK_RED_MS = 750;
@@ -52,5 +53,21 @@ function scheduleNextTaskAfterWrongAnswer(): void { clearWrongAnswerTimer(); wro
 function clearWrongAnswerTimer(): void { if (wrongAnswerTimer !== null) { window.clearTimeout(wrongAnswerTimer); wrongAnswerTimer = null; } }
 function clearGameTimer(): void { if (gameTimer !== null) { window.clearInterval(gameTimer); gameTimer = null; } }
 window.addEventListener("keydown", handleKeyboardInput);
-initHighscoreFlow();
-renderStartScreen();
+
+async function bootstrapApp(): Promise<void> {
+  while (true) {
+    try {
+      await prepareStartupImages();
+      break;
+    } catch (error) {
+      console.error("Startbilder konnten noch nicht vollständig lokal gespeichert werden. Neuer Versuch folgt.", error);
+      await new Promise((resolve) => window.setTimeout(resolve, 3000));
+    }
+  }
+
+  initHighscoreFlow();
+  renderStartScreen();
+  document.getElementById("startup-loading-screen")?.remove();
+}
+
+void bootstrapApp();
