@@ -23,7 +23,8 @@ function isDevelopmentDeployment(): boolean {
 async function disableDevelopmentServiceWorker(): Promise<void> {
   if (!isDevelopmentDeployment() || !("serviceWorker" in navigator)) return;
 
-  const registrations = await navigator.serviceWorker.getRegistrations();
+  const registrations = (await navigator.serviceWorker.getRegistrations())
+    .filter((registration) => registration.scope.includes("/Einmaleins/test/"));
   if (registrations.length === 0) {
     sessionStorage.removeItem(DEVELOPMENT_SERVICE_WORKER_KEY);
     return;
