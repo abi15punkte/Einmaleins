@@ -12,7 +12,7 @@ const STARTUP_IMAGE_ASSETS = [
   "./Querformathinweis.png",
   "./Background.png",
   "./Alien.png",
-  ...Array.from({ length: 16 }, (_, index) => `./P${index + 1}.png`),
+  ...Array.from({ length: 15 }, (_, index) => `./P${index + 1}.png`),
   ...Array.from({ length: 16 }, (_, index) => `./M${index + 1}.png`),
   "./Stern1.png",
   "./Stern2.png",
@@ -38,7 +38,7 @@ const APP_SHELL = [
   "./Alien.png",
   "./src/responsive.css",
   "./src/laptop.css",
-  ...Array.from({ length: 16 }, (_, index) => `./P${index + 1}.png`),
+  ...Array.from({ length: 15 }, (_, index) => `./P${index + 1}.png`),
 ];
 
 const HIGHSCORE_ASSETS = [
