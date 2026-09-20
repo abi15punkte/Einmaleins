@@ -15,7 +15,7 @@ service cloud.firestore {
           && data.RahmenB is bool
           && data.RahmenS is bool
           && data.RahmenG is bool
-          && data.öffentlich is bool
+          && data['öffentlich'] is bool
           && data.timestamp is timestamp;
       }
 
@@ -27,8 +27,8 @@ service cloud.firestore {
 
       function validVisibilityForNewEntry(data) {
         return entryId == data.studentId
-          || (entryId == data.studentId + "__private" && data.öffentlich == false)
-          || (entryId == data.studentId + "__public" && data.öffentlich == true);
+          || (entryId == data.studentId + "__private" && data['öffentlich'] == false)
+          || (entryId == data.studentId + "__public" && data['öffentlich'] == true);
       }
 
       function validVisibilityForExistingEntry(resourceData, requestData) {
