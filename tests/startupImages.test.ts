@@ -8,7 +8,7 @@ const projectRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 describe("startup image manifest", () => {
   it("contains every image required by the current project start flow", () => {
     expect(new Set(STARTUP_IMAGE_ASSETS).size).toBe(STARTUP_IMAGE_ASSETS.length);
-    expect(STARTUP_IMAGE_ASSETS).toHaveLength(47);
+    expect(STARTUP_IMAGE_ASSETS).toHaveLength(48);
     expect(STARTUP_IMAGE_ASSETS).toEqual(expect.arrayContaining([
       "einmaleins-icon.svg",
       "10.png",
@@ -21,6 +21,7 @@ describe("startup image manifest", () => {
       "Alien.png",
       "P1.png",
       "P15.png",
+      "P16.png",
       "M1.png",
       "M16.png",
       "Stern1.png",
