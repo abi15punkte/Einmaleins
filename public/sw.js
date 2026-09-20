@@ -3,6 +3,7 @@ const CACHE_NAME = `einmaleins-reset-${BUILD_ID}`;
 const IMAGE_CACHE_NAME = `einmaleins-startup-images-${BUILD_ID.replace(/[^a-zA-Z0-9._-]/g, "_")}`;
 
 const STARTUP_IMAGE_ASSETS = [
+  "./Ladebildschirm.png",
   "./einmaleins-icon.svg",
   "./10.png",
   "./50.png",
