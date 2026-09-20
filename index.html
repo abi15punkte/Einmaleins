@@ -88,7 +88,7 @@
     </script>
 
     <script>
-      if ("serviceWorker" in navigator) {
+      if ("serviceWorker" in navigator && !window.location.pathname.includes("/Einmaleins/test/")) {
         window.addEventListener("load", () => {
           navigator.serviceWorker
             .register("./sw.js?v=__BUILD_ID__", { scope: "./", updateViaCache: "none" })
