@@ -1,15 +1,18 @@
 import { existsSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { STARTUP_IMAGE_ASSETS } from "../src/startupImages";
+import { STARTUP_IMAGE_ASSETS, STARTUP_LOADING_ASSET } from "../src/startupImages";
 
 const projectRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
 describe("startup image manifest", () => {
   it("contains every image required by the current project start flow", () => {
     expect(new Set(STARTUP_IMAGE_ASSETS).size).toBe(STARTUP_IMAGE_ASSETS.length);
-    expect(STARTUP_IMAGE_ASSETS).toHaveLength(48);
+    expect(STARTUP_IMAGE_ASSETS).toHaveLength(49);
+    expect(STARTUP_IMAGE_ASSETS[0]).toBe(STARTUP_LOADING_ASSET);
+    expect(STARTUP_LOADING_ASSET).toBe("Ladebildschirm.png");
     expect(STARTUP_IMAGE_ASSETS).toEqual(expect.arrayContaining([
+      "Ladebildschirm.png",
       "einmaleins-icon.svg",
       "10.png",
       "50.png",
