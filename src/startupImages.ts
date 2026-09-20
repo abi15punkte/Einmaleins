@@ -22,6 +22,7 @@ export const STARTUP_IMAGE_ASSETS = [
 const IMAGE_CACHE_PREFIX = "einmaleins-startup-images-";
 const MAX_CONCURRENT_DOWNLOADS = 4;
 const MAX_ATTEMPTS_PER_IMAGE = 4;
+const IMAGE_FETCH_TIMEOUT_MS = 30_000;
 
 function getBuildCacheSuffix(): string {
   const manifestLink = document.querySelector<HTMLLinkElement>('link[rel="manifest"]');
@@ -33,7 +34,7 @@ function getBuildCacheSuffix(): string {
 }
 
 function getStartupImageUrls(): string[] {
-  const baseUrl = new URL(import.meta.env.BASE_URL, document.baseURI);
+  const baseUrl = new URL("./", document.baseURI);
   return STARTUP_IMAGE_ASSETS.map((asset) => new URL(asset, baseUrl).href);
 }
 
@@ -48,7 +49,14 @@ async function cacheImage(cache: Cache, url: string): Promise<void> {
 
   for (let attempt = 1; attempt <= MAX_ATTEMPTS_PER_IMAGE; attempt += 1) {
     try {
-      const response = await fetch(url, { cache: "no-store" });
+      const controller = new AbortController();
+      const timeoutId = window.setTimeout(() => controller.abort(), IMAGE_FETCH_TIMEOUT_MS);
+      let response: Response;
+      try {
+        response = await fetch(url, { cache: "no-store", signal: controller.signal });
+      } finally {
+        window.clearTimeout(timeoutId);
+      }
       if (!response.ok) {
         throw new Error(`Bild konnte nicht geladen werden: ${url} (${response.status})`);
       }
@@ -59,7 +67,9 @@ async function cacheImage(cache: Cache, url: string): Promise<void> {
       }
       return;
     } catch (error) {
-      lastError = error;
+      lastError = error instanceof DOMException && error.name === "AbortError"
+        ? new Error(`Bild-Download hat zu lange gedauert: ${url}`)
+        : error;
       if (attempt < MAX_ATTEMPTS_PER_IMAGE) {
         await wait(750 * attempt);
       }
