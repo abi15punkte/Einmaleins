@@ -49,6 +49,10 @@ export interface LeaderboardEntry {
   öffentlich: boolean;
 }
 
+interface InternalLeaderboardEntry extends LeaderboardEntry {
+  timestampMs: number;
+}
+
 export interface LeaderboardClient {
   submit(record: HighscoreRecord, publicly?: boolean): Promise<void>;
   top(useCache?: boolean, publishedOnly?: boolean): Promise<LeaderboardEntry[]>;
@@ -59,6 +63,60 @@ export interface LeaderboardConfig {
 }
 
 const HIGHSCORE_COLLECTION = "highscores";
+const PRIVATE_DOCUMENT_SUFFIX = "__private";
+const PUBLIC_DOCUMENT_SUFFIX = "__public";
+
+function leaderboardDocumentId(studentId: string, publicly: boolean): string {
+  return `${studentId}${publicly ? PUBLIC_DOCUMENT_SUFFIX : PRIVATE_DOCUMENT_SUFFIX}`;
+}
+
+function timestampToMillis(value: unknown): number {
+  if (value instanceof Date) {
+    return value.getTime();
+  }
+
+  if (typeof value === "string") {
+    const millis = Date.parse(value);
+    return Number.isFinite(millis) ? millis : 0;
+  }
+
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return value;
+  }
+
+  if (value && typeof value === "object" && "toMillis" in value) {
+    const toMillis = (value as { toMillis?: unknown }).toMillis;
+    if (typeof toMillis === "function") {
+      const millis = Number(toMillis.call(value));
+      return Number.isFinite(millis) ? millis : 0;
+    }
+  }
+
+  return 0;
+}
+
+function deduplicateLeaderboardEntries(entries: InternalLeaderboardEntry[]): InternalLeaderboardEntry[] {
+  const latestByStudent = new Map<string, InternalLeaderboardEntry>();
+
+  for (const entry of entries) {
+    const current = latestByStudent.get(entry.studentId);
+    if (
+      !current
+      || entry.timestampMs > current.timestampMs
+      || (entry.timestampMs === current.timestampMs && entry.score > current.score)
+    ) {
+      latestByStudent.set(entry.studentId, entry);
+    }
+  }
+
+  return Array.from(latestByStudent.values());
+}
+
+function stripLeaderboardMetadata(entry: InternalLeaderboardEntry): LeaderboardEntry {
+  const { timestampMs: _timestampMs, ...publicEntry } = entry;
+  return publicEntry;
+}
+
 
 function portraitForClassName(className: string | null): string {
   const normalized = String(className ?? "").trim().toUpperCase();
@@ -268,15 +326,16 @@ function createFirestoreClient(): LeaderboardClient {
       if (!name) throw new Error("Leaderboard name is required.");
 
       const recordWithStars = record as HighscoreRecordWithStars;
-      const timestamp = new Date(record.achievedAt);
-      if (Number.isNaN(timestamp.getTime())) throw new Error("Leaderboard timestamp is invalid.");
+      const achievedTimestamp = new Date(record.achievedAt);
+      if (Number.isNaN(achievedTimestamp.getTime())) throw new Error("Leaderboard timestamp is invalid.");
 
+      const timestamp = publicly ? new Date() : achievedTimestamp;
       const completedGames = loadCompletedGames(studentId);
       const localFrameUnlocks = loadFrameUnlocks(studentId);
-      if (hasAlreadySubmitted(record, completedGames, publicly, localFrameUnlocks)) return;
+      if (!publicly && hasAlreadySubmitted(record, completedGames, publicly, localFrameUnlocks)) return;
 
       const { doc, getDoc, setDoc, Timestamp, db } = await loadFirestoreSdk();
-      const studentDoc = doc(db, HIGHSCORE_COLLECTION, studentId);
+      const studentDoc = doc(db, HIGHSCORE_COLLECTION, leaderboardDocumentId(studentId, publicly));
 
       try {
         const existingSnapshot = await getDoc(studentDoc);
@@ -329,14 +388,18 @@ function createFirestoreClient(): LeaderboardClient {
       const studentId = loadStudentIdentity().studentId;
       const allEntries = snapshot.docs
         .map((document, index) => validateFirestoreEntry(document.data() as Record<string, unknown>, index + 1))
-        .sort((a, b) => b.score - a.score)
-        .map((entry, index) => ({ ...entry, rank: index + 1 }));
+        .sort((a, b) => b.score - a.score);
 
       const filteredEntries = publishedOnly
         ? allEntries.filter((entry) => entry.öffentlich)
         : allEntries;
 
-      const entries = filteredEntries.map((entry, index) => ({ ...entry, rank: index + 1 }));
+      const entries = deduplicateLeaderboardEntries(filteredEntries)
+        .sort((a, b) => b.score - a.score)
+        .map((entry, index) => ({
+          ...stripLeaderboardMetadata(entry),
+          rank: index + 1
+        }));
 
       const ownEntry = entries.find((entry) => entry.studentId === studentId);
       if (ownEntry) {
@@ -367,7 +430,7 @@ function createLegacyHttpClient(endpoint: string, fetcher: typeof fetch): Leader
     async submit(record, publicly = false) {
       const completedGames = loadCompletedGames(record.studentId);
       const frameUnlocks = loadFrameUnlocks(record.studentId);
-      if (hasAlreadySubmitted(record, completedGames, publicly, frameUnlocks)) return;
+      if (!publicly && hasAlreadySubmitted(record, completedGames, publicly, frameUnlocks)) return;
 
       const response = await fetcher(`${endpoint}/scores`, {
         method: "POST",
@@ -402,10 +465,14 @@ function createLegacyHttpClient(endpoint: string, fetcher: typeof fetch): Leader
 
       const allEntries = payload
         .map(validateLegacyEntry)
+        .sort((a, b) => b.score - a.score);
+      const filteredEntries = publishedOnly ? allEntries.filter((entry) => entry.öffentlich) : allEntries;
+      const entries = deduplicateLeaderboardEntries(filteredEntries)
         .sort((a, b) => b.score - a.score)
-        .map((entry, index) => ({ ...entry, rank: index + 1 }));
-      const entries = (publishedOnly ? allEntries.filter((entry) => entry.öffentlich) : allEntries)
-        .map((entry, index) => ({ ...entry, rank: index + 1 }));
+        .map((entry, index) => ({
+          ...stripLeaderboardMetadata(entry),
+          rank: index + 1
+        }));
       if (publishedOnly) {
         latestLeaderboardEntries = entries;
       } else {
@@ -421,7 +488,7 @@ function createLegacyHttpClient(endpoint: string, fetcher: typeof fetch): Leader
 function validateFirestoreEntry(
   value: Record<string, unknown>,
   rank: number
-): LeaderboardEntry {
+): InternalLeaderboardEntry {
   const studentIdValue = value.studentId;
   const nameValue = value.name;
   const classNameValue = value.klasse;
@@ -434,6 +501,7 @@ function validateFirestoreEntry(
   const rahmenSValue = value.RahmenS;
   const rahmenGValue = value.RahmenG;
   const öffentlichValue = value.öffentlich;
+  const timestampValue = value.timestamp;
 
   if (
     typeof studentIdValue !== "string" ||
@@ -468,11 +536,12 @@ function validateFirestoreEntry(
     rahmenB: rahmenBValue === true,
     rahmenS: rahmenSValue === true,
     rahmenG: rahmenGValue === true,
-    öffentlich: öffentlichValue !== false
+    öffentlich: öffentlichValue !== false,
+    timestampMs: timestampToMillis(timestampValue)
   };
 }
 
-function validateLegacyEntry(value: unknown): LeaderboardEntry {
+function validateLegacyEntry(value: unknown): InternalLeaderboardEntry {
   if (!value || typeof value !== "object") throw new Error("Invalid leaderboard entry.");
   const entry = value as Record<string, unknown>;
   const rankValue = entry.rank;
@@ -488,6 +557,7 @@ function validateLegacyEntry(value: unknown): LeaderboardEntry {
   const rahmenSValue = entry.RahmenS;
   const rahmenGValue = entry.RahmenG;
   const öffentlichValue = entry.öffentlich;
+  const timestampValue = entry.timestamp ?? entry.achievedAt;
 
   if (
     typeof rankValue !== "number" ||
@@ -523,7 +593,8 @@ function validateLegacyEntry(value: unknown): LeaderboardEntry {
     rahmenB: rahmenBValue === true,
     rahmenS: rahmenSValue === true,
     rahmenG: rahmenGValue === true,
-    öffentlich: öffentlichValue !== false
+    öffentlich: öffentlichValue !== false,
+    timestampMs: timestampToMillis(timestampValue)
   };
 }
 

@@ -66,7 +66,7 @@ describe("school leaderboard client", () => {
 
     await client.submit(record);
 
-    expect(doc).toHaveBeenCalledWith({}, "highscores", "student-1");
+    expect(doc).toHaveBeenCalledWith({}, "highscores", "student-1__private");
     expect(getDoc).toHaveBeenCalledWith("student-doc-ref");
     expect(fromDate).toHaveBeenCalledWith(new Date(record.achievedAt));
     expect(setDoc).toHaveBeenCalledWith(
@@ -119,10 +119,38 @@ describe("school leaderboard client", () => {
 
     await client.submit(record, true);
 
+    expect(doc).toHaveBeenCalledWith({}, "highscores", "student-1__public");
     expect(setDoc).toHaveBeenCalledWith(
       "student-doc-ref",
       expect.objectContaining({ öffentlich: true })
     );
+  });
+
+  it("keeps private and public submissions in separate Firestore documents", async () => {
+    const client = createLeaderboardClient();
+    const newerRecord = { ...record, score: 504, achievedAt: "2026-09-10T10:04:00.000Z" };
+
+    await client.submit(newerRecord);
+    await client.submit(newerRecord, true);
+
+    expect(doc.mock.calls.map((call) => call[2])).toEqual([
+      "student-1__private",
+      "student-1__public"
+    ]);
+    expect(setDoc).toHaveBeenCalledTimes(2);
+    expect(setDoc.mock.calls[0]?.[1]).toEqual(expect.objectContaining({ öffentlich: false, punkte: 504 }));
+    expect(setDoc.mock.calls[1]?.[1]).toEqual(expect.objectContaining({ öffentlich: true, punkte: 504 }));
+  });
+
+  it("allows an explicit public resubmission of the same highscore", async () => {
+    const client = createLeaderboardClient();
+
+    await client.submit(record, true);
+    await client.submit(record, true);
+
+    expect(doc).toHaveBeenNthCalledWith(1, {}, "highscores", "student-1__public");
+    expect(doc).toHaveBeenNthCalledWith(2, {}, "highscores", "student-1__public");
+    expect(setDoc).toHaveBeenCalledTimes(2);
   });
 
   it("treats Firestore permission-denied write failures as an unpublished highscore", async () => {
@@ -220,6 +248,68 @@ describe("school leaderboard client", () => {
         öffentlich: true
       }
     ]);
+  });
+
+  it("uses the newest timestamp per student in the teacher view while keeping the newest public entry in the public view", async () => {
+    const privateData = {
+      studentId: "student-1",
+      name: "Max",
+      klasse: "M1",
+      punkte: 550,
+      completedGames: 12,
+      stern1: true,
+      stern2: false,
+      stern3: false,
+      RahmenB: false,
+      RahmenS: true,
+      RahmenG: false,
+      öffentlich: false,
+      timestamp: new Date("2026-09-10T12:00:00.000Z")
+    };
+    const publicData = {
+      ...privateData,
+      punkte: 600,
+      öffentlich: true,
+      timestamp: new Date("2026-09-10T11:00:00.000Z")
+    };
+    const otherStudent = {
+      studentId: "student-2",
+      name: "Sophie",
+      klasse: "M2",
+      punkte: 700,
+      completedGames: 30,
+      öffentlich: true,
+      timestamp: new Date("2026-09-10T10:00:00.000Z")
+    };
+
+    getDocs.mockResolvedValue({
+      docs: [
+        { data: () => privateData },
+        { data: () => publicData },
+        { data: () => otherStudent }
+      ]
+    });
+
+    const client = createLeaderboardClient();
+    const teacherEntries = await client.top(false, false);
+
+    expect(teacherEntries).toHaveLength(2);
+    expect(teacherEntries.find((entry) => entry.studentId === "student-1")).toEqual(
+      expect.objectContaining({ score: 550, öffentlich: false })
+    );
+
+    getDocs.mockResolvedValue({
+      docs: [
+        { data: () => privateData },
+        { data: () => publicData },
+        { data: () => otherStudent }
+      ]
+    });
+
+    const publicEntries = await client.top(false);
+    expect(publicEntries.find((entry) => entry.studentId === "student-1")).toEqual(
+      expect.objectContaining({ score: 600, öffentlich: true })
+    );
   });
 
   it("hides unpublished entries from the public list but keeps them in the complete list", async () => {
