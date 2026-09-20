@@ -14,6 +14,34 @@ const ANSWER_FEEDBACK_RED_MS = 750;
 const ANSWER_FEEDBACK_RESULT_MS = 750;
 const WRONG_ANSWER_TOTAL_MS = ANSWER_FEEDBACK_RED_MS + ANSWER_FEEDBACK_RESULT_MS;
 const BUILD_RELOAD_SESSION_KEY = "einmaleins:version-reload";
+const DEVELOPMENT_SERVICE_WORKER_KEY = "einmaleins:development-service-worker-disabled";
+
+function isDevelopmentDeployment(): boolean {
+  return window.location.pathname.includes("/Einmaleins/test/");
+}
+
+async function disableDevelopmentServiceWorker(): Promise<void> {
+  if (!isDevelopmentDeployment() || !("serviceWorker" in navigator)) return;
+
+  const registrations = await navigator.serviceWorker.getRegistrations();
+  if (registrations.length === 0) {
+    sessionStorage.removeItem(DEVELOPMENT_SERVICE_WORKER_KEY);
+    return;
+  }
+
+  const alreadyReloaded = sessionStorage.getItem(DEVELOPMENT_SERVICE_WORKER_KEY) === "1";
+  await Promise.all(registrations.map((registration) => registration.unregister()));
+
+  if (navigator.serviceWorker.controller && !alreadyReloaded) {
+    sessionStorage.setItem(DEVELOPMENT_SERVICE_WORKER_KEY, "1");
+    window.location.reload();
+    await new Promise<void>(() => undefined);
+  }
+
+  if (!navigator.serviceWorker.controller) {
+    sessionStorage.removeItem(DEVELOPMENT_SERVICE_WORKER_KEY);
+  }
+}
 type Screen = "start" | "game" | "result";
 type PracticeMode = "highscore" | "free";
 type AnswerPresentation = { factorA: string; factorB: string; entered: string; expected: string; status: "wrong-red" | "wrong-black" | "correct-green" } | null;
@@ -91,6 +119,8 @@ async function activateSpaceTheme(): Promise<void> {
 }
 
 async function bootstrapApp(): Promise<void> {
+  await disableDevelopmentServiceWorker();
+
   while (true) {
     try {
       await prepareStartupImages();
