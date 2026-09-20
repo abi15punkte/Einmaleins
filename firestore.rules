@@ -34,11 +34,11 @@ service cloud.firestore {
       function validVisibilityForExistingEntry(resourceData, requestData) {
         return entryId == resourceData.studentId
           || (entryId == resourceData.studentId + "__private"
-              && resourceData.öffentlich == false
-              && requestData.öffentlich == false)
+              && resourceData['öffentlich'] == false
+              && requestData['öffentlich'] == false)
           || (entryId == resourceData.studentId + "__public"
-              && resourceData.öffentlich == true
-              && requestData.öffentlich == true);
+              && resourceData['öffentlich'] == true
+              && requestData['öffentlich'] == true);
       }
 
       allow read: if true;
