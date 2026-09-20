@@ -19,7 +19,8 @@ export const STARTUP_IMAGE_ASSETS = [
   "Tablet3.png"
 ] as const;
 
-const IMAGE_CACHE_PREFIX = "einmaleins-startup-images-";
+const IMAGE_CACHE_NAME = "einmaleins-startup-images";
+const IMAGE_CACHE_VERSION_URL = "https://einmaleins.invalid/__startup-version__";
 const MAX_CONCURRENT_DOWNLOADS = 4;
 const MAX_ATTEMPTS_PER_IMAGE = 4;
 const IMAGE_FETCH_TIMEOUT_MS = 30_000;
@@ -86,8 +87,20 @@ export async function prepareStartupImages(): Promise<void> {
     throw new Error("Cache Storage ist auf diesem Gerät nicht verfügbar.");
   }
 
-  const cacheName = `${IMAGE_CACHE_PREFIX}${getBuildCacheSuffix()}`;
-  const cache = await caches.open(cacheName);
+  const buildId = getBuildCacheSuffix();
+  const staleCacheNames = (await caches.keys())
+    .filter((name) => name.startsWith("einmaleins-startup-images-"));
+
+  await Promise.all(staleCacheNames.map((name) => caches.delete(name)));
+
+  const cache = await caches.open(IMAGE_CACHE_NAME);
+  const versionResponse = await cache.match(IMAGE_CACHE_VERSION_URL);
+  const cachedBuildId = versionResponse ? await versionResponse.text() : null;
+
+  if (cachedBuildId !== buildId) {
+    await Promise.all((await cache.keys()).map((request) => cache.delete(request)));
+  }
+
   const urls = getStartupImageUrls();
   let nextIndex = 0;
 
@@ -108,4 +121,11 @@ export async function prepareStartupImages(): Promise<void> {
       throw new Error(`Startbild fehlt im lokalen Cache: ${url}`);
     }
   }
+
+  await cache.put(
+    IMAGE_CACHE_VERSION_URL,
+    new Response(buildId, {
+      headers: { "content-type": "text/plain; charset=utf-8" }
+    })
+  );
 }
