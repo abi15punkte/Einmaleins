@@ -23,7 +23,7 @@ function createTestClock(initial = 0): {
 }
 
 describe("Timer", () => {
-  it("beendet eine normale Runde erst nach zehn Minuten", () => {
+  it("beendet eine normale Runde erst nach 30 Sekunden", () => {
     const testClock = createTestClock();
     const game = new GameEngine(() => 0.5, testClock.clock);
 
