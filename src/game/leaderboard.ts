@@ -95,7 +95,10 @@ function timestampToMillis(value: unknown): number {
   return 0;
 }
 
-function deduplicateLeaderboardEntries(entries: InternalLeaderboardEntry[]): InternalLeaderboardEntry[] {
+function deduplicateLeaderboardEntries(
+  entries: InternalLeaderboardEntry[],
+  publishedOnly = true
+): InternalLeaderboardEntry[] {
   const entriesByStudent = new Map<string, InternalLeaderboardEntry[]>();
 
   for (const entry of entries) {
@@ -107,8 +110,17 @@ function deduplicateLeaderboardEntries(entries: InternalLeaderboardEntry[]): Int
     }
   }
 
-  return Array.from(entriesByStudent.values()).map((group) => {
-    const latest = group.reduce<InternalLeaderboardEntry | null>((current, entry) => {
+  const selectedEntries: InternalLeaderboardEntry[] = [];
+
+  for (const group of entriesByStudent.values()) {
+    const visibleCandidates = publishedOnly
+      ? group.filter((entry) => entry.öffentlich)
+      : group;
+
+    // Never expose a private-only student in the public leaderboard.
+    if (visibleCandidates.length === 0) continue;
+
+    const latestVisible = visibleCandidates.reduce<InternalLeaderboardEntry | null>((current, entry) => {
       if (
         !current
         || entry.timestampMs > current.timestampMs
@@ -119,28 +131,31 @@ function deduplicateLeaderboardEntries(entries: InternalLeaderboardEntry[]): Int
       return current;
     }, null)!;
 
-    // A manually completed class value may exist in another document for the
-    // same student (for example in the public/private pair). Do not let the
-    // latest score record hide that information when the selected record has
-    // no class yet. Never overwrite an already populated class.
-    if (!latest.className?.trim()) {
-      const classCandidates = group
+    // Class metadata is allowed to come from the student's other record
+    // (e.g. the private counterpart), but only after a visible record has
+    // been selected. This keeps scores private while preserving corrections
+    // made to the class field.
+    if (!latestVisible.className?.trim()) {
+      const classCandidate = group
         .filter((entry) => Boolean(entry.className?.trim()))
         .sort((a, b) => {
           if (b.timestampMs !== a.timestampMs) return b.timestampMs - a.timestampMs;
           return b.score - a.score;
-        });
+        })[0];
 
-      if (classCandidates[0]) {
-        return {
-          ...latest,
-          className: classCandidates[0].className
-        };
+      if (classCandidate) {
+        selectedEntries.push({
+          ...latestVisible,
+          className: classCandidate.className
+        });
+        continue;
       }
     }
 
-    return latest;
-  });
+    selectedEntries.push(latestVisible);
+  }
+
+  return selectedEntries;
 }
 
 function stripLeaderboardMetadata(entry: InternalLeaderboardEntry): LeaderboardEntry {
@@ -413,19 +428,15 @@ function createFirestoreClient(): LeaderboardClient {
         return cachedEntries;
       }
 
-      const { getDocs, collection, orderBy, query, db } = await loadFirestoreSdk();
-      const snapshot = await getDocs(query(collection(db, HIGHSCORE_COLLECTION), orderBy("punkte", "desc")));
+      const { getDocsFromServer, collection, orderBy, query, db } = await loadFirestoreSdk();
+      const snapshot = await getDocsFromServer(query(collection(db, HIGHSCORE_COLLECTION), orderBy("punkte", "desc")));
 
       const studentId = loadStudentIdentity().studentId;
       const allEntries = snapshot.docs
         .map((document, index) => validateFirestoreEntry(document.data() as Record<string, unknown>, index + 1))
         .sort((a, b) => b.score - a.score);
 
-      const filteredEntries = publishedOnly
-        ? allEntries.filter((entry) => entry.öffentlich)
-        : allEntries;
-
-      const entries = deduplicateLeaderboardEntries(filteredEntries)
+      const entries = deduplicateLeaderboardEntries(allEntries, publishedOnly)
         .sort((a, b) => b.score - a.score)
         .map((entry, index) => ({
           ...stripLeaderboardMetadata(entry),
@@ -497,8 +508,7 @@ function createLegacyHttpClient(endpoint: string, fetcher: typeof fetch): Leader
       const allEntries = payload
         .map(validateLegacyEntry)
         .sort((a, b) => b.score - a.score);
-      const filteredEntries = publishedOnly ? allEntries.filter((entry) => entry.öffentlich) : allEntries;
-      const entries = deduplicateLeaderboardEntries(filteredEntries)
+      const entries = deduplicateLeaderboardEntries(allEntries, publishedOnly)
         .sort((a, b) => b.score - a.score)
         .map((entry, index) => ({
           ...stripLeaderboardMetadata(entry),
