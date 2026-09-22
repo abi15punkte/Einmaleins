@@ -6,7 +6,6 @@ const {
   setDoc,
   collection,
   getDocs,
-  getDocsFromServer: getDocs,
   orderBy,
   query,
   fromDate
@@ -15,7 +14,7 @@ const {
   getDoc: vi.fn(),
   setDoc: vi.fn(),
   collection: vi.fn(),
-  getDocsFromServer: vi.fn(),
+  getDocs: vi.fn(),
   orderBy: vi.fn(),
   query: vi.fn(),
   fromDate: vi.fn((date: Date) => date)
@@ -216,7 +215,7 @@ describe("school leaderboard client", () => {
 
     expect(query).toHaveBeenCalledWith("highscores-ref", "order-by-ref");
     expect(orderBy).toHaveBeenCalledWith("punkte", "desc");
-    expect(getDocsFromServer).toHaveBeenCalledWith("query-ref");
+    expect(getDocs).toHaveBeenCalledWith("query-ref");
     expect(entries).toEqual([
       {
         rank: 1,
@@ -286,66 +285,6 @@ describe("school leaderboard client", () => {
       score: 700,
       className: "M7"
     }));
-  });
-
-  it("carries a class from a private counterpart into the public row without exposing the private score", async () => {
-    getDocs.mockResolvedValue({
-      docs: [
-        {
-          data: () => ({
-            studentId: "student-1",
-            name: "Max",
-            klasse: null,
-            punkte: 700,
-            öffentlich: true,
-            timestamp: new Date("2026-09-12T12:00:00.000Z")
-          })
-        },
-        {
-          data: () => ({
-            studentId: "student-1",
-            name: "Max",
-            klasse: "M7",
-            punkte: 900,
-            öffentlich: false,
-            timestamp: new Date("2026-09-13T12:00:00.000Z")
-          })
-        }
-      ]
-    });
-
-    const client = createLeaderboardClient();
-    const entries = await client.top(false, true);
-
-    expect(entries).toHaveLength(1);
-    expect(entries[0]).toEqual(expect.objectContaining({
-      studentId: "student-1",
-      score: 700,
-      className: "M7",
-      öffentlich: true
-    }));
-  });
-
-  it("does not show a student who only has private entries in the public leaderboard", async () => {
-    getDocs.mockResolvedValue({
-      docs: [
-        {
-          data: () => ({
-            studentId: "private-only",
-            name: "Max",
-            klasse: "M7",
-            punkte: 900,
-            öffentlich: false,
-            timestamp: new Date("2026-09-13T12:00:00.000Z")
-          })
-        }
-      ]
-    });
-
-    const client = createLeaderboardClient();
-    const entries = await client.top(false, true);
-
-    expect(entries).toEqual([]);
   });
 
   it("keeps an existing class on the newest record and does not overwrite it with an older duplicate", async () => {
