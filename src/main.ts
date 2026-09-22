@@ -110,7 +110,36 @@ let answerPresentation: AnswerPresentation = null;
 let resultEvaluation: HighscoreEvaluation | null = null;
 let student: StudentIdentity = loadResolvedStudentIdentity();
 let leaderboardClient: LeaderboardClient | null = createLeaderboardClient();
-function loadResolvedStudentIdentity(): StudentIdentity { const managedIdentity = loadManagedStudentIdentity(); if (managedIdentity) { applyManagedStudentIdentity(managedIdentity, (identity) => saveStudentIdentity(identity)); return { ...managedIdentity, source: "jamf" }; } return loadStudentIdentity(); }
+
+function loadResolvedStudentIdentity(): StudentIdentity {
+  const managedIdentity = loadManagedStudentIdentity();
+  if (managedIdentity) {
+    const resolvedIdentity: StudentIdentity = { ...managedIdentity, source: "jamf" };
+    applyManagedStudentIdentity(managedIdentity, (identity) => saveStudentIdentity(identity));
+    return resolvedIdentity;
+  }
+  return loadStudentIdentity();
+}
+
+function refreshManagedStudentIdentity(): boolean {
+  const previousIdentity = student;
+  const nextIdentity = loadResolvedStudentIdentity();
+  const changed =
+    previousIdentity.studentId !== nextIdentity.studentId
+    || previousIdentity.name !== nextIdentity.name
+    || previousIdentity.className !== nextIdentity.className
+    || previousIdentity.source !== nextIdentity.source;
+
+  student = nextIdentity;
+  return changed;
+}
+
+function handleManagedIdentityRefresh(): void {
+  const changed = refreshManagedStudentIdentity();
+  if (changed && screen === "start") {
+    renderStartScreen();
+  }
+}
 function animateTaskCard(kind: TaskCardAnimation): void { if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return; const taskCard = document.querySelector<HTMLElement>(".game-screen #task-card"); if (!taskCard) return; const keyframes = kind === "shake" ? [{ transform: "translateX(0)" }, { transform: "translateX(-1.8vw)" }, { transform: "translateX(1.6vw)" }, { transform: "translateX(-1.35vw)" }, { transform: "translateX(1.15vw)" }, { transform: "translateX(-0.95vw)" }, { transform: "translateX(0)" }] : [{ rotate: "0deg", scale: "1" }, { rotate: "-0.8deg", scale: "1.035" }, { rotate: "0.35deg", scale: "0.992" }, { rotate: "-0.15deg", scale: "1.008" }, { rotate: "0deg", scale: "1" }]; taskCard.animate(keyframes, { duration: kind === "shake" ? 760 : 420, easing: "cubic-bezier(.36,.07,.19,.97)", fill: "none" }); }
 function renderStartScreen(profileMessage = ""): void { student = loadResolvedStudentIdentity(); leaderboardClient = createLeaderboardClient(); const personalHighscore = loadPersonalHighscore(student.studentId); const showManualProfile = student.source !== "jamf"; const greetingName = getGreetingName(student.name); app.innerHTML = `<main class="app-shell start-screen"><section class="welcome-card" aria-labelledby="welcome-title"><div class="brand-mark brand-mark-large" aria-hidden="true">·</div><p class="eyebrow">Einmaleins</p><p class="student-greeting">Hallo, ${escapeHtml(greetingName)}!</p><h1 id="welcome-title">Bereit für eine Runde?</h1><p class="welcome-copy">Löse so viele Aufgaben wie du kannst. Du hast dafür 30 Sekunden Zeit.</p>${personalHighscore ? `<div class="personal-best" aria-label="Persönlicher Highscore"><span>Dein persönlicher Highscore</span><strong>${personalHighscore.score} Punkte</strong></div>` : ""}${showManualProfile ? `<details class="profile-panel"><summary>Spielerprofil bearbeiten</summary><form id="profile-form" class="profile-form"><label><span>Name</span><input id="student-name" name="name" type="text" maxlength="30" autocomplete="name" value="${escapeHtml(student.name)}" required /></label><label><span>Klasse <small>(optional)</small></span><input id="student-class" name="className" type="text" maxlength="20" autocomplete="off" value="${escapeHtml(student.className ?? "")}" /></label><button type="submit" class="profile-save">Profil speichern</button><p id="profile-status" class="profile-status" aria-live="polite">${escapeHtml(profileMessage)}</p></form></details>` : `<p class="managed-profile-note">Name und Klassenangabe wurden von der Schulverwaltung übernommen.</p>`}<div class="mode-actions" aria-label="Übungsmodus wählen"><button type="button" class="mode-card mode-card-primary" data-mode="highscore"><span class="mode-title">Üben mit Highscore</span><span class="mode-copy">Spiele mit persönlicher Rekordauswertung und Highscore-Hinweis.</span></button><button type="button" class="mode-card" data-mode="free"><span class="mode-title">Üben ohne Highscore</span><span class="mode-copy">Spiele ohne Highscore-Fokus; dein persönlicher Rekord wird am Ende trotzdem geprüft.</span></button></div></section></main>`; if (showManualProfile) { getRequiredElement<HTMLFormElement>("#profile-form").addEventListener("submit", (event) => { event.preventDefault(); const nameInput = getRequiredElement<HTMLInputElement>("#student-name"); const classInput = getRequiredElement<HTMLInputElement>("#student-class"); const trimmedName = nameInput.value.trim(); if (!trimmedName) { getRequiredElement<HTMLElement>("#profile-status").textContent = "Bitte gib einen Namen ein."; nameInput.focus(); return; } saveStudentIdentity({ ...student, name: trimmedName, className: classInput.value.trim() || null, source: "manual" }); renderStartScreen("Profil gespeichert."); document.querySelector<HTMLDetailsElement>(".profile-panel")?.setAttribute("open", ""); }); } document.querySelectorAll<HTMLButtonElement>("[data-mode]").forEach((button) => button.addEventListener("click", () => { practiceMode = button.dataset.mode === "free" ? "free" : "highscore"; startGame(); })); }
 function renderGameScreen(): void { app.innerHTML = `<main class="app-shell game-screen"><header class="game-header" aria-label="Spielstatus"><div class="brand-block"><div class="brand-mark" aria-hidden="true">·</div><div><p class="eyebrow">Einmaleins</p><p class="round" id="round">Level 1</p></div></div><div class="header-stats"><div class="stat-card stat-score"><span class="stat-label">Punkte</span><strong id="score">0</strong></div><div class="stat-card stat-time"><span class="stat-label">Zeit</span><strong id="time">0:30</strong></div></div></header><div class="progress-track" aria-label="Fortschritt"><div class="progress-bar" id="progress"></div></div><section class="game-content" aria-label="Aktuelle Aufgabe"><div class="task-card" id="task-card"><p class="task-caption" id="task-caption"><span id="round-caption"><span class="status-caption-label">Level</span><strong class="status-caption-value">1</strong></span><span id="task-number-caption"><span class="status-caption-label">Aufgabe</span><strong class="status-caption-value">1</strong></span></p><div class="task-equation" aria-live="polite" aria-label="Rechenaufgabe"><span id="factor-a">?</span><span class="operator" aria-hidden="true">·</span><span id="factor-b">?</span><span class="operator" aria-hidden="true">=</span><span class="answer-box" id="answer">?</span></div><div class="feedback-area" aria-live="polite" aria-atomic="true"><p id="feedback" class="feedback feedback-neutral">Gib deine Antwort ein.</p><p id="streak" class="streak" hidden>Serie ×1</p></div></div></section><p class="keyboard-hint">Tipp: Du kannst am PC auch die Zifferntasten 0–9 verwenden.</p><section class="keypad" aria-label="Zahlenfeld">${[1,2,3,4,5,6,7,8,9].map((digit) => `<button type="button" class="keypad-key" data-digit="${digit}">${digit}</button>`).join("")}<button type="button" class="keypad-key keypad-zero" data-digit="0">0</button></section></main>`; document.querySelectorAll<HTMLButtonElement>("[data-digit]").forEach((button) => { button.addEventListener("pointerdown", (event) => { if (event.pointerType === "mouse" && event.button !== 0) return; handleDigit(Number(button.dataset.digit)); }); button.addEventListener("click", (event) => { if (event.detail !== 0) return; handleDigit(Number(button.dataset.digit)); }); }); renderGameState(); }
@@ -125,6 +154,10 @@ function scheduleNextTaskAfterWrongAnswer(): void { clearWrongAnswerTimer(); wro
 function clearWrongAnswerTimer(): void { if (wrongAnswerTimer !== null) { window.clearTimeout(wrongAnswerTimer); wrongAnswerTimer = null; } }
 function clearGameTimer(): void { if (gameTimer !== null) { window.clearInterval(gameTimer); gameTimer = null; } }
 window.addEventListener("keydown", handleKeyboardInput);
+window.addEventListener("pageshow", handleManagedIdentityRefresh);
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "visible") handleManagedIdentityRefresh();
+});
 
 async function activateSpaceTheme(): Promise<void> {
   const stylesheet = document.getElementById("space-theme-stylesheet");
@@ -181,6 +214,7 @@ async function bootstrapApp(): Promise<void> {
   }
 
   initHighscoreFlow();
+  refreshManagedStudentIdentity();
   renderStartScreen();
   document.getElementById("startup-loading-screen")?.remove();
 }
