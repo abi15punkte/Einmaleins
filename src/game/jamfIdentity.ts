@@ -76,10 +76,14 @@ function findManagedClassName(sources: URLSearchParams[]): string | null {
   const userGroupValue = findFirst(sources, PARAMETER_ALIASES.userGroups);
   const directClass = findFirst(sources, PARAMETER_ALIASES.directClass);
 
-  // Jamf School exposes device groups separately from user groups. For this setup,
-  // the M1-M16 class marker is carried by the device group, so prefer that value.
-  return findValidClassGroup(deviceGroupValue)
-    ?? findValidClassGroup(userGroupValue)
+  // A class change can be represented either by the student's user group or by
+  // the iPad's device group. Prefer the user group when both are present so a
+  // student's current class can override a stale device-group assignment.
+  const userClass = findValidClassGroup(userGroupValue);
+  const deviceClass = findValidClassGroup(deviceGroupValue);
+
+  return userClass
+    ?? deviceClass
     ?? findValidClassGroup(directClass);
 }
 
