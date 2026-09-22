@@ -44,6 +44,28 @@ describe("Jamf identity adapter", () => {
     expect(loadManagedStudentIdentity(locationStub("", "#studentId=jamf-42"))).toBeNull();
   });
 
+  it("prefers the current user-group class over a stale device-group class", () => {
+    const identity = loadManagedStudentIdentity(
+      locationStub(
+        "",
+        "#studentId=jamf-42&studentName=Max&deviceGroups=M3&userGroups=M7"
+      )
+    );
+
+    expect(identity?.className).toBe("M7");
+  });
+
+  it("accepts a current class from userGroups when deviceGroups has no class marker", () => {
+    const identity = loadManagedStudentIdentity(
+      locationStub(
+        "",
+        "#studentId=jamf-42&studentName=Max&deviceGroups=iPad-Test&userGroups=M8"
+      )
+    );
+
+    expect(identity?.className).toBe("M8");
+  });
+
   it("marks an applied identity as Jamf-managed", () => {
     let saved: StudentIdentity | null = null;
 

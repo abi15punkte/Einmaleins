@@ -96,20 +96,51 @@ function timestampToMillis(value: unknown): number {
 }
 
 function deduplicateLeaderboardEntries(entries: InternalLeaderboardEntry[]): InternalLeaderboardEntry[] {
-  const latestByStudent = new Map<string, InternalLeaderboardEntry>();
+  const entriesByStudent = new Map<string, InternalLeaderboardEntry[]>();
 
   for (const entry of entries) {
-    const current = latestByStudent.get(entry.studentId);
-    if (
-      !current
-      || entry.timestampMs > current.timestampMs
-      || (entry.timestampMs === current.timestampMs && entry.score > current.score)
-    ) {
-      latestByStudent.set(entry.studentId, entry);
+    const group = entriesByStudent.get(entry.studentId);
+    if (group) {
+      group.push(entry);
+    } else {
+      entriesByStudent.set(entry.studentId, [entry]);
     }
   }
 
-  return Array.from(latestByStudent.values());
+  return Array.from(entriesByStudent.values()).map((group) => {
+    const latest = group.reduce<InternalLeaderboardEntry | null>((current, entry) => {
+      if (
+        !current
+        || entry.timestampMs > current.timestampMs
+        || (entry.timestampMs === current.timestampMs && entry.score > current.score)
+      ) {
+        return entry;
+      }
+      return current;
+    }, null)!;
+
+    // A manually completed class value may exist in another document for the
+    // same student (for example in the public/private pair). Do not let the
+    // latest score record hide that information when the selected record has
+    // no class yet. Never overwrite an already populated class.
+    if (!latest.className?.trim()) {
+      const classCandidates = group
+        .filter((entry) => Boolean(entry.className?.trim()))
+        .sort((a, b) => {
+          if (b.timestampMs !== a.timestampMs) return b.timestampMs - a.timestampMs;
+          return b.score - a.score;
+        });
+
+      if (classCandidates[0]) {
+        return {
+          ...latest,
+          className: classCandidates[0].className
+        };
+      }
+    }
+
+    return latest;
+  });
 }
 
 function stripLeaderboardMetadata(entry: InternalLeaderboardEntry): LeaderboardEntry {
