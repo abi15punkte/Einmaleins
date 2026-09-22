@@ -15,7 +15,7 @@ const {
   getDoc: vi.fn(),
   setDoc: vi.fn(),
   collection: vi.fn(),
-  getDocs: vi.fn(),
+  getDocsFromServer: vi.fn(),
   orderBy: vi.fn(),
   query: vi.fn(),
   fromDate: vi.fn((date: Date) => date)
