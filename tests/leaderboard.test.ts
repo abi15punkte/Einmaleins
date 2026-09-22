@@ -250,6 +250,79 @@ describe("school leaderboard client", () => {
     ]);
   });
 
+  it("carries a newly added class from another duplicate student document when the selected record has no class", async () => {
+    getDocs.mockResolvedValue({
+      docs: [
+        {
+          data: () => ({
+            studentId: "student-1",
+            name: "Max",
+            klasse: null,
+            punkte: 700,
+            öffentlich: true,
+            timestamp: new Date("2026-09-12T12:00:00.000Z")
+          })
+        },
+        {
+          data: () => ({
+            studentId: "student-1",
+            name: "Max",
+            klasse: "M7",
+            punkte: 650,
+            öffentlich: true,
+            timestamp: new Date("2026-09-11T12:00:00.000Z")
+          })
+        }
+      ]
+    });
+
+    const client = createLeaderboardClient();
+    const entries = await client.top(false);
+
+    expect(entries).toHaveLength(1);
+    expect(entries[0]).toEqual(expect.objectContaining({
+      studentId: "student-1",
+      score: 700,
+      className: "M7"
+    }));
+  });
+
+  it("keeps an existing class on the newest record and does not overwrite it with an older duplicate", async () => {
+    getDocs.mockResolvedValue({
+      docs: [
+        {
+          data: () => ({
+            studentId: "student-1",
+            name: "Max",
+            klasse: "M8",
+            punkte: 700,
+            öffentlich: true,
+            timestamp: new Date("2026-09-12T12:00:00.000Z")
+          })
+        },
+        {
+          data: () => ({
+            studentId: "student-1",
+            name: "Max",
+            klasse: "M7",
+            punkte: 650,
+            öffentlich: true,
+            timestamp: new Date("2026-09-11T12:00:00.000Z")
+          })
+        }
+      ]
+    });
+
+    const client = createLeaderboardClient();
+    const entries = await client.top(false);
+
+    expect(entries[0]).toEqual(expect.objectContaining({
+      studentId: "student-1",
+      score: 700,
+      className: "M8"
+    }));
+  });
+
   it("uses the newest timestamp per student in the teacher view while keeping the newest public entry in the public view", async () => {
     const privateData = {
       studentId: "student-1",
