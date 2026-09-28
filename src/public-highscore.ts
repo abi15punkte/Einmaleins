@@ -231,22 +231,29 @@ function installStyles(root: HTMLElement): void {
         grid-template-columns: 54px minmax(0,1fr) !important;
         gap: 10px !important;
         transform: none !important;
-        align-items: center !important;
+        align-items: start !important;
+        height: 54px !important;
       }
       .school-highscore-mascot {
         width: 54px !important;
         height: 54px !important;
         border-radius: 13px !important;
       }
+      .school-highscore-name-wrap {
+        align-self: start !important;
+        padding-top: 0 !important;
+      }
       .school-highscore-name { font-size: 1.08rem !important; }
       .achievement-stars {
         grid-column: 2 !important;
-        grid-row: 2 !important;
+        grid-row: 1 !important;
+        align-self: end !important;
         display: flex !important;
-        align-items: center !important;
+        align-items: flex-end !important;
         gap: 2px !important;
         width: auto !important;
         margin-left: 64px !important;
+        margin-bottom: 0 !important;
         transform: none !important;
       }
       .achievement-stars img {
