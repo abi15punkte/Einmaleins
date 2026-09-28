@@ -152,13 +152,6 @@ function installStyles(root: HTMLElement): void {
       text-overflow: ellipsis !important;
       color: #000 !important;
     }
-    .school-highscore-class {
-      display: block !important;
-      margin-top: 6px !important;
-      color: #52afe7 !important;
-      font-size: 1.1rem !important;
-      font-weight: 850 !important;
-    }
     .achievement-stars {
       display: grid !important;
       grid-template-columns: repeat(3,48px) !important;
@@ -211,10 +204,61 @@ function installStyles(root: HTMLElement): void {
       .school-highscore-entry-meta { grid-template-columns: 62px minmax(0,1fr) !important; gap: 16px !important; transform: translateX(-1vw) !important; }
       .school-highscore-mascot { width: 62px !important; height: 62px !important; border-radius: 14px !important; }
       .school-highscore-name { font-size: 1.12rem !important; }
-      .school-highscore-class { font-size: .9rem !important; }
       .achievement-stars { grid-template-columns: repeat(3,30px) !important; width: 96px !important; gap: 2px !important; transform: translateX(calc(3vw - 16px)) !important; }
       .achievement-stars img { width: 30px !important; height: 30px !important; }
       .school-highscore-score { font-size: 1.5rem !important; }
+    }
+
+    @media (orientation: portrait) and (max-width: 900px) {
+      .public-highscore-overlay { padding: 10px !important; }
+      .school-highscore-row {
+        grid-template-columns: 42px minmax(0,1fr) auto !important;
+        grid-template-rows: auto auto !important;
+        column-gap: 8px !important;
+        row-gap: 2px !important;
+        min-height: 102px !important;
+        padding: 12px 10px !important;
+      }
+      .school-highscore-rank {
+        grid-column: 1 !important;
+        grid-row: 1 / span 2 !important;
+        align-self: center !important;
+        font-size: 1.35rem !important;
+      }
+      .school-highscore-entry-meta {
+        grid-column: 2 !important;
+        grid-row: 1 !important;
+        grid-template-columns: 54px minmax(0,1fr) !important;
+        gap: 10px !important;
+        transform: none !important;
+        align-items: center !important;
+      }
+      .school-highscore-mascot {
+        width: 54px !important;
+        height: 54px !important;
+        border-radius: 13px !important;
+      }
+      .school-highscore-name { font-size: 1.08rem !important; }
+      .achievement-stars {
+        grid-column: 2 !important;
+        grid-row: 2 !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 2px !important;
+        width: auto !important;
+        margin-left: 64px !important;
+        transform: none !important;
+      }
+      .achievement-stars img {
+        width: 28px !important;
+        height: 28px !important;
+      }
+      .school-highscore-score {
+        grid-column: 3 !important;
+        grid-row: 1 / span 2 !important;
+        align-self: center !important;
+        font-size: 1.4rem !important;
+      }
     }
     @media (prefers-reduced-motion: reduce) {
       .public-highscore-overlay .school-highscore-row:first-child .achievement-stars img:not(.is-muted) { animation: none !important; }
@@ -239,7 +283,6 @@ function rowHtml(entry: LeaderboardEntry): string {
       <span class="school-highscore-mascot"${backgroundStyle}><img src="${classPortrait(entry.className)}" class="school-highscore-portrait" alt="Klasse ${escapeHtml(className)}">${frameAssetPath ? `<img src="${frameAssetPath}" class="school-highscore-frame" aria-hidden="true" alt="">` : ""}</span>
       <div class="school-highscore-name-wrap">
         <div class="school-highscore-name">${escapeHtml(firstName)}</div>
-        <div class="school-highscore-class">Klasse ${escapeHtml(className)}</div>
       </div>
     </div>
     ${starHtml(entry)}
