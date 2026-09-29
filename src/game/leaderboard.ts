@@ -9,6 +9,7 @@ type HighscoreRecordWithStars = HighscoreRecord & {
 
 type FirestoreSdk = typeof import("firebase/firestore") & {
   db: typeof import("../firebase").db;
+  ensureFirebaseAuth: typeof import("../firebase").ensureFirebaseAuth;
 };
 
 let firestoreSdkPromise: Promise<FirestoreSdk> | null = null;
@@ -27,7 +28,8 @@ async function loadFirestoreSdk(): Promise<FirestoreSdk> {
       import("../firebase")
     ]).then(([firestore, firebase]) => ({
       ...firestore,
-      db: firebase.db
+      db: firebase.db,
+      ensureFirebaseAuth: firebase.ensureFirebaseAuth
     }));
   }
   return firestoreSdkPromise;
@@ -365,7 +367,8 @@ function createFirestoreClient(): LeaderboardClient {
       const localFrameUnlocks = loadFrameUnlocks(studentId);
       if (!publicly && hasAlreadySubmitted(record, completedGames, publicly, localFrameUnlocks)) return;
 
-      const { doc, getDoc, setDoc, Timestamp, db } = await loadFirestoreSdk();
+      const { doc, getDoc, setDoc, Timestamp, db, ensureFirebaseAuth } = await loadFirestoreSdk();
+      const user = await ensureFirebaseAuth();
       const studentDoc = doc(db, HIGHSCORE_COLLECTION, leaderboardDocumentId(studentId, publicly));
 
       try {
@@ -381,6 +384,7 @@ function createFirestoreClient(): LeaderboardClient {
         });
 
         await setDoc(studentDoc, {
+          ownerUid: user.uid,
           studentId,
           name,
           klasse: record.className?.trim() || null,
@@ -413,7 +417,8 @@ function createFirestoreClient(): LeaderboardClient {
         return cachedEntries;
       }
 
-      const { getDocs, collection, orderBy, query, db } = await loadFirestoreSdk();
+      const { getDocs, collection, orderBy, query, db, ensureFirebaseAuth } = await loadFirestoreSdk();
+      await ensureFirebaseAuth();
       const snapshot = await getDocs(query(collection(db, HIGHSCORE_COLLECTION), orderBy("punkte", "desc")));
 
       const studentId = loadStudentIdentity().studentId;
