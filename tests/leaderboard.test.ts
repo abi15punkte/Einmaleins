@@ -8,7 +8,8 @@ const {
   getDocs,
   orderBy,
   query,
-  fromDate
+  fromDate,
+  ensureFirebaseAuth
 } = vi.hoisted(() => ({
   doc: vi.fn(),
   getDoc: vi.fn(),
@@ -17,7 +18,8 @@ const {
   getDocs: vi.fn(),
   orderBy: vi.fn(),
   query: vi.fn(),
-  fromDate: vi.fn((date: Date) => date)
+  fromDate: vi.fn((date: Date) => date),
+  ensureFirebaseAuth: vi.fn(async () => ({ uid: "firebase-uid-1" }))
 }));
 
 vi.mock("firebase/firestore", () => ({
@@ -31,7 +33,7 @@ vi.mock("firebase/firestore", () => ({
   Timestamp: { fromDate }
 }));
 
-vi.mock("../src/firebase", () => ({ db: {} }));
+vi.mock("../src/firebase", () => ({ db: {}, ensureFirebaseAuth }));
 
 import { createLeaderboardClient } from "../src/game/leaderboard";
 
@@ -66,12 +68,14 @@ describe("school leaderboard client", () => {
 
     await client.submit(record);
 
+    expect(ensureFirebaseAuth).toHaveBeenCalled();
     expect(doc).toHaveBeenCalledWith({}, "highscores", "student-1__private");
     expect(getDoc).toHaveBeenCalledWith("student-doc-ref");
     expect(fromDate).toHaveBeenCalledWith(new Date(record.achievedAt));
     expect(setDoc).toHaveBeenCalledWith(
       "student-doc-ref",
       {
+        ownerUid: "firebase-uid-1",
         studentId: "student-1",
         name: "Max",
         klasse: "M8",
@@ -122,7 +126,7 @@ describe("school leaderboard client", () => {
     expect(doc).toHaveBeenCalledWith({}, "highscores", "student-1__public");
     expect(setDoc).toHaveBeenCalledWith(
       "student-doc-ref",
-      expect.objectContaining({ öffentlich: true })
+      expect.objectContaining({ öffentlich: true, ownerUid: "firebase-uid-1" })
     );
   });
 
