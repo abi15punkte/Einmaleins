@@ -5,8 +5,20 @@ service cloud.firestore {
 
     match /highscores/{entryId} {
 
+      function isSignedIn() {
+        return request.auth != null;
+      }
+
+      function isOwner(data) {
+        return isSignedIn()
+          && data.ownerUid is string
+          && data.ownerUid == request.auth.uid;
+      }
+
       function validScoreFields(data) {
-        return data.studentId is string
+        return data.ownerUid is string
+          && data.ownerUid == request.auth.uid
+          && data.studentId is string
           && data.studentId != ""
           && data.punkte is int
           && data.punkte >= 0
@@ -41,15 +53,21 @@ service cloud.firestore {
               && requestData['öffentlich'] == true);
       }
 
-      allow read: if true;
+      // Public leaderboard entries remain readable for now.
+      // Private entries are readable only by their authenticated owner.
+      allow read: if resource.data['öffentlich'] == true
+                  || isOwner(resource.data);
 
       allow create: if
-        validScoreFields(request.resource.data)
+        isSignedIn()
+        && validScoreFields(request.resource.data)
         && validEntryId(request.resource.data)
         && validVisibilityForNewEntry(request.resource.data);
 
       allow update: if
-        resource.data.studentId == request.resource.data.studentId
+        isOwner(resource.data)
+        && resource.data.studentId == request.resource.data.studentId
+        && request.resource.data.ownerUid == resource.data.ownerUid
         && validScoreFields(request.resource.data)
         && validEntryId(request.resource.data)
         && validVisibilityForExistingEntry(resource.data, request.resource.data)
